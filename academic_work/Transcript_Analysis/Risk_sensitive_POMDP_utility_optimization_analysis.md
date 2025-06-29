@@ -6,15 +6,16 @@ This paper by Afsardeir, Kapetanis, Laschos, and Obermayer presents a groundbrea
 
 ## Research Context
 
-**Problem Addressed**: The combination of risk-sensitivity and partial observability in decision processes has been a significant challenge, with most existing work limited to exponential utility functions. Real-world applications require more flexible utility models that can capture complex risk attitudes, such as the S-shaped functions from prospect theory.
+**Problem Addressed**: The combination of risk-sensitivity and partial observability in decision processes has been a significant challenge, with most existing work limited to exponential utility functions. Real-world applications require more flexible utility models that can capture complex risk attitudes, such as the S-shaped functions from prospect theory observed in human decision-making.
 
 **Prior Limitations**: 
-- Exponential utility models offer computational advantages but lack behavioral realism
-- General utility approaches (Bäuerle & Rieder 2017) lead to computationally intensive formulations on P(X × R)
+- Exponential utility models offer computational advantages (due to E[e^(λ*(Cost1+Cost2))] = E[e^(λ*Cost1)*e^(λ*Cost2)]) but lack behavioral realism
+- General utility approaches (Bäuerle & Rieder 2017) work in infinite-dimensional space of measures on State × Cost, leading to computationally intensive formulations
+- Standard belief state is not a sufficient statistic for general utility functions, making problems intractable
 - No existing method could handle general utility functions while maintaining tractable computation
 - Risk-sensitive POMDPs remained largely unsolved for non-exponential utilities
 
-**Advancement**: This work bridges the gap between computational tractability and modeling flexibility by demonstrating that sums of exponentials can approximate any increasing utility function while preserving the mathematical structure needed for efficient solution methods.
+**Advancement**: This work bridges the gap between computational tractability and modeling flexibility by demonstrating that sums of exponentials can approximate any increasing utility function while preserving the mathematical structure needed for efficient solution methods. It offers a clever alternative that results in finite-dimensional state spaces.
 
 ## Methodology Analysis
 
@@ -24,22 +25,25 @@ This paper by Afsardeir, Kapetanis, Laschos, and Obermayer presents a groundbrea
    ```
    θⁱₙ₊₁ = Fⁱ(θⁱₙ, Aₙ, Yₙ₊₁)
    ```
+   Each θⁱₙ is the "information state" or "belief state" corresponding to the i-th exponential term.
 
 2. **Sum of Exponentials Framework**: Utility functions of the form:
    ```
    Û(t) = Σᵢ₌₁ⁱᵐᵃˣ wⁱ e^(λⁱt)
    ```
-   where each term captures different risk characteristics.
+   where each term captures different risk characteristics. By linearity of expectation: E[U(TotalCost)] = Σ wᵢ * E[e^(λᵢ * TotalCost)].
 
 3. **Change of Measure Extension**: Generalizes the Radon-Nikodym approach by introducing multiple probability measures and information vectors ψⁱₙ that satisfy:
    ```
    ψⁱₙ = |Y| Mⁱ(Aₙ₋₁, Yₙ) ψⁱₙ₋₁
    ```
+   Each ψⁱₙ tracks the expected accumulated cost for its corresponding exponential term.
 
 4. **Equivalent Transformation**: Proves that the RSPOMDP with performance index Î_N(θ₀, π̂) is equivalent to a fully observable MDP with state space X = P(S)^(imax) × Y and performance index:
    ```
    I_N(x₀, π) = Σᵢ₌₁ⁱᵐᵃˣ wⁱ E[e^(λⁱ Σₙ₌₀^(N-1) Cⁱ(Xₙ, Aₙ, Xₙ₊₁))]
    ```
+   This transforms the problem into a multi-objective but fully observable MDP.
 
 ### Mathematical Framework:
 - **Stochastic control theory** with partial information
@@ -64,11 +68,14 @@ This paper by Afsardeir, Kapetanis, Laschos, and Obermayer presents a groundbrea
 
 ### Practical Results:
 
-1. **Behavioral Modeling**: Can capture S-shaped utility functions from prospect theory, enabling different risk attitudes for gains versus losses.
+1. **Behavioral Modeling**: Can capture S-shaped utility functions from prospect theory, enabling different risk attitudes for gains versus losses. The Tiger Problem example shows qualitatively different behaviors:
+   - Risk-averse agents prefer to listen for more information before making low-stake choices
+   - Risk-seeking agents immediately make high-stake choices
+   - Results match economic intuition
 
 2. **Multi-objective Optimization**: Natural framework for problems with multiple cost components (e.g., government resource allocation across sectors).
 
-3. **Tiger Problem Extension**: Numerical example demonstrates superior computational efficiency compared to general approaches.
+3. **Tiger Problem Extension**: Numerical example successfully demonstrates the method can capture complex risk preferences and shows superior computational efficiency compared to general approaches.
 
 ## Theoretical Implications
 
@@ -118,9 +125,11 @@ The evolution operator Mⁱ(a,y) combines:
 - Observation likelihoods: Q(y|s')
 
 ### Computational Advantages:
-1. **Dimension Scaling**: O(|S|^(imax)) vs O(|S| × |R|^|S|) for general approaches
+1. **Dimension Scaling**: O(|S|^(imax)) vs infinite-dimensional space for Bäuerle-Rieder approach
 2. **Parallel Processing**: Each utility component can be computed independently
-3. **Approximation Control**: Number of exponentials determines accuracy-complexity tradeoff
+3. **Approximation Control**: Number of exponentials (imax) determines accuracy-complexity tradeoff - providing flexible adaptation to computational budgets
+4. **Finite-Dimensional State Space**: Unlike general approaches, results in tractable finite-dimensional problems
+5. **Standard Dynamic Programming**: Can be solved using established Bellman equation techniques
 
 ## Significance and Future Directions
 
@@ -134,10 +143,12 @@ This work resolves a fundamental computational bottleneck in risk-sensitive cont
 4. **Interdisciplinary Applications**: Bridge between control theory, behavioral economics, and machine learning
 
 ### Research Directions:
-1. **Continuous Extensions**: Adaptation to continuous state/action spaces
+1. **Continuous Extensions**: Adaptation to continuous state/action spaces - a major challenge given the current focus on finite spaces
 2. **Infinite Horizon Theory**: Deep analysis of stationary policies and ergodic properties
 3. **Learning Algorithms**: Integration with reinforcement learning for unknown environments
 4. **Multi-agent Extensions**: Game-theoretic settings with risk-sensitive players
+5. **Curse of Dimensionality**: Finding efficient approximation methods for large state spaces as dimensionality grows exponentially with imax
+6. **Practical Implementation**: Developing engineering solutions that balance approximation accuracy with computational constraints
 
 ## Connection to Broader Literature
 
@@ -149,4 +160,4 @@ This work connects several major research streams:
 4. **Optimal Transport**: Links to recent work on risk measures and optimal transport (connection to author's other work)
 5. **Machine Learning**: Relevant to safe reinforcement learning and robust optimization
 
-The paper demonstrates how measure-theoretic techniques can bridge abstract theory and practical computation, establishing a new paradigm for handling complexity in stochastic optimization under partial information and risk constraints.
+The paper demonstrates how measure-theoretic techniques can bridge abstract theory and practical computation, establishing a new paradigm for handling complexity in stochastic optimization under partial information and risk constraints. It significantly broadens the applicability of risk-sensitive analysis for POMDPs, providing a practical bridge between the restrictive exponential utility model and the vast class of utility functions that can be approximated by sums of exponentials. This work could have significant impact on applications where realistic risk modeling is important, such as finance, robotics, and autonomous systems.

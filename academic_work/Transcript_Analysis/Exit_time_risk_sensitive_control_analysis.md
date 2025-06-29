@@ -6,14 +6,15 @@ This paper by Dupuis, Laschos, and Ramanan develops a novel framework for risk-s
 
 ## Research Context
 
-**Problem Addressed**: Control of large cooperative agent systems with risk-sensitive objectives, where the controller pays costs to influence agent behavior while maintaining robustness to model uncertainty.
+**Problem Addressed**: Control of large cooperative agent systems with risk-sensitive objectives, where the controller pays costs to influence agent behavior while maintaining robustness to model uncertainty. The focus is on keeping the system away from a "ruin" set for as long as possible under exponentially-scaled costs.
 
 **Prior Limitations**:
 - Risk-sensitive control typically leads to stochastic games (max-min problems) that are computationally intractable
-- Many-agent systems suffer from curse of dimensionality
+- Many-agent systems suffer from curse of dimensionality as state space grows exponentially with number of agents
 - Limited theoretical results on convergence to mean-field limits for risk-sensitive problems
+- Traditional approaches require solving differential games which are significantly harder to analyze
 
-**Advancement**: This work identifies special cost structures where risk-sensitive problems reduce to standard control, and establishes rigorous convergence to deterministic limits.
+**Advancement**: This work identifies special cost structures where risk-sensitive problems reduce to standard control, and establishes rigorous convergence to deterministic limits. The paper provides a chain of equivalences that systematically simplifies the problem at each step.
 
 ## Methodology Analysis
 
@@ -257,19 +258,25 @@ where T is the Bellman operator.
 
 **Relationship**: This work extends classical mean-field control to risk-sensitive settings with exit times.
 
-**Distinction**: Unlike mean-field games with competing agents, this focuses on cooperative control by a central authority.
+**Distinction**: Unlike mean-field games with competing agents, this focuses on cooperative control by a central authority. The identification of the precise cost structure (Assumption 3.2) that prevents the problem from becoming a game is a key insight.
 
 #### Robust Control
 
 **Model Uncertainty**: Risk-sensitive control provides robustness to uncertainty in the underlying model parameters.
 
-**Worst-Case Analysis**: The exponential cost structure emphasizes worst-case scenarios without requiring explicit uncertainty sets.
+**Worst-Case Analysis**: The exponential cost structure emphasizes worst-case scenarios without requiring explicit uncertainty sets. The risk-sensitive formulation adds a layer of robustness against model uncertainty while maintaining computational tractability.
 
 #### Large Deviations
 
 **Rate Functions**: The transformation connects to Cramér's theorem and large deviation principles for empirical measures.
 
 **Sample Path Properties**: Risk-sensitive control naturally incorporates rare event analysis through exponential tilting.
+
+#### Control Theory Foundations
+
+**Dynamic Programming**: The paper leverages dynamic programming principles through Bellman equations and martingale representation theorems.
+
+**Mainstream Position**: The work is positioned firmly within the mainstream of modern control theory, building on foundational and contemporary work in stochastic control, Markov decision processes, and risk-sensitive control.
 
 ### Limitations and Extensions
 
@@ -283,13 +290,17 @@ where T is the Bellman operator.
 
 #### Future Research Directions
 
-**Continuous Spaces**: Extension to systems with continuous state spaces using viscosity solution theory.
+**Continuous Spaces**: Extension to systems with continuous state spaces using viscosity solution theory would be a challenging but important generalization.
 
-**General Cost Functions**: Development of approximation techniques for costs not satisfying the special structure.
+**General Cost Functions**: Development of approximation techniques for costs not satisfying the special structure. The assumptions on the cost function are nearly necessary; relaxing them would likely lead to a mean-field game.
 
 **Multi-Level Hierarchies**: Systems with multiple scales and nested control structures.
 
 **Learning and Adaptation**: Incorporating unknown parameters that must be learned online.
+
+**Performance Analysis**: Formal analysis of the performance of the limiting optimal control when applied to the finite-n system (i.e., proving the convergence of costs) would be a natural follow-up.
+
+**Practical Applications**: The framework can serve as a blueprint for tackling other large-scale, risk-sensitive control problems, including optimizing communication networks, managing energy consumption in smart grids, or coordinating autonomous vehicle fleets.
 
 ### Significance and Impact
 
