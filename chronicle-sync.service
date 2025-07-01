@@ -1,0 +1,14 @@
+[Unit]
+Description=Chronicle Sync - Obsidian Notes to Project
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/home/artnoage/Projects/interactive_cv/chronicle_watch.sh
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

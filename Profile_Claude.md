@@ -34,10 +34,12 @@ Vaios Laschos is a distinguished researcher at the nexus of **Optimal Transport 
 - Convex analysis and Fenchel-Moreau-Rockafellar duality
 - Comparison principles and separation theorems
 - Change of measure techniques in probability
+- Monge-Ampère Equation Theory
 
 **Computational Approaches**
 - Dynamic programming and value iteration algorithms
 - Neural network approximations for optimal transport
+- Physics-Informed Neural Networks (PINNs)
 - Assignment methods for discrete transport problems
 - Numerical schemes for PDEs and gradient flows
 
@@ -132,7 +134,7 @@ The most recent phase demonstrates the application of optimal transport theory t
 
 ### 2. Explore Intersections
 
-**Q2.1**: "How does your understanding of cone geometry from the HK space paper inform your approach to neural optimal transport? Are there geometric insights that directly translate to algorithm design?"
+**Q2.1**: "Your work on optimal transport has explored both intrinsic geometric structures, like in the Hellinger-Kantorovich paper, and PDE-based approaches, like in the Universal Neural OT paper. How do you see the relationship between these two viewpoints—the geometric and the analytic—and when is one more powerful than the other?"
 
 **Q2.2**: "Your work spans both continuous (Wasserstein gradient flows) and discrete (McKean-Vlasov on graphs) settings. What mathematical structures persist across this continuous-discrete divide, and which require fundamentally different treatment?"
 
