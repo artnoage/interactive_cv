@@ -1,0 +1,68 @@
+{
+  "date": "2025-06-30",
+  "mood": "productive",
+  "work_focus": [
+    "Collapsi project",
+    "Web architecture refactoring",
+    "AI integration",
+    "MCTS improvements",
+    "AlphaZero implementation",
+    "Code quality enhancements",
+    "Networking setup",
+    "Note template system"
+  ],
+  "technical_breakthroughs": [
+    {
+      "title": "Standalone Web Architecture Benefits",
+      "description": "Refactoring Collapsi to pure client-side yielded massive benefits: zero server costs, instant deployment, better performance (no network latency), offline capability, and simpler development workflow.",
+      "tags": "web-architecture"
+    },
+    {
+      "title": "AlphaZero Policy-Value Consistency Gap",
+      "description": "Observed policy loss decreasing while value loss remained high during AlphaZero training, suggesting the policy might be memorizing MCTS patterns without true understanding of position values. This indicates a potential for improvement by enforcing V(s) \u2248 expected value following the policy.",
+      "tags": "alphazero-insights"
+    }
+  ],
+  "problems_solved": [
+    {
+      "title": "MCTS Performance Bottleneck",
+      "description": "Fixed a major MCTS performance issue where an instance was being created per move, significantly improving efficiency.",
+      "tags": "mcts-optimization"
+    },
+    {
+      "title": "Backend Dependency",
+      "description": "Removed entire backend dependency for Collapsi by porting game logic and environment to JavaScript, making the game run 100% client-side.",
+      "tags": "web-architecture, javascript-porting"
+    },
+    {
+      "title": "Code Duplication",
+      "description": "Extracted common evaluation logic, reducing ~40 lines of duplicate code and improving maintainability.",
+      "tags": "code-quality"
+    }
+  ],
+  "tools_used": [
+    "javascript",
+    "onnx",
+    "pytorch",
+    "tailscale",
+    "localStorage",
+    "webstorage"
+  ],
+  "project_progress": {
+    "collapsi-web": "Major architectural refactor to standalone web application, complete JavaScript port of game logic and environment, removed backend dependency, added save/load system, integrated AI opponent with ONNX runtime, improved UI.",
+    "collapsi-alphazero": "Built complete AlphaZero-style training system, implemented policy distillation, added temperature-based exploration, improved CUDA detection and logging, created proper session-based checkpoint management.",
+    "hierarchical-notes": "Created hierarchical note template system (Daily \u2192 Weekly \u2192 Monthly)."
+  },
+  "key_learnings": [
+    "The significant performance impact of creating MCTS instances per move.",
+    "The benefits of a standalone web architecture for deployment and performance.",
+    "Insights from code review feedback on RL training patterns."
+  ],
+  "future_tasks": [
+    "Test the AlphaZero training with full 1M episodes",
+    "Implement the policy-value consistency loss experiment",
+    "Create more sophisticated AI difficulty levels for web UI"
+  ],
+  "file_path": "chronicle/Daily Notes/2025-06-30.md",
+  "processed_at": "2025-07-01T15:41:42.263077"
+}
