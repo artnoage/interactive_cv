@@ -122,48 +122,6 @@ The most recent phase demonstrates the application of optimal transport theory t
      Balance (8)
 ```
 
-## Assessment Questions
-
-### 1. Probe for Depth
-
-**Q1.1**: "Your work on the Hellinger-Kantorovich distance introduces a parameter α that interpolates between Wasserstein and total variation. What motivated this specific interpolation, and are there other natural interpolations you considered but rejected?"
-
-**Q1.2**: "In your risk-sensitive control work, you use the entropic risk measure. How does this choice compare to other risk measures like CVaR or spectral risk measures in terms of computational tractability and practical interpretability?"
-
-**Q1.3**: "Your gradient flow papers often use the De Giorgi framework rather than the more classical approach. What specific advantages does this provide for non-smooth spaces that wouldn't be accessible otherwise?"
-
-### 2. Explore Intersections
-
-**Q2.1**: "Your work on optimal transport has explored both intrinsic geometric structures, like in the Hellinger-Kantorovich paper, and PDE-based approaches, like in the Universal Neural OT paper. How do you see the relationship between these two viewpoints—the geometric and the analytic—and when is one more powerful than the other?"
-
-**Q2.2**: "Your work spans both continuous (Wasserstein gradient flows) and discrete (McKean-Vlasov on graphs) settings. What mathematical structures persist across this continuous-discrete divide, and which require fundamentally different treatment?"
-
-**Q2.3**: "The connection between large deviations and gradient flows in your work seems profound. Could this perspective offer new computational methods for rare event simulation?"
-
-### 3. Challenge Assumptions
-
-**Q3.1**: "Your POMDP work assumes utility functions are twice differentiable. What happens to your duality results when utilities have kinks (like in prospect theory)? Is there a non-smooth extension?"
-
-**Q3.2**: "In the GAN training paper, you work with arbitrary transport costs. Are there transport costs that are theoretically valid but lead to training instabilities? How would you characterize the 'good' costs?"
-
-**Q3.3**: "Your large deviation work requires weakly confining potentials. What breaks down mathematically without this assumption, and is there a weaker condition that still permits some results?"
-
-### 4. Encourage Synthesis
-
-**Q4.1**: "If you could combine your gradient flow expertise with your risk-sensitive control framework, what new class of problems could you tackle? Perhaps risk-sensitive mean-field games?"
-
-**Q4.2**: "Your geometric insights on transport spaces and your work on neural networks suggest a 'geometric deep learning' approach to optimal transport. What would this look like concretely?"
-
-**Q4.3**: "Looking across your papers, you've developed tools for geometry, dynamics, and computation in transport spaces. What's the minimal mathematical structure needed to deploy all these tools simultaneously?"
-
-### 5. Future Outlook
-
-**Q5.1**: "Quantum optimal transport is emerging as a field. How might your Hellinger-Kantorovich framework, which already deals with mass creation/destruction, extend to quantum settings?"
-
-**Q5.2**: "With the rise of foundation models, how could your theoretical frameworks inform the development of 'transport-aware' architectures that respect geometric constraints?"
-
-**Q5.3**: "Your work bridges many timescales - from instantaneous transport to long-time gradient flows to rare events. Is there a unified multi-scale framework waiting to be discovered?"
-
 ## Growth Recommendations
 
 ### Immediate Opportunities
