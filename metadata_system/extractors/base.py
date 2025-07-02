@@ -14,10 +14,10 @@ from typing import Dict, List, Optional, Any
 
 class DateJSONEncoder(json.JSONEncoder):
     """Custom JSON encoder that handles date objects."""
-    def default(self, obj):
-        if isinstance(obj, (datetime, date)):
-            return obj.isoformat()
-        return super().default(obj)
+    def default(self, o):
+        if isinstance(o, (datetime, date)):
+            return o.isoformat()
+        return super().default(o)
 
 
 class BaseExtractor(ABC):
@@ -100,6 +100,7 @@ class BaseExtractor(ABC):
                 doc_id = cursor.lastrowid
             
             # Update related tables
+            assert doc_id is not None, "doc_id should not be None after insert/update"
             self._update_topics(cursor, doc_id, metadata.get('topics', []))
             self._update_people(cursor, doc_id, metadata.get('people', []))
             self._update_projects(cursor, doc_id, metadata.get('projects', []))

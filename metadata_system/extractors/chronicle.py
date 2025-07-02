@@ -85,17 +85,28 @@ class ChronicleExtractor(BaseExtractor):
                 result_dict = result.dict()
                 
                 # Extract the fields we need for the database
+                # Extract topics from various fields
+                topics = []
+                topics.extend(result_dict.get('skills_demonstrated', []))
+                topics.extend(result_dict.get('concepts_applied', []))
+                # Add technologies as topics
+                tech = result_dict.get('technologies_used', {})
+                if isinstance(tech, dict):
+                    for category, items in tech.items():
+                        if isinstance(items, list):
+                            topics.extend(items)
+                
                 metadata = {
-                    'topics': result_dict.get('keywords', []),  # Use keywords as topics
-                    'people': result_dict.get('people_involved', []),
+                    'topics': topics,
+                    'people': [p['name'] for p in result_dict.get('people_mentioned', []) if p.get('name')],
                     'projects': [p['project_name'] for p in result_dict.get('project_updates', [])],
-                    'tools': result_dict.get('technologies_used', []),
-                    'papers': result_dict.get('papers_referenced', []),
+                    'tools': result_dict.get('technologies_used', {}),
+                    'papers': [],  # papers_referenced doesn't exist in the model
                     'insights': [i['insight'] for i in result_dict.get('technical_insights', [])],
                     'project_progress': result_dict.get('project_updates', []),
-                    'technical_achievements': result_dict.get('achievements', []),
+                    'technical_achievements': result_dict.get('innovations', []),
                     'learning_notes': result_dict.get('research_connections', []),
-                    'problems_solved': result_dict.get('problems_addressed', []),
+                    'problems_solved': result_dict.get('problems_solved', []),
                 }
                 
                 # Add summary fields

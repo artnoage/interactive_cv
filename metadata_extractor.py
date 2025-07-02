@@ -63,7 +63,7 @@ class ChronicleMetadata(BaseModel):
     
     # Collaboration and attribution
     people_mentioned: List[Dict[str, str]] = Field(
-        description="People with: name, role, contribution or context"
+        description="People explicitly mentioned with: name (full name only, no usernames or placeholders), role, contribution or context. Leave empty if no specific people are mentioned."
     )
     
     # Research connections
@@ -112,7 +112,13 @@ Focus on:
 - Quantitative improvements (always include specific numbers)
 - How practical work connects to theoretical knowledge
 - Learning journey and insights gained
-Be specific and include context for each item."""),
+Be specific and include context for each item.
+
+IMPORTANT RULES:
+- For people_mentioned: ONLY include actual people's full names when explicitly mentioned
+- Never use placeholders like "not specified", "unknown", or partial names
+- If someone is mentioned by username (e.g., "mark-s-ball"), try to infer their full name if possible (e.g., "Mark S. Ball")
+- If no people are mentioned, return an empty list for people_mentioned"""),
             
             ("human", """Extract comprehensive metadata from this daily research note.
 

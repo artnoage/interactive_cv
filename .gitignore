@@ -7,3 +7,5 @@ metadata_system/metadata.db
 metadata_system/*.db
 .backup
 temp
+metadata_system/knowledge_graph.html
+metadata_system/extractors/__pycache__

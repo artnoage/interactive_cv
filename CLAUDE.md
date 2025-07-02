@@ -90,7 +90,7 @@ llm = ChatOpenAI(
 3. **Academic Analysis**: Completed comprehensive analysis of all research papers
 4. **Metadata Schema Design**: Defined extraction patterns for both academic and chronicle data
 5. **LangChain Integration**: Built and tested metadata extractor with OpenRouter and Gemini 2.5 Flash
-6. **Prompt Optimization**: Tested multiple prompt strategies and selected the best-performing approach
+6. **Prompt Optimization**: Tested multiple prompt strategies and improved people extraction
 7. **SQLite Database**: Created database with proper schema, indexes, and relationships
 8. **Metadata Extraction System**: Built base extractor with change detection and transaction support
 9. **Chronicle Integration**: Integrated LLM extractor with database storage
@@ -99,6 +99,10 @@ llm = ChatOpenAI(
 12. **Query Tools**: Created comprehensive database query scripts
 13. **Embeddings System**: Added OpenAI embeddings for all documents and chunks
 14. **Remote Sync**: Automatic sync of files and database to portfolio-ts54
+15. **Knowledge Graph**: Interactive visualization with 209 nodes and 264 relationships
+16. **Database Cleanup**: Fixed person name extraction issues
+17. **Visualization Tools**: Datasette for DB exploration, vis.js for graph visualization
+18. **Graph-Enhanced Queries**: Combined SQL + graph traversal for intelligent queries
 
 ### 📋 TODO
 1. **Query API**: REST/GraphQL interface for searching and retrieving information
@@ -191,7 +195,10 @@ The system combines:
 ├── metadata_extractor.py   # LLM metadata extraction
 ├── requirements.txt        # Python dependencies
 ├── note.md                 # Core ideas and decisions
-└── CLAUDE.md              # This file
+├── CLAUDE.md              # This file
+├── cleanup_people.py       # Database cleanup utilities
+├── view_database.sh        # Launch Datasette viewer
+└── VISUALIZATION.md        # Visualization tools guide
 ```
 
 ## Current Status
@@ -200,8 +207,10 @@ The system combines:
 - **20 documents total**: 12 academic papers + 8 chronicle notes
 - **170 unique topics**: Mathematical concepts, research areas, and project tags
 - **18 projects**: From daily work (Collapsi RL, Interactive CV, etc.)
+- **1 person**: Mark S. Ball (cleaned from incomplete entries)
 - **113 semantic chunks**: From academic paper analyses
 - **All content has embeddings**: For semantic search capabilities
+- **209 knowledge graph nodes**: With 264 edges showing relationships
 - **Major research areas**: Optimal transport (7 papers), Stochastic control (3), Probability theory (3)
 
 ### Key Files
@@ -210,7 +219,10 @@ The system combines:
 - `.sync/sync-chronicle`: Shell wrapper for easy execution
 - `metadata_system/query_comprehensive.py`: Query tool to explore database
 - `metadata_system/scripts/import_*.py`: Import scripts for academic data
-- `metadata_extractor.py`: LLM-based metadata extraction
+- `metadata_extractor.py`: LLM-based metadata extraction (with improved prompts)
+- `metadata_system/knowledge_graph.py`: Generate interactive knowledge graph
+- `metadata_system/graph_enhanced_query.py`: Graph-aware query system
+- `metadata_system/knowledge_graph.html`: Interactive visualization (vis.js)
 
 ## Usage
 
@@ -238,17 +250,36 @@ chronicle-status
 4. Generates embeddings for semantic search
 5. Syncs both files and database to remote server
 
+## Visualization & Analysis
+
+### Database Viewer
+```bash
+./view_database.sh  # Launches Datasette on http://localhost:8001
+```
+
+### Knowledge Graph
+```bash
+python3 metadata_system/knowledge_graph.py  # Generate/update graph
+# Open metadata_system/knowledge_graph.html in browser
+```
+
+### Graph Statistics
+- 209 nodes (documents, topics, people, projects)
+- 264 edges showing relationships
+- Interactive visualization with color-coded node types
+- PageRank identifies most connected/important nodes
+
 ## Next Steps
 
-1. **Query API Development**: Build REST/GraphQL API for metadata queries
-2. **RAG Pipeline**: Connect embeddings to LLM for intelligent responses
+1. **Query API Development**: Build REST/GraphQL API using graph-enhanced queries
+2. **RAG Pipeline**: Integrate graph context with embeddings for smarter responses
 3. **Web Interface**: Create interactive frontend for CV queries
 4. **Production Deployment**: Deploy on remote server
 
 ## Development Notes
 
 - Use `uv` for package management
-- Store API keys in `.env` file (OPENROUTER_API_KEY required)
+- Store API keys in `.env` file (OPENROUTER_API_KEY and OPENAI_API_KEY required)
 - Test with small batches before full processing
 - Monitor OpenRouter usage and costs
 - Keep metadata extraction prompts focused and specific
@@ -257,6 +288,8 @@ chronicle-status
 - LLM extraction happens automatically for new/modified chronicle files
 - Remote sync includes database backup for safety
 - Malformed notes are skipped gracefully
+- LLM prompts now enforce proper name extraction (no placeholders)
+- Knowledge graph provides relationship insights beyond SQL queries
 
 ## Integration Points
 
