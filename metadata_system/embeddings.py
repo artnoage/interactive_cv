@@ -8,11 +8,11 @@ import os
 import json
 import sqlite3
 import numpy as np
-from typing import List, Dict, Optional, Tuple
-from pathlib import Path
+from typing import List, Optional, Tuple
 import logging
 from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
+from pydantic import SecretStr
 
 # Load environment variables
 load_dotenv()
@@ -29,8 +29,12 @@ class EmbeddingGenerator:
         self.db_path = db_path
         
         # Initialize OpenAI embeddings directly
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY not found in environment")
+            
         self.embeddings = OpenAIEmbeddings(
-            openai_api_key=os.getenv("OPENAI_API_KEY"),
+            api_key=SecretStr(api_key),
             model="text-embedding-3-small"  # Good balance of performance/cost
         )
     
@@ -362,7 +366,7 @@ def test_embeddings():
         
         if similar:
             print("Similar documents:")
-            for doc_id, similarity, title in similar:
+            for _, similarity, title in similar:
                 print(f"  - {title[:60]}... (similarity: {similarity:.3f})")
         else:
             print("  No results found")

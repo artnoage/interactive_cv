@@ -12,6 +12,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
+from pydantic import SecretStr
 from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import PydanticOutputParser
 
@@ -91,7 +92,7 @@ class MetadataExtractor:
         
         self.llm = ChatOpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key=api_key,
+            api_key=SecretStr(api_key),
             model=model_name,
             default_headers={
                 "HTTP-Referer": "http://localhost:3000",
@@ -151,7 +152,7 @@ Content:
         
         metadata = self.extract_metadata(content)
         
-        result = metadata.dict()
+        result = metadata.model_dump()
         result['file_path'] = str(file_path)
         result['extracted_at'] = datetime.now().isoformat()
         result['extraction_version'] = "1.0"
