@@ -5,3 +5,5 @@ chronicle
 __pycache__/
 metadata_system/metadata.db
 metadata_system/*.db
+.backup
+temp

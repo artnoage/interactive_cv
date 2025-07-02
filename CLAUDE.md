@@ -94,19 +94,17 @@ llm = ChatOpenAI(
 7. **SQLite Database**: Created database with proper schema, indexes, and relationships
 8. **Metadata Extraction System**: Built base extractor with change detection and transaction support
 9. **Chronicle Integration**: Integrated LLM extractor with database storage
-10. **File Watcher Daemon**: Implemented automatic monitoring with watchdog
+10. **Sync-Based System**: Replaced file watcher with unified sync script that handles files + metadata
 11. **Academic Import**: Successfully imported 12 papers with comprehensive metadata
 12. **Query Tools**: Created comprehensive database query scripts
-
-### 🚧 In Progress
-1. **Query API**: Interface for searching and retrieving information
-2. **RAG Pipeline**: Embeddings generation and semantic search
+13. **Embeddings System**: Added OpenAI embeddings for all documents and chunks
+14. **Remote Sync**: Automatic sync of files and database to portfolio-ts54
 
 ### 📋 TODO
-1. Create web interface for interactive CV queries
-2. Add vector embeddings for semantic search
-3. Deploy file watcher as systemd service
-4. Build frontend UI for CV interactions
+1. **Query API**: REST/GraphQL interface for searching and retrieving information
+2. **RAG Pipeline**: Connect embeddings to LLM for intelligent responses
+3. **Web Interface**: Frontend for interactive CV queries
+4. **Production Deployment**: Set up on remote server
 
 ## Key Design Decisions
 
@@ -191,24 +189,53 @@ The system combines:
 ## Current Status
 
 ### Database Contents
-- **18 documents total**: 12 academic papers + 6 chronicle notes
-- **163 unique topics**: Mathematical concepts, research areas, and project tags
-- **17 projects**: From daily work (Collapsi RL, Interactive CV, etc.)
+- **20 documents total**: 12 academic papers + 8 chronicle notes
+- **170 unique topics**: Mathematical concepts, research areas, and project tags
+- **18 projects**: From daily work (Collapsi RL, Interactive CV, etc.)
+- **113 semantic chunks**: From academic paper analyses
+- **All content has embeddings**: For semantic search capabilities
 - **Major research areas**: Optimal transport (7 papers), Stochastic control (3), Probability theory (3)
 
 ### Key Files
 - `metadata_system/metadata.db`: SQLite database with all metadata
-- `metadata_system/run_watcher.py`: File watcher daemon (can run with `python metadata_system/run_watcher.py`)
+- `.sync/sync_chronicle_with_metadata.py`: Main sync script with metadata extraction
+- `.sync/sync-chronicle`: Shell wrapper for easy execution
 - `metadata_system/query_comprehensive.py`: Query tool to explore database
-- `metadata_system/scripts/import_*.py`: Import scripts for chronicle and academic data
+- `metadata_system/scripts/import_*.py`: Import scripts for academic data
+- `metadata_extractor.py`: LLM-based metadata extraction
+
+## Usage
+
+### Chronicle Sync Commands
+After setting up, use these commands from anywhere:
+
+```bash
+# Regular sync with metadata extraction
+chronicle
+
+# Dry run - see what would change
+chronicle-dry
+
+# Force re-extraction of all metadata
+chronicle-force
+
+# Check sync configuration
+chronicle-status
+```
+
+### What the sync does:
+1. Syncs from Obsidian Chronicles folder to local
+2. Detects new/changed files using content hashes
+3. Extracts metadata using LLM (topics, people, projects)
+4. Generates embeddings for semantic search
+5. Syncs both files and database to remote server
 
 ## Next Steps
 
 1. **Query API Development**: Build REST/GraphQL API for metadata queries
-2. **Embeddings Generation**: Add vector embeddings to enable semantic search
-3. **RAG Pipeline**: Connect database to LLM for intelligent responses
-4. **Web Interface**: Create interactive frontend for CV queries
-5. **Production Deployment**: Set up watcher as systemd service
+2. **RAG Pipeline**: Connect embeddings to LLM for intelligent responses
+3. **Web Interface**: Create interactive frontend for CV queries
+4. **Production Deployment**: Deploy on remote server
 
 ## Development Notes
 
@@ -218,8 +245,10 @@ The system combines:
 - Monitor OpenRouter usage and costs
 - Keep metadata extraction prompts focused and specific
 - Database uses relative paths - run scripts from project root
-- File watcher uses content hashing to detect changes
+- Sync uses content hashing to detect changes
 - LLM extraction happens automatically for new/modified chronicle files
+- Remote sync includes database backup for safety
+- Malformed notes are skipped gracefully
 
 ## Integration Points
 
