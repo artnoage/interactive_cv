@@ -5,9 +5,15 @@ Single-source metadata database with automated chronicle monitoring and manual a
 
 ## Architecture Decision
 - **SQLite database** for all metadata (single source of truth)
-- **File watcher agent** for chronicle updates only
+- **File watcher agent** for chronicle updates only (or integrate with existing sync)
 - **Manual process** for academic metadata (one-time extraction)
 - **JSON export** for debugging and backup
+
+## 🎯 Integration Note: Sync Method Alternative
+Instead of running a separate file watcher daemon, consider integrating with the existing `.sync` workflow:
+- After `rsync` completes, run metadata extraction on new/changed files
+- Single command (`chronicle`) handles both file sync and metadata update
+- Simpler workflow, no daemon management needed
 
 ## Detailed Implementation Steps
 
@@ -222,11 +228,32 @@ Single-source metadata database with automated chronicle monitoring and manual a
     requirements.txt
 ```
 
-## Next Steps Priority
-1. Set up SQLite database with schema
-2. Create chronicle extractor with pattern matching
-3. Build file watcher for chronicle folder
-4. One-time academic metadata extraction
-5. Implement basic query API
-6. Test with your existing notes
-7. Add RAG capabilities
+## Implementation Status
+
+### ✅ Completed
+1. **Database Setup**: SQLite database with full schema for documents, topics, people, projects
+2. **Chronicle Metadata Extraction**: LLM-based extraction with optimized prompts
+3. **File Watcher**: Automated monitoring with change detection (can be replaced with sync integration)
+4. **Academic Metadata Import**: All 12 papers imported with comprehensive metadata
+5. **Document Chunking**: 113 semantic chunks created from academic analyses
+6. **Embeddings System**: OpenAI embeddings for all documents and chunks
+7. **Semantic Search**: Working similarity search at document and chunk level
+
+### 🚧 Remaining Tasks
+1. **Query API**: REST/GraphQL interface for programmatic access
+2. **RAG Pipeline**: Connect search results to LLM for intelligent responses
+3. **Web Interface**: Frontend for interactive CV queries
+4. **Sync Integration**: Consider adding metadata update to chronicle sync script
+
+## Current System Capabilities
+- **18 documents**: 12 academic papers + 6 chronicle notes
+- **113 chunks**: Semantic sections from academic papers
+- **163 topics**: Spanning research areas and practical work
+- **Embeddings**: All content has vector embeddings for semantic search
+- **Database**: Everything stored in `metadata_system/metadata.db`
+
+## Next Steps
+1. Build Query API for external access
+2. Implement RAG pipeline using existing embeddings
+3. Create web interface for users to interact with your CV
+4. Optional: Integrate metadata updates into chronicle sync workflow
