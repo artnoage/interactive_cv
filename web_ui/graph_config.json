@@ -1,0 +1,28 @@
+{
+  "activeNodeTypes": [],
+  "activeEdgeTypes": [],
+  "colorMap": {
+    "document": {
+      "background": "#e74c3c",
+      "border": "#c0392b"
+    },
+    "topic": {
+      "background": "#3498db",
+      "border": "#2980b9"
+    },
+    "person": {
+      "background": "#2ecc71",
+      "border": "#27ae60"
+    },
+    "project": {
+      "background": "#9b59b6",
+      "border": "#8e44ad"
+    },
+    "semantic_concept": {
+      "background": "#f1c40f",
+      "border": "#f39c12"
+    }
+  },
+  "description": "Active node and edge types are automatically populated if empty.",
+  "generated": "2025-07-02T12:00:00.000Z"
+}

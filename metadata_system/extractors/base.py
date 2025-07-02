@@ -1,6 +1,5 @@
 """
-Base extractor class for metadata extraction.
-Provides common functionality for chronicle and academic extractors.
+Updated base extractor class that works with split document tables.
 """
 
 import hashlib
@@ -21,7 +20,7 @@ class DateJSONEncoder(json.JSONEncoder):
 
 
 class BaseExtractor(ABC):
-    """Base class for metadata extractors."""
+    """Base class for metadata extractors with support for split document tables."""
     
     def __init__(self, db_path: str = "metadata_system/metadata.db"):
         self.db_path = db_path
@@ -41,23 +40,39 @@ class BaseExtractor(ABC):
         """Extract metadata from content. Must be implemented by subclasses."""
         pass
     
-    def document_exists(self, file_path: str) -> Optional[int]:
-        """Check if document exists and return its ID."""
+    @abstractmethod
+    def get_doc_type(self, file_path: Path) -> str:
+        """Get document type. Must be implemented by subclasses."""
+        pass
+    
+    def get_table_name(self, doc_type: str) -> str:
+        """Get the appropriate table name based on document type."""
+        if doc_type == 'chronicle':
+            return 'chronicle_documents'
+        elif doc_type == 'academic':
+            return 'academic_documents'
+        else:
+            raise ValueError(f"Unknown document type: {doc_type}")
+    
+    def document_exists(self, file_path: str, doc_type: str) -> Optional[int]:
+        """Check if document exists in the appropriate table and return its ID."""
         conn = self.get_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT id FROM documents WHERE file_path = ?", (file_path,))
+        table = self.get_table_name(doc_type)
+        cursor.execute(f"SELECT id FROM {table} WHERE file_path = ?", (file_path,))
         result = cursor.fetchone()
         
         conn.close()
         return result[0] if result else None
     
-    def content_changed(self, file_path: str, new_hash: str) -> bool:
+    def content_changed(self, file_path: str, doc_type: str, new_hash: str) -> bool:
         """Check if content has changed based on hash."""
         conn = self.get_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT content_hash FROM documents WHERE file_path = ?", (file_path,))
+        table = self.get_table_name(doc_type)
+        cursor.execute(f"SELECT content_hash FROM {table} WHERE file_path = ?", (file_path,))
         result = cursor.fetchone()
         
         conn.close()
@@ -69,13 +84,16 @@ class BaseExtractor(ABC):
     
     def save_metadata(self, file_path: str, doc_type: str, metadata: Dict[str, Any], 
                      content_hash: str, embedding: Optional[bytes] = None):
-        """Save metadata to database."""
+        """Save metadata to the appropriate document table."""
         conn = self.get_connection()
         cursor = conn.cursor()
         
         try:
+            # Get the appropriate table
+            table = self.get_table_name(doc_type)
+            
             # Check if document exists
-            doc_id = self.document_exists(file_path)
+            doc_id = self.document_exists(file_path, doc_type)
             
             # Prepare core fields
             title = metadata.get('title', Path(file_path).stem)
@@ -84,19 +102,19 @@ class BaseExtractor(ABC):
             
             if doc_id:
                 # Update existing document
-                cursor.execute("""
-                    UPDATE documents 
+                cursor.execute(f"""
+                    UPDATE {table} 
                     SET title = ?, date = ?, content_hash = ?, 
                         metadata = ?, embedding = ?, modified_at = CURRENT_TIMESTAMP
                     WHERE id = ?
                 """, (title, date, content_hash, metadata_json, embedding, doc_id))
             else:
                 # Insert new document
-                cursor.execute("""
-                    INSERT INTO documents 
-                    (file_path, doc_type, title, date, content_hash, metadata, embedding)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                """, (file_path, doc_type, title, date, content_hash, metadata_json, embedding))
+                cursor.execute(f"""
+                    INSERT INTO {table} 
+                    (file_path, title, date, content_hash, metadata, embedding)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (file_path, title, date, content_hash, metadata_json, embedding))
                 doc_id = cursor.lastrowid
             
             # Update related tables
@@ -180,16 +198,16 @@ class BaseExtractor(ABC):
             # Calculate hash
             content_hash = self.calculate_hash(content)
             
+            # Determine document type
+            doc_type = self.get_doc_type(file_path)
+            
             # Check if content changed
-            if not self.content_changed(str(file_path), content_hash):
+            if not self.content_changed(str(file_path), doc_type, content_hash):
                 print(f"Skipping {file_path} - no changes detected")
                 return None
             
             # Extract metadata
             metadata = self.extract_metadata(file_path, content)
-            
-            # Determine document type
-            doc_type = self.get_doc_type(file_path)
             
             # Save to database
             doc_id = self.save_metadata(
@@ -199,14 +217,17 @@ class BaseExtractor(ABC):
                 content_hash
             )
             
-            print(f"Processed {file_path} - ID: {doc_id}")
             return doc_id
             
         except Exception as e:
             print(f"Error processing {file_path}: {e}")
-            return None
+            raise
     
-    @abstractmethod
-    def get_doc_type(self, file_path: Path) -> str:
-        """Get document type for the file."""
-        pass
+    def _extract_date_from_path(self, file_path: Path) -> Optional[str]:
+        """Extract date from file path (for daily notes)."""
+        # Try to extract date from filename (e.g., 2025-06-28.md)
+        import re
+        match = re.search(r'(\d{4}-\d{2}-\d{2})', file_path.stem)
+        if match:
+            return match.group(1)
+        return None

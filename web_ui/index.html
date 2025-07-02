@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive CV</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            background-color: #2c2c2c;
+            color: #f0f0f0;
+        }
+        .panel {
+            background: rgba(44, 44, 44, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* For content within panels */
+        }
+
+        #main-container {
+            display: grid;
+            grid-template-columns: 0.8fr 1.5fr 1fr; /* Filter, Chatbot, Knowledge Graph */
+            height: 100vh;
+            gap: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        .panel {
+            background: rgba(44, 44, 44, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* For content within panels */
+        }
+
+        /* Filter Panel */
+        #filter-panel {
+            overflow-y: auto; /* Allow scrolling for filter options */
+        }
+        #graph-controls {
+            height: auto; /* Let content define height */
+            padding-bottom: 0; /* Remove extra padding */
+        }
+
+        /* Knowledge Graph Panel */
+        #knowledge-graph-panel {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Allow it to grow and fill available space */
+        }
+        #knowledge-graph-panel h2 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #f0f0f0;
+        }
+        #mynetwork {
+            width: 100%;
+            height: 100%; /* Take full height of its panel */
+            background-color: #2c2c2c;
+            border-radius: 8px;
+            margin-top: 0; /* Remove margin-top */
+        }
+        #graph-controls input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background-color: #3a3a3a;
+            color: #f0f0f0;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        #graph-controls .panel-section {
+            margin-top: 15px;
+            border-top: 1px solid #555;
+            padding-top: 15px;
+        }
+        #graph-controls .panel-section h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #f0f0f0;
+        }
+        #graph-controls .filter-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        #graph-controls .filter-item input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        #graph-controls .color-box {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        #graph-controls .button-group {
+            margin-top: 5px; /* Moved buttons higher */
+            display: flex;
+            gap: 10px;
+        }
+        #graph-controls .button-group button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        #graph-controls .button-group button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Chatbot Panel */
+        #chatbot-panel {
+            display: flex;
+            flex-direction: column;
+        }
+        #chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #3a3a3a;
+        }
+        .chat-message {
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #3498db;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        .bot-message {
+            background-color: #555;
+            align-self: flex-start;
+            margin-right: auto;
+        }
+        #chat-input-container {
+            display: flex;
+        }
+        #chat-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 6px;
+            background-color: #3a3a3a;
+            color: #f0f0f0;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        #send-button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            background-color: #2ecc71;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        #send-button:hover {
+            background-color: #27ae60;
+        }
+
+        /* Right Panel */
+        #right-panel h2 {
+            margin-top: 0;
+            color: #f0f0f0;
+        }
+        #right-panel p {
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="main-container">
+        <div id="filter-panel" class="panel">
+            <div id="graph-controls">
+                <input type="text" id="search-box" placeholder="Search for a node...">
+
+                <div class="panel-section">
+                    <h3>Node Types</h3>
+                    <div id="node-filters"></div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Edge Types</h3>
+                    <div id="edge-filters"></div>
+                </div>
+
+                <div class="button-group">
+                    <button id="apply-filters">Apply Filters</button>
+                    <button id="reset-filters">Reset</button>
+                    <button id="load-config">Load Config</button>
+                    <button id="save-config">Save Config</button>
+                </div>
+                <input type="file" id="config-file-input" accept=".json" style="display: none;">
+            </div>
+        </div>
+
+        <div id="chatbot-panel" class="panel">
+            <h2>Interactive CV Chatbot</h2>
+            <div id="chat-messages">
+                <div class="bot-message chat-message">Hello! Ask me anything about my CV, research, or projects.</div>
+            </div>
+            <div id="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Type your question...">
+                <button id="send-button">Send</button>
+            </div>
+        </div>
+
+        <div id="knowledge-graph-panel" class="panel">
+            <h2>Knowledge Graph</h2>
+            <div id="mynetwork"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        let network;
+        let allNodes;
+        let allEdges;
+        let graphData;
+        let config = {
+            activeNodeTypes: [],
+            activeEdgeTypes: [],
+            colorMap: {}
+        };
+
+        const defaultColorPalette = [
+            '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#f1c40f', '#1abc9c',
+            '#e67e22', '#34495e', '#7f8c8d', '#c0392b', '#2980b9', '#27ae60',
+            '#8e44ad', '#f39c12', '#16a085', '#d35400', '#2c3e50', '#95a5a6'
+        ];
+        let colorIndex = 0;
+
+        function getNextColor() {
+            const color = defaultColorPalette[colorIndex % defaultColorPalette.length];
+            colorIndex++;
+            return { background: color, border: darkenColor(color, 20) };
+        }
+
+        function darkenColor(hex, percent) {
+            const f = parseInt(hex.slice(1), 16);
+            const t = percent < 0 ? 0 : 255;
+            const p = percent < 0 ? percent * -1 : percent;
+            const R = f >> 16;
+            const G = (f >> 8) & 0x00ff;
+            const B = f & 0x0000ff;
+            return "#" + (
+                0x1000000 +
+                (Math.round((t - R) * p) + R) * 0x10000 +
+                (Math.round((t - G) * p) + G) * 0x100 +
+                (Math.round((t - B) * p) + B)
+            ).toString(16).slice(1);
+        }
+
+        async function loadConfig() {
+            try {
+                const response = await fetch('graph_config.json');
+                if (response.ok) {
+                    config = await response.json();
+                    console.log('Loaded config:', config);
+                    config.activeNodeTypes = config.activeNodeTypes || [];
+                    config.activeEdgeTypes = config.activeEdgeTypes || [];
+                } else if (response.status === 404) {
+                    console.log('graph_config.json not found, using default empty config.');
+                    config.activeNodeTypes = [];
+                    config.activeEdgeTypes = [];
+                } else {
+                    console.error('Error loading config:', response.statusText);
+                    config.activeNodeTypes = [];
+                    config.activeEdgeTypes = [];
+                }
+            } catch (error) {
+                console.error('Error loading config:', error);
+                config.activeNodeTypes = [];
+                config.activeEdgeTypes = [];
+            }
+        }
+
+        function loadConfigFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const loadedConfig = JSON.parse(e.target.result);
+                    config = loadedConfig;
+                    console.log('Loaded config from file:', config);
+                    populateFilters();
+                    applyFilters();
+                    alert('Configuration loaded successfully!');
+                } catch (error) {
+                    console.error('Error parsing config file:', error);
+                    alert('Error loading configuration: Invalid JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function saveConfig() {
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'graph_config.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+            alert('Configuration saved to graph_config.json');
+        }
+
+        function populateFilters() {
+            const nodeFilterContainer = document.getElementById('node-filters');
+            const edgeFilterContainer = document.getElementById('edge-filters');
+            nodeFilterContainer.innerHTML = '';
+            edgeFilterContainer.innerHTML = '';
+
+            const nodeTypes = new Set(graphData.nodes.map(n => n.type || n.group));
+            const edgeTypes = new Set(graphData.links.map(l => l.relationship));
+
+            nodeTypes.forEach(type => {
+                const count = graphData.nodes.filter(n => (n.type || n.group) === type).length;
+                const item = document.createElement('div');
+                item.className = 'filter-item';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `node-filter-${type}`;
+                checkbox.value = type;
+                checkbox.checked = config.activeNodeTypes.includes(type);
+                item.appendChild(checkbox);
+
+                const colorBox = document.createElement('div');
+            colorBox.className = 'color-box';
+            const typeColor = config.colorMap[type] || getNextColor();
+            colorBox.style.backgroundColor = typeColor.background;
+            colorBox.style.borderColor = typeColor.border;
+            config.colorMap[type] = typeColor; // Store assigned color
+            item.appendChild(colorBox);
+
+                const label = document.createElement('label');
+                label.htmlFor = `node-filter-${type}`;
+                label.textContent = `${type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} (${count})`;
+                item.appendChild(label);
+                nodeFilterContainer.appendChild(item);
+            });
+
+            edgeTypes.forEach(type => {
+                const count = graphData.links.filter(l => l.relationship === type).length;
+                const item = document.createElement('div');
+                item.className = 'filter-item';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `edge-filter-${type}`;
+                checkbox.value = type;
+                checkbox.checked = config.activeEdgeTypes.includes(type);
+                item.appendChild(checkbox);
+
+                const label = document.createElement('label');
+                label.htmlFor = `edge-filter-${type}`;
+                label.textContent = `${type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} (${count})`;
+                item.appendChild(label);
+                edgeFilterContainer.appendChild(item);
+            });
+        }
+
+        function applyFilters() {
+            config.activeNodeTypes = Array.from(document.querySelectorAll('#node-filters input[type="checkbox"]:checked')).map(cb => cb.value);
+            config.activeEdgeTypes = Array.from(document.querySelectorAll('#edge-filters input[type="checkbox"]:checked')).map(cb => cb.value);
+
+            const filteredNodes = allNodes.get({ filter: node => config.activeNodeTypes.includes(node.type || node.group) });
+
+            const filteredEdgesArray = [];
+            graphData.links.forEach(link => {
+                const sourceNodeExists = filteredNodes.some(node => node.id === link.source);
+                const targetNodeExists = filteredNodes.some(node => node.id === link.target);
+                const edgeTypeIncluded = config.activeEdgeTypes.includes(link.relationship);
+
+                if (sourceNodeExists && targetNodeExists && edgeTypeIncluded) {
+                    filteredEdgesArray.push(link);
+                }
+            });
+
+            const nodesDataSet = new vis.DataSet(filteredNodes.map(node => {
+                const nodeType = node.type || node.group;
+                const nodeColor = config.colorMap[nodeType] ? config.colorMap[nodeType].background : '#999999'; // Fallback color
+                return {
+                    id: node.id,
+                    label: node.label || node.id.replace(/_/g, ' '),
+                    title: `<b>${node.label || node.id.replace(/_/g, ' ')}</b><br><hr>${node.description || 'Type: ' + nodeType}`,
+                    group: nodeType,
+                    color: nodeColor, // Explicitly set color from colorMap
+                    size: 15 + Math.sqrt(graphData.links.filter(l => l.source === node.id || l.target === node.id).length) * 2
+                };
+            }));
+
+            const edgesDataSet = new vis.DataSet(filteredEdgesArray.map(link => ({
+                from: link.source,
+                to: link.target,
+                label: link.relationship.replace(/_/g, ' '),
+                arrows: { to: { enabled: true, scaleFactor: 0.7 } },
+                font: { align: 'middle', size: 10, color: '#a9a9a9', strokeWidth: 3, strokeColor: '#2c2c2c' },
+                title: link.description || '',
+                type: link.relationship
+            })));
+
+            network.setData({ nodes: nodesDataSet, edges: edgesDataSet });
+            network.fit();
+        }
+
+        function resetFilters() {
+            const nodeCheckboxes = document.querySelectorAll('#node-filters input[type="checkbox"]');
+            nodeCheckboxes.forEach(cb => cb.checked = true);
+            const edgeCheckboxes = document.querySelectorAll('#edge-filters input[type="checkbox"]');
+            edgeCheckboxes.forEach(cb => cb.checked = true);
+            applyFilters();
+        }
+
+        async function drawGraph() {
+            // Fetch graph data first, as it's needed for default config population
+            const graphResponse = await fetch('../metadata_system/knowledge_graph.json?t=' + new Date().getTime());
+            graphData = await graphResponse.json();
+
+            allNodes = new vis.DataSet(graphData.nodes.map(node => {
+                const nodeType = node.type || node.group;
+                const nodeColor = config.colorMap[nodeType] ? config.colorMap[nodeType].background : '#999999'; // Fallback color
+                return {
+                    id: node.id,
+                    label: node.label || node.id.replace(/_/g, ' '),
+                    title: `<b>${node.label || node.id.replace(/_/g, ' ')}</b><br><hr>${node.description || 'Type: ' + nodeType}`,
+                    group: nodeType,
+                    color: nodeColor, // Explicitly set color from colorMap
+                    size: 15 + Math.sqrt(graphData.links.filter(l => l.source === node.id || l.target === node.id).length) * 2
+                };
+            }));
+
+            allEdges = new vis.DataSet(graphData.links.map(link => ({
+                from: link.source,
+                to: link.target,
+                label: link.relationship.replace(/_/g, ' '),
+                arrows: { to: { enabled: true, scaleFactor: 0.7 } },
+                font: { align: 'middle', size: 10, color: '#a9a9a9', strokeWidth: 3, strokeColor: '#2c2c2c' },
+                title: link.description || '',
+                relationship: link.relationship
+            })));
+
+            // Pre-populate colorMap with all possible node types from graphData
+            const allNodeTypes = new Set(graphData.nodes.map(n => n.type || n.group));
+            allNodeTypes.forEach(type => {
+                if (!config.colorMap[type]) {
+                    config.colorMap[type] = getNextColor();
+                }
+            });
+
+            // Load config after graphData is available
+            await loadConfig();
+
+            // If config is empty (i.e., no saved config or error loading), set defaults
+            if (config.activeNodeTypes.length === 0 && config.activeEdgeTypes.length === 0) {
+                config.activeNodeTypes = Array.from(new Set(graphData.nodes.map(n => n.type || n.group)));
+                config.activeEdgeTypes = Array.from(new Set(graphData.links.map(l => l.relationship)));
+            }
+
+            populateFilters();
+
+            const container = document.getElementById('mynetwork');
+            const options = {
+                nodes: {
+                    shape: 'dot',
+                    font: { size: 14, color: '#ffffff' },
+                    borderWidth: 2,
+                    shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10, x: 5, y: 5 }
+                },
+                edges: {
+                    width: 3,
+                    color: { color: '#FF00FF', highlight: '#3498db', hover: '#3498db', inherit: false }, // Bright magenta for visibility
+                    smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.4 },
+                    arrows: 'to'
+                },
+                groups: config.colorMap, // Use dynamic color map
+                physics: {
+                    solver: 'forceAtlas2Based',
+                    forceAtlas2Based: {
+                        gravitationalConstant: -70,
+                        centralGravity: 0.015,
+                        springLength: 120,
+                        springConstant: 0.08,
+                        avoidOverlap: 0.5
+                    }
+                },
+                layout: {
+                    improvedLayout: false
+                },
+                interaction: {
+                    hover: true,
+                    tooltipDelay: 200,
+                    navigationButtons: true,
+                    keyboard: true,
+                    dragNodes: true
+                }
+            };
+
+            network = new vis.Network(container, { nodes: new vis.DataSet(), edges: new vis.DataSet() }, options);
+            console.log('DEBUG: Vis.js Network Options:', options);
+            applyFilters(); // Apply initial filters based on config
+
+            // Search functionality
+            document.getElementById('search-box').addEventListener('keyup', function(e) {
+                const searchText = e.target.value.toLowerCase();
+                if (searchText === '') {
+                    network.fit();
+                    return;
+                }
+                const currentNodes = network.body.data.nodes; // Get currently displayed nodes
+                const matchedNodes = currentNodes.get({ filter: node => node.label.toLowerCase().includes(searchText) });
+                if (matchedNodes.length > 0) {
+                    network.focus(matchedNodes[0].id, { scale: 1.5, animation: { duration: 1000, easingFunction: 'easeInOutQuad' } });
+                    network.selectNodes([matchedNodes[0].id]);
+                }
+            });
+
+            // Event Listeners for buttons
+            document.getElementById('apply-filters').addEventListener('click', applyFilters);
+            document.getElementById('reset-filters').addEventListener('click', resetFilters);
+            document.getElementById('save-config').addEventListener('click', saveConfig);
+            document.getElementById('load-config').addEventListener('click', function() {
+                document.getElementById('config-file-input').click();
+            });
+            document.getElementById('config-file-input').addEventListener('change', loadConfigFromFile);
+
+            // --- Highlighting on Click --- 
+            network.on("click", function (params) {
+                if (params.nodes.length > 0) {
+                    highlightConnectedNodes(params.nodes[0]);
+                } else {
+                    unhighlightAll();
+                }
+            });
+
+            function highlightConnectedNodes(nodeId) {
+                const currentNodes = network.body.data.nodes;
+                const currentEdges = network.body.data.edges;
+
+                // Dim all nodes and edges
+                const nodeUpdates = currentNodes.map(node => ({
+                    id: node.id,
+                    color: 'rgba(150, 150, 150, 0.25)'
+                }));
+                const edgeUpdates = currentEdges.map(edge => ({
+                    id: edge.id,
+                    color: 'rgba(150, 150, 150, 0.1)'
+                }));
+
+                // Highlight the selected node and its direct connections
+                const connectedNodes = network.getConnectedNodes(nodeId);
+                const connectedEdges = network.getConnectedEdges(nodeId);
+
+                // Mark selected node
+                const selectedNode = currentNodes.get(nodeId);
+                const selectedNodeColor = config.colorMap[selectedNode.group] ? config.colorMap[selectedNode.group].background : '#ffffff';
+                nodeUpdates.find(n => n.id === nodeId).color = selectedNodeColor;
+
+                // Mark connected nodes
+                connectedNodes.forEach(id => {
+                    const connectedNode = currentNodes.get(id);
+                    const connectedNodeColor = config.colorMap[connectedNode.group] ? config.colorMap[connectedNode.group].background : '#ffffff';
+                    nodeUpdates.find(n => n.id === id).color = connectedNodeColor;
+                });
+
+                // Mark connected edges
+                connectedEdges.forEach(id => {
+                    edgeUpdates.find(e => e.id === id).color = undefined; // Revert to default color
+                });
+
+                currentNodes.update(nodeUpdates);
+                currentEdges.update(edgeUpdates);
+            }
+
+            function unhighlightAll() {
+                const currentNodes = network.body.data.nodes;
+                const currentEdges = network.body.data.edges;
+
+                const nodeUpdates = currentNodes.map(node => {
+                    const originalColor = config.colorMap[node.group] ? config.colorMap[node.group].background : '#ffffff';
+                    return { id: node.id, color: originalColor };
+                });
+                const edgeUpdates = currentEdges.map(edge => ({ id: edge.id, color: undefined }));
+
+                currentNodes.update(nodeUpdates);
+                currentEdges.update(edgeUpdates);
+            }
+        }
+
+        drawGraph();
+
+        // Chatbot functionality
+        const chatInput = document.getElementById('chat-input');
+        const sendButton = document.getElementById('send-button');
+        const chatMessages = document.getElementById('chat-messages');
+
+        sendButton.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message === '') return;
+
+            // Add user message
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.className = 'user-message chat-message';
+            userMessageDiv.textContent = message;
+            chatMessages.appendChild(userMessageDiv);
+
+            // Simulate bot response (echo for now)
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'bot-message chat-message';
+            botMessageDiv.textContent = `Echo: ${message}`; // Simple echo for now
+            chatMessages.appendChild(botMessageDiv);
+
+            chatInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+        }
+    </script>
+
+    <!-- Cache busting comment: 2025-07-02-6 -->
+</body>
+</html>

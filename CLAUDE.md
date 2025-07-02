@@ -21,25 +21,45 @@ This project creates an **Interactive CV System** that transforms academic resea
 
 ### Metadata System Design
 
-We chose a **single-source SQLite database** approach for all metadata:
+We use a **split-table SQLite database** approach with separate tables for different document types:
 
 ```sql
--- Core schema
-CREATE TABLE documents (
+-- Separate tables for each document type
+CREATE TABLE chronicle_documents (
     id INTEGER PRIMARY KEY,
     file_path TEXT UNIQUE NOT NULL,
-    doc_type TEXT NOT NULL,  -- 'chronicle' or 'academic'
     title TEXT,
     date DATE,
     content_hash TEXT,  -- For change detection
     metadata JSON,  -- Flexible metadata storage
-    embedding BLOB  -- Vector embeddings for RAG
+    embedding BLOB,  -- Vector embeddings for RAG
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Relationship tables for topics, people, projects
+CREATE TABLE academic_documents (
+    id INTEGER PRIMARY KEY,
+    file_path TEXT UNIQUE NOT NULL,
+    title TEXT,
+    date DATE,
+    content_hash TEXT,
+    metadata JSON,
+    embedding BLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Entity tables
 CREATE TABLE topics (id, name);
 CREATE TABLE people (id, name);
 CREATE TABLE projects (id, name);
+CREATE TABLE institutions (id, name, description);
+
+-- Relationship tables (work with both document types)
+CREATE TABLE document_topics (document_id, topic_id);
+CREATE TABLE document_people (document_id, person_id);
+CREATE TABLE document_projects (document_id, project_id);
+CREATE TABLE document_institutions (document_id, institution_id);
 ```
 
 ### Enhanced Templates
@@ -103,6 +123,9 @@ llm = ChatOpenAI(
 16. **Database Cleanup**: Fixed person name extraction issues
 17. **Visualization Tools**: Datasette for DB exploration, vis.js for graph visualization
 18. **Graph-Enhanced Queries**: Combined SQL + graph traversal for intelligent queries
+19. **Database Restructuring**: Split documents table into chronicle_documents and academic_documents
+20. **Knowledge Graph Refactoring**: Made configurable and database-agnostic with schema-driven extraction
+21. **Institution Support**: Added institutions as first-class entities with proper relationships
 
 ### 📋 TODO
 1. **Query API**: REST/GraphQL interface for searching and retrieving information
@@ -204,25 +227,36 @@ The system combines:
 ## Current Status
 
 ### Database Contents
-- **20 documents total**: 12 academic papers + 8 chronicle notes
+- **21 documents total**: 12 academic papers + 9 chronicle notes
 - **170 unique topics**: Mathematical concepts, research areas, and project tags
 - **18 projects**: From daily work (Collapsi RL, Interactive CV, etc.)
 - **1 person**: Mark S. Ball (cleaned from incomplete entries)
+- **4 institutions**: WIAS Berlin, TU Berlin, Brown University, University of Bath
 - **113 semantic chunks**: From academic paper analyses
 - **All content has embeddings**: For semantic search capabilities
-- **209 knowledge graph nodes**: With 264 edges showing relationships
+- **257 knowledge graph nodes**: With 326 edges showing relationships
+- **Node types in graph**: 
+  - 12 academic_document nodes
+  - 9 chronicle_document nodes
+  - 193 topic nodes
+  - 18 project nodes
+  - 1 person node
+  - 4 institution nodes
+  - 20 semantic_concept nodes
 - **Major research areas**: Optimal transport (7 papers), Stochastic control (3), Probability theory (3)
 
 ### Key Files
 - `metadata_system/metadata.db`: SQLite database with all metadata
-- `.sync/sync_chronicle_with_metadata.py`: Main sync script with metadata extraction
+- `.sync/sync_chronicle_with_metadata.py`: Main sync script with metadata extraction (updated for new DB structure)
 - `.sync/sync-chronicle`: Shell wrapper for easy execution
 - `metadata_system/query_comprehensive.py`: Query tool to explore database
 - `metadata_system/scripts/import_*.py`: Import scripts for academic data
 - `metadata_extractor.py`: LLM-based metadata extraction (with improved prompts)
-- `metadata_system/knowledge_graph.py`: Generate interactive knowledge graph
+- `metadata_system/knowledge_graph.py`: Configurable graph generator with schema-driven extraction
 - `metadata_system/graph_enhanced_query.py`: Graph-aware query system
 - `metadata_system/knowledge_graph.html`: Interactive visualization (vis.js)
+- `metadata_system/extractors/base.py`: Base extractor updated for split document tables
+- `metadata_system/migrate_document_types.py`: Migration script for database restructuring
 
 ## Usage
 

@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """
-Extract and visualize knowledge graph from the metadata database.
-Creates network graphs showing relationships between documents, topics, people, and projects.
+Configurable knowledge graph extractor.
+Extract entities and relationships based on a flexible schema definition.
 """
 
 import sqlite3
 import json
 import networkx as nx
-import matplotlib.pyplot as plt
-from typing import Dict
+from typing import Dict, List, Tuple, Any, Optional
 import logging
 
 # Set up logging
@@ -16,33 +15,142 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+# Default schema that matches the current database structure
+DEFAULT_SCHEMA = {
+    'entities': {
+        'chronicle_document': {
+            'table': 'chronicle_documents',
+            'id_column': 'id',
+            'id_prefix': 'doc_',
+            'label_column': 'title',
+            'attributes': {
+                'title': 'title',
+                'date': 'date'
+            }
+        },
+        'academic_document': {
+            'table': 'academic_documents',
+            'id_column': 'id',
+            'id_prefix': 'doc_',
+            'label_column': 'title',
+            'attributes': {
+                'title': 'title',
+                'date': 'date'
+            }
+        },
+        'topic': {
+            'table': 'topics',
+            'id_column': 'id',
+            'id_prefix': 'topic_',
+            'label_column': 'name',
+            'attributes': {
+                'name': 'name'
+            }
+        },
+        'person': {
+            'table': 'people',
+            'id_column': 'id',
+            'id_prefix': 'person_',
+            'label_column': 'name',
+            'attributes': {
+                'name': 'name'
+            }
+        },
+        'project': {
+            'table': 'projects',
+            'id_column': 'id',
+            'id_prefix': 'project_',
+            'label_column': 'name',
+            'attributes': {
+                'name': 'name'
+            }
+        },
+        'institution': {
+            'table': 'institutions',
+            'id_column': 'id',
+            'id_prefix': 'institution_',
+            'label_column': 'name',
+            'attributes': {
+                'name': 'name',
+                'description': 'description'
+            },
+            'optional': True  # Table might not exist
+        },
+        'semantic_concept': {
+            'table': 'semantic_concepts',
+            'id_column': 'concept_id',
+            'id_prefix': 'concept_',
+            'label_column': 'name',
+            'attributes': {
+                'name': 'name',
+                'concept_type': 'concept_type',
+                'description': 'description'
+            },
+            'filters': {
+                'concept_type': {'not': 'institution'}  # Exclude institutions
+            },
+            'optional': True
+        }
+    },
+    'relationships': {
+        'has_topic': {
+            'table': 'document_topics',
+            'source': {'column': 'document_id', 'entity': ['chronicle_document', 'academic_document']},
+            'target': {'column': 'topic_id', 'entity': 'topic'}
+        },
+        'mentions_person': {
+            'table': 'document_people',
+            'source': {'column': 'document_id', 'entity': ['chronicle_document', 'academic_document']},
+            'target': {'column': 'person_id', 'entity': 'person'}
+        },
+        'relates_to_project': {
+            'table': 'document_projects',
+            'source': {'column': 'document_id', 'entity': ['chronicle_document', 'academic_document']},
+            'target': {'column': 'project_id', 'entity': 'project'}
+        },
+        'affiliated_with': {
+            'table': 'document_institutions',
+            'source': {'column': 'document_id', 'entity': ['chronicle_document', 'academic_document']},
+            'target': {'column': 'institution_id', 'entity': 'institution'},
+            'optional': True
+        },
+        'semantic': {
+            'table': 'semantic_relationships',
+            'source': {'column': 'source_id', 'entity_column': 'source_type'},
+            'target': {'column': 'target_id', 'entity_column': 'target_type'},
+            'relationship_column': 'relationship_type',
+            'attributes': ['description'],
+            'optional': True,
+            'custom_handler': True  # Needs special handling for dynamic entity types
+        }
+    }
+}
+
+
 class KnowledgeGraphExtractor:
-    """Extract knowledge graph from metadata database."""
+    """Extract knowledge graph based on configurable schema."""
     
-    def __init__(self, db_path: str = "metadata_system/metadata.db"):
+    def __init__(self, db_path: str = "metadata_system/metadata.db", schema: Dict = None):
         self.db_path = db_path
+        self.schema = schema or DEFAULT_SCHEMA
         self.graph = nx.Graph()
         
     def extract_graph(self) -> nx.Graph:
-        """Extract full knowledge graph from database."""
+        """Extract full knowledge graph based on schema."""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         
         try:
-            # Add document nodes
-            self._add_documents(conn)
+            # Extract all entity types
+            for entity_type, config in self.schema['entities'].items():
+                self._add_entities(conn, entity_type, config)
             
-            # Add topic nodes and edges
-            self._add_topics(conn)
-            
-            # Add people nodes and edges
-            self._add_people(conn)
-            
-            # Add project nodes and edges
-            self._add_projects(conn)
-            
-            # Add semantic concepts and relationships (if they exist)
-            self._add_semantic_relationships(conn)
+            # Extract all relationships
+            for rel_type, config in self.schema['relationships'].items():
+                if config.get('custom_handler'):
+                    self._add_semantic_relationships(conn, rel_type, config)
+                else:
+                    self._add_relationships(conn, rel_type, config)
             
             logger.info(f"Graph extracted: {self.graph.number_of_nodes()} nodes, {self.graph.number_of_edges()} edges")
             
@@ -51,246 +159,211 @@ class KnowledgeGraphExtractor:
             
         return self.graph
     
-    def _add_documents(self, conn):
-        """Add document nodes to the graph."""
+    def _table_exists(self, conn, table_name: str) -> bool:
+        """Check if a table exists in the database."""
         cursor = conn.cursor()
-        cursor.execute("""
-            SELECT id, title, doc_type, date 
-            FROM documents
-        """)
-        
-        for row in cursor.fetchall():
-            self.graph.add_node(
-                f"doc_{row['id']}", 
-                label=row['title'],
-                type='document',
-                doc_type=row['doc_type'],
-                date=row['date']
-            )
-    
-    def _add_topics(self, conn):
-        """Add topic nodes and document-topic edges."""
-        cursor = conn.cursor()
-        
-        # Add topic nodes
-        cursor.execute("SELECT id, name FROM topics")
-        for row in cursor.fetchall():
-            self.graph.add_node(
-                f"topic_{row['id']}", 
-                label=row['name'],
-                type='topic'
-            )
-        
-        # Add document-topic edges
-        cursor.execute("""
-            SELECT dt.document_id, dt.topic_id, d.title, t.name
-            FROM document_topics dt
-            JOIN documents d ON dt.document_id = d.id
-            JOIN topics t ON dt.topic_id = t.id
-        """)
-        
-        for row in cursor.fetchall():
-            self.graph.add_edge(
-                f"doc_{row['document_id']}", 
-                f"topic_{row['topic_id']}",
-                relationship='has_topic'
-            )
-    
-    def _add_people(self, conn):
-        """Add people nodes and document-people edges."""
-        cursor = conn.cursor()
-        
-        # Add people nodes
-        cursor.execute("SELECT id, name FROM people")
-        for row in cursor.fetchall():
-            self.graph.add_node(
-                f"person_{row['id']}", 
-                label=row['name'],
-                type='person'
-            )
-        
-        # Add document-people edges
-        cursor.execute("""
-            SELECT dp.document_id, dp.person_id
-            FROM document_people dp
-        """)
-        
-        for row in cursor.fetchall():
-            self.graph.add_edge(
-                f"doc_{row['document_id']}", 
-                f"person_{row['person_id']}",
-                relationship='mentions_person'
-            )
-    
-    def _add_projects(self, conn):
-        """Add project nodes and document-project edges."""
-        cursor = conn.cursor()
-        
-        # Add project nodes
-        cursor.execute("SELECT id, name FROM projects")
-        for row in cursor.fetchall():
-            self.graph.add_node(
-                f"project_{row['id']}", 
-                label=row['name'],
-                type='project'
-            )
-        
-        # Add document-project edges
-        cursor.execute("""
-            SELECT dp.document_id, dp.project_id
-            FROM document_projects dp
-        """)
-        
-        for row in cursor.fetchall():
-            self.graph.add_edge(
-                f"doc_{row['document_id']}", 
-                f"project_{row['project_id']}",
-                relationship='relates_to_project'
-            )
-    
-    def _add_semantic_relationships(self, conn):
-        """Add semantic concepts and relationships if they exist."""
-        cursor = conn.cursor()
-        
-        # Check if semantic tables exist
         cursor.execute("""
             SELECT name FROM sqlite_master 
-            WHERE type='table' AND name='semantic_concepts'
-        """)
-        if not cursor.fetchone():
-            return  # Tables don't exist yet
+            WHERE type='table' AND name=?
+        """, (table_name,))
+        return cursor.fetchone() is not None
+    
+    def _add_entities(self, conn, entity_type: str, config: Dict):
+        """Add entities of a specific type based on configuration."""
+        table = config['table']
         
-        # Add semantic concept nodes
-        cursor.execute("SELECT concept_id, concept_type, name, description FROM semantic_concepts")
+        # Check if table exists (for optional tables)
+        if config.get('optional', False) and not self._table_exists(conn, table):
+            logger.debug(f"Skipping optional table: {table}")
+            return
+        
+        cursor = conn.cursor()
+        
+        # Build query
+        columns = [config['id_column']]
+        if 'label_column' in config:
+            columns.append(config['label_column'])
+        
+        # Add attribute columns
+        for attr_name, col_name in config.get('attributes', {}).items():
+            if col_name not in columns:
+                columns.append(col_name)
+        
+        query = f"SELECT {', '.join(columns)} FROM {table}"
+        
+        # Add filters if specified
+        if 'filters' in config:
+            where_clauses = []
+            for col, filter_config in config['filters'].items():
+                if 'not' in filter_config:
+                    where_clauses.append(f"{col} != '{filter_config['not']}'")
+                elif 'equals' in filter_config:
+                    where_clauses.append(f"{col} = '{filter_config['equals']}'")
+            if where_clauses:
+                query += " WHERE " + " AND ".join(where_clauses)
+        
+        cursor.execute(query)
+        
+        # Add nodes
         for row in cursor.fetchall():
-            self.graph.add_node(
-                f"concept_{row[0]}", 
-                label=row[2],  # name
-                type='semantic_concept',
-                concept_type=row[1],
-                description=row[3]
-            )
+            node_id = f"{config['id_prefix']}{row[config['id_column']]}"
+            
+            # Build node attributes
+            node_attrs = {
+                'type': entity_type
+            }
+            
+            # Add label
+            if 'label_column' in config:
+                node_attrs['label'] = row[config['label_column']]
+            
+            # Add other attributes
+            for attr_name, col_name in config.get('attributes', {}).items():
+                value = row[col_name]
+                if value is not None:
+                    node_attrs[attr_name] = value
+            
+            self.graph.add_node(node_id, **node_attrs)
         
-        # Add semantic relationships
-        cursor.execute("""
+        logger.debug(f"Added {cursor.rowcount} {entity_type} entities")
+    
+    def _add_relationships(self, conn, rel_type: str, config: Dict):
+        """Add relationships based on configuration."""
+        table = config['table']
+        
+        # Check if table exists (for optional relationships)
+        if config.get('optional', False) and not self._table_exists(conn, table):
+            logger.debug(f"Skipping optional relationship table: {table}")
+            return
+        
+        cursor = conn.cursor()
+        
+        # Build query
+        columns = [
+            config['source']['column'],
+            config['target']['column']
+        ]
+        
+        # Add attribute columns if specified
+        for attr in config.get('attributes', []):
+            columns.append(attr)
+        
+        query = f"SELECT {', '.join(columns)} FROM {table}"
+        cursor.execute(query)
+        
+        # Add edges
+        # Handle multiple entity types for source/target
+        source_entities = config['source']['entity']
+        if not isinstance(source_entities, list):
+            source_entities = [source_entities]
+        target_entities = config['target']['entity']
+        if not isinstance(target_entities, list):
+            target_entities = [target_entities]
+        
+        for row in cursor.fetchall():
+            source_id_raw = row[config['source']['column']]
+            target_id_raw = row[config['target']['column']]
+            
+            # Try to find the source node with any of the possible entity types
+            source_node = None
+            for entity_type in source_entities:
+                if entity_type in self.schema['entities']:
+                    entity_config = self.schema['entities'][entity_type]
+                    potential_id = f"{entity_config['id_prefix']}{source_id_raw}"
+                    if self.graph.has_node(potential_id):
+                        source_node = potential_id
+                        break
+            
+            # Try to find the target node with any of the possible entity types
+            target_node = None
+            for entity_type in target_entities:
+                if entity_type in self.schema['entities']:
+                    entity_config = self.schema['entities'][entity_type]
+                    potential_id = f"{entity_config['id_prefix']}{target_id_raw}"
+                    if self.graph.has_node(potential_id):
+                        target_node = potential_id
+                        break
+            
+            # Only add edge if both nodes exist
+            if source_node and target_node:
+                edge_attrs = {'relationship': rel_type}
+                
+                # Add additional attributes
+                for attr in config.get('attributes', []):
+                    if row[attr] is not None:
+                        edge_attrs[attr] = row[attr]
+                
+                self.graph.add_edge(source_node, target_node, **edge_attrs)
+    
+    def _add_semantic_relationships(self, conn, rel_type: str, config: Dict):
+        """Handle semantic relationships with dynamic entity types."""
+        table = config['table']
+        
+        if not self._table_exists(conn, table):
+            logger.debug(f"Skipping semantic relationships table: {table}")
+            return
+        
+        cursor = conn.cursor()
+        
+        # Query semantic relationships
+        cursor.execute(f"""
             SELECT source_type, source_id, target_type, target_id, 
                    relationship_type, description 
-            FROM semantic_relationships
+            FROM {table}
         """)
         
         for row in cursor.fetchall():
-            source_type, source_id, target_type, target_id, rel_type, desc = row
+            source_type, source_id, target_type, target_id, rel_name, desc = row
             
-            # Create node IDs based on type
-            if source_type == 'document':
-                source_node = f"doc_{source_id}"
-            elif source_type == 'topic':
-                # Find topic ID by name
-                cursor.execute("SELECT id FROM topics WHERE LOWER(name) = LOWER(?)", (source_id,))
-                topic_row = cursor.fetchone()
-                source_node = f"topic_{topic_row[0]}" if topic_row else f"concept_{source_id}"
-            else:
-                source_node = f"concept_{source_id}"
-            
-            if target_type == 'document':
-                target_node = f"doc_{target_id}"
-            elif target_type == 'topic':
-                # Find topic ID by name
-                cursor.execute("SELECT id FROM topics WHERE LOWER(name) = LOWER(?)", (target_id,))
-                topic_row = cursor.fetchone()
-                target_node = f"topic_{topic_row[0]}" if topic_row else f"concept_{target_id}"
-            else:
-                target_node = f"concept_{target_id}"
+            # Map entity types to node IDs
+            source_node = self._get_node_id_for_semantic(conn, source_type, source_id)
+            target_node = self._get_node_id_for_semantic(conn, target_type, target_id)
             
             # Add edge if both nodes exist
-            if self.graph.has_node(source_node) and self.graph.has_node(target_node):
+            if source_node and target_node and self.graph.has_node(source_node) and self.graph.has_node(target_node):
                 self.graph.add_edge(
                     source_node, 
                     target_node,
-                    relationship=rel_type,
+                    relationship=rel_name,
                     semantic=True,
-                    description=desc
+                    description=desc or ''
                 )
     
-    def export_for_web(self, output_path: str = "metadata_system/knowledge_graph.json"):
-        """Export graph in format suitable for web visualization (D3.js/vis.js)."""
-        # Convert to node-link format for D3.js
+    def _get_node_id_for_semantic(self, conn, entity_type: str, entity_id: str) -> Optional[str]:
+        """Get the graph node ID for a semantic relationship entity."""
+        if entity_type == 'document':
+            return f"doc_{entity_id}"
+        elif entity_type == 'topic':
+            # Find topic ID by name
+            cursor = conn.cursor()
+            cursor.execute("SELECT id FROM topics WHERE LOWER(name) = LOWER(?)", (entity_id,))
+            row = cursor.fetchone()
+            return f"topic_{row[0]}" if row else f"concept_{entity_id}"
+        elif entity_type == 'concept':
+            return f"concept_{entity_id}"
+        else:
+            return None
+    
+    def export_as_json(self, output_path: str = "metadata_system/knowledge_graph.json"):
+        """Export graph as JSON in node-link format."""
         data = nx.node_link_data(self.graph)
         
-        # Enhance node data for visualization
-        for node in data['nodes']:
-            node['group'] = node.get('type', 'unknown')
-            node['title'] = node.get('label', node['id'])
-            
-        # Enhance edge data
-        for link in data['links']:
-            link['value'] = 1  # Weight for visualization
-            
-        # Save to JSON
         with open(output_path, 'w') as f:
             json.dump(data, f, indent=2)
             
         logger.info(f"Graph exported to {output_path}")
         return data
     
-    def visualize_matplotlib(self, figsize=(20, 20)):
-        """Create a basic visualization using matplotlib."""
-        plt.figure(figsize=figsize)
-        
-        # Create layout
-        pos = nx.spring_layout(self.graph, k=2, iterations=50)
-        
-        # Separate nodes by type
-        node_colors = {
-            'document': '#ff9999',
-            'topic': '#66b3ff', 
-            'person': '#99ff99',
-            'project': '#ffcc99'
-        }
-        
-        # Draw nodes by type
-        for node_type, color in node_colors.items():
-            nodes = [n for n, d in self.graph.nodes(data=True) if d.get('type') == node_type]
-            nx.draw_networkx_nodes(
-                self.graph, pos,
-                nodelist=nodes,
-                node_color=color,
-                node_size=500,
-                label=node_type.capitalize()
-            )
-        
-        # Draw edges
-        nx.draw_networkx_edges(self.graph, pos, alpha=0.3)
-        
-        # Draw labels for smaller graphs
-        if self.graph.number_of_nodes() < 50:
-            labels = nx.get_node_attributes(self.graph, 'label')
-            nx.draw_networkx_labels(self.graph, pos, labels, font_size=8)
-        
-        plt.title("Interactive CV Knowledge Graph")
-        plt.legend()
-        plt.axis('off')
-        plt.tight_layout()
-        plt.savefig('metadata_system/knowledge_graph.png', dpi=300, bbox_inches='tight')
-        plt.show()
-    
     def get_statistics(self) -> Dict:
         """Get graph statistics."""
         num_nodes = self.graph.number_of_nodes()
         num_edges = self.graph.number_of_edges()
         
-        # Calculate average degree
-        if num_nodes > 0:
-            degree_dict = dict(self.graph.degree())
-            avg_degree = sum(degree_dict.values()) / num_nodes
-        else:
-            avg_degree = 0
-            
         stats = {
             'total_nodes': num_nodes,
             'total_edges': num_edges,
             'node_types': {},
-            'average_degree': avg_degree,
+            'average_degree': (2 * num_edges / num_nodes) if num_nodes > 0 else 0,
             'connected_components': nx.number_connected_components(self.graph)
         }
         
@@ -302,123 +375,8 @@ class KnowledgeGraphExtractor:
         return stats
 
 
-def create_web_visualization_html(graph_data: dict, output_path: str = "metadata_system/knowledge_graph.html"):
-    """Create an HTML file with vis.js visualization."""
-    html_template = """<!DOCTYPE html>
-<html>
-<head>
-    <title>Interactive CV Knowledge Graph</title>
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-    <style type="text/css">
-        #mynetwork {{
-            width: 100%%;
-            height: 800px;
-            border: 1px solid lightgray;
-        }}
-        body {{
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }}
-        .legend {{
-            margin: 20px 0;
-        }}
-        .legend-item {{
-            display: inline-block;
-            margin-right: 20px;
-        }}
-        .legend-color {{
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 5px;
-            vertical-align: middle;
-        }}
-    </style>
-</head>
-<body>
-    <h1>Interactive CV Knowledge Graph</h1>
-    <div class="legend">
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: #ff9999;"></span>Documents
-        </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: #66b3ff;"></span>Topics
-        </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: #99ff99;"></span>People
-        </div>
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: #ffcc99;"></span>Projects
-        </div>
-    </div>
-    <div id="mynetwork"></div>
-
-    <script type="text/javascript">
-        // Parse graph data
-        var graphData = {graph_data};
-        
-        // Transform nodes
-        var nodes = graphData.nodes.map(function(node) {{
-            var color = '#cccccc';
-            if (node.group === 'document') color = '#ff9999';
-            else if (node.group === 'topic') color = '#66b3ff';
-            else if (node.group === 'person') color = '#99ff99';
-            else if (node.group === 'project') color = '#ffcc99';
-            
-            return {{
-                id: node.id,
-                label: node.title || node.id,
-                color: color,
-                title: node.title + ' (' + node.group + ')'
-            }};
-        }});
-        
-        // Transform edges
-        var edges = graphData.links.map(function(link) {{
-            return {{
-                from: link.source,
-                to: link.target
-            }};
-        }});
-        
-        // Create network
-        var container = document.getElementById('mynetwork');
-        var data = {{
-            nodes: new vis.DataSet(nodes),
-            edges: new vis.DataSet(edges)
-        }};
-        var options = {{
-            physics: {{
-                stabilization: false,
-                barnesHut: {{
-                    springLength: 200
-                }}
-            }},
-            nodes: {{
-                shape: 'dot',
-                size: 16,
-                font: {{
-                    size: 12
-                }}
-            }}
-        }};
-        var network = new vis.Network(container, data, options);
-    </script>
-</body>
-</html>
-"""
-    
-    # Use format instead of % to avoid issues
-    html_content = html_template.format(graph_data=json.dumps(graph_data))
-    
-    with open(output_path, 'w') as f:
-        f.write(html_content)
-        
-    logger.info(f"Web visualization saved to {output_path}")
-
-
 if __name__ == "__main__":
-    # Extract knowledge graph
+    # Extract knowledge graph using default schema
     extractor = KnowledgeGraphExtractor()
     graph = extractor.extract_graph()
     
@@ -430,23 +388,10 @@ if __name__ == "__main__":
     print(f"  Average connections per node: {stats['average_degree']:.2f}")
     print(f"  Connected components: {stats['connected_components']}")
     print("\nNodes by type:")
-    for node_type, count in stats['node_types'].items():
+    for node_type, count in sorted(stats['node_types'].items()):
         print(f"  {node_type}: {count}")
     
-    # Export for web
-    graph_data = extractor.export_for_web()
+    # Export as JSON
+    extractor.export_as_json()
     
-    # Create web visualization (commented out since using Gemini visualization)
-    # create_web_visualization_html(graph_data)
-    
-    print("\nFiles created:")
-    print("  - metadata_system/knowledge_graph.json (graph data)")
-    # print("  - metadata_system/knowledge_graph.html (interactive visualization)")
-    
-    # Optional: Create matplotlib visualization for smaller graphs
-    if stats['total_nodes'] < 100:
-        print("\nCreating matplotlib visualization...")
-        extractor.visualize_matplotlib()
-        print("  - metadata_system/knowledge_graph.png (static image)")
-    else:
-        print("\nGraph too large for matplotlib visualization. Use the HTML file instead.")
+    print("\nGraph data exported to: metadata_system/knowledge_graph.json")
