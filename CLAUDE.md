@@ -252,27 +252,81 @@ chronicle-status
 
 ## Visualization & Analysis
 
-### Database Viewer
+### Database Viewer (Datasette)
 ```bash
 ./view_database.sh  # Launches Datasette on http://localhost:8001
 ```
 
+Features:
+- Browse all tables interactively
+- Run SQL queries with autocomplete
+- Export data in JSON/CSV formats
+- Automatic API generation for queries
+- Faceted search and filtering
+
 ### Knowledge Graph
 ```bash
 python3 metadata_system/knowledge_graph.py  # Generate/update graph
-# Open metadata_system/knowledge_graph.html in browser
+# Creates metadata_system/knowledge_graph.json (required for queries)
 ```
 
-### Graph Statistics
-- 209 nodes (documents, topics, people, projects)
-- 264 edges showing relationships
-- Interactive visualization with color-coded node types
+Graph Statistics:
+- 257 nodes (documents, topics, people, projects, semantic concepts)
+- 332 edges showing relationships
+- Interactive visualization with color-coded node types:
+  - 🔴 Documents (red)
+  - 🔵 Topics (blue)
+  - 🟢 People (green)
+  - 🟠 Projects (orange)
+  - 🟣 Semantic concepts (purple)
 - PageRank identifies most connected/important nodes
+
+### Alternative Desktop Tools
+- **DB Browser for SQLite**: `sudo apt install sqlitebrowser`
+- **DBeaver**: Professional database tool from https://dbeaver.io/
+
+## Interactive Agent
+
+An intelligent conversational agent that answers questions about research and professional journey using LangChain.
+
+### Setup
+```bash
+# Ensure API keys are in .env:
+# OPENROUTER_API_KEY=your_key_here
+# OPENAI_API_KEY=your_key_here
+
+# Run the agent
+python interactive_agent.py
+```
+
+### Features
+- Multi-tool architecture with specialized query tools
+- Memory management for conversation history
+- Semantic search using embeddings
+- Knowledge graph integration for deeper insights
+- Real-time streaming responses
+
+### Available Tools
+1. **search_academic_papers**: Find papers by topic or keywords
+2. **search_chronicle_notes**: Search daily work notes
+3. **find_research_topics**: Discover research areas
+4. **get_research_evolution**: Track topic evolution over time
+5. **find_project_connections**: Explore project relationships
+6. **semantic_search**: Natural language search
+7. **get_collaborations**: Find collaboration patterns
+
+### Example Questions
+- "What papers has Vaios written about optimal transport?"
+- "Show me his recent work on machine learning"
+- "How has his research evolved from mathematics to AI?"
+- "What projects involve reinforcement learning?"
+- "Find papers related to GANs or neural networks"
+- "What did he work on in June 2025?"
 
 ## Next Steps
 
 1. **Query API Development**: Build REST/GraphQL API using graph-enhanced queries
-2. **RAG Pipeline**: Integrate graph context with embeddings for smarter responses
+2. **RAG Pipeline**: Complete integration with conversational interface
 3. **Web Interface**: Create interactive frontend for CV queries
 4. **Production Deployment**: Deploy on remote server
 

@@ -8,8 +8,7 @@ import sqlite3
 import json
 import networkx as nx
 import matplotlib.pyplot as plt
-from typing import Dict, List, Tuple
-from pathlib import Path
+from typing import Dict
 import logging
 
 # Set up logging
@@ -277,16 +276,26 @@ class KnowledgeGraphExtractor:
     
     def get_statistics(self) -> Dict:
         """Get graph statistics."""
+        num_nodes = self.graph.number_of_nodes()
+        num_edges = self.graph.number_of_edges()
+        
+        # Calculate average degree
+        if num_nodes > 0:
+            degree_dict = dict(self.graph.degree())
+            avg_degree = sum(degree_dict.values()) / num_nodes
+        else:
+            avg_degree = 0
+            
         stats = {
-            'total_nodes': self.graph.number_of_nodes(),
-            'total_edges': self.graph.number_of_edges(),
+            'total_nodes': num_nodes,
+            'total_edges': num_edges,
             'node_types': {},
-            'average_degree': sum(dict(self.graph.degree()).values()) / self.graph.number_of_nodes() if self.graph.number_of_nodes() > 0 else 0,
+            'average_degree': avg_degree,
             'connected_components': nx.number_connected_components(self.graph)
         }
         
         # Count nodes by type
-        for node, data in self.graph.nodes(data=True):
+        for _, data in self.graph.nodes(data=True):
             node_type = data.get('type', 'unknown')
             stats['node_types'][node_type] = stats['node_types'].get(node_type, 0) + 1
             
