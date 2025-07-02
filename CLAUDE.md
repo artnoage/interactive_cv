@@ -178,10 +178,18 @@ The system combines:
 ```
 /interactive_cv/
 ├── academic/               # Research papers and analyses
-├── chronicle/              # Daily/weekly notes
-├── metadata_system/        # Extraction and query code
-├── metadata_extractor.py   # Production metadata extractor
-├── plan.md                 # Detailed implementation plan
+├── chronicle/              # Daily/weekly notes (synced from Obsidian)
+├── metadata_system/        # Core extraction and query code
+│   ├── extractors/         # Base and chronicle extractors
+│   ├── scripts/            # Import and setup scripts
+│   ├── embeddings.py       # Vector embedding generation
+│   ├── metadata.db         # SQLite database (not in git)
+│   └── query_comprehensive.py  # Database exploration tool
+├── .sync/                  # Sync scripts
+│   ├── sync-chronicle      # Shell wrapper
+│   └── sync_chronicle_with_metadata.py  # Main sync logic
+├── metadata_extractor.py   # LLM metadata extraction
+├── requirements.txt        # Python dependencies
 ├── note.md                 # Core ideas and decisions
 └── CLAUDE.md              # This file
 ```
