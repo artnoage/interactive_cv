@@ -1,12 +1,8 @@
 *.pdf
-chronicle
+
 .sync
 .env
 __pycache__/
-metadata_system/metadata.db
-metadata_system/*.db
 .backup
 temp
-metadata_system/knowledge_graph.html
-metadata_system/extractors/__pycache__
 raw_data/chronicle/
