@@ -26,13 +26,16 @@ Analyzes research papers following the methodology in `How_to_analyze.md`.
 ```python
 from agents import AcademicAnalyzer
 
-analyzer = AcademicAnalyzer()
+# Use the default (flash) model
+analyzer_flash = AcademicAnalyzer()
+# Or use the pro model
+analyzer_pro = AcademicAnalyzer(use_pro_model=True)
 
 # Analyze a paper
-analysis = analyzer.analyze_file(Path("paper.md"))
+analysis = analyzer_flash.analyze_file(Path("paper.md"))
 
 # Save as structured markdown
-output_path = analyzer.save_analysis(analysis)
+output_path = analyzer_flash.save_analysis(analysis)
 ```
 
 **Output:** Creates a comprehensive analysis following the three-phase structure, ready for entity extraction.
@@ -52,8 +55,12 @@ Extracts entities and relationships from paper analyses (not raw papers).
 ```python
 from agents import AcademicExtractor
 
-extractor = AcademicExtractor()
-metadata = extractor.process_file(Path("paper_analysis.md"))
+# Use the default (flash) model
+extractor_flash = AcademicExtractor()
+# Or use the pro model
+extractor_pro = AcademicExtractor(use_pro_model=True)
+
+metadata = extractor_flash.process_file(Path("paper_analysis.md"))
 ```
 
 ## Chronicle Extractor (`chronicle_extractor.py`)
@@ -70,8 +77,12 @@ Extracts metadata from daily, weekly, and monthly notes.
 ```python
 from agents import SimpleMetadataExtractor
 
-extractor = SimpleMetadataExtractor()
-metadata = extractor.process_file(Path("daily_note.md"))
+# Use the default (flash) model
+extractor_flash = SimpleMetadataExtractor()
+# Or use the pro model
+extractor_pro = SimpleMetadataExtractor(use_pro_model=True)
+
+metadata = extractor_flash.process_file(Path("daily_note.md"))
 ```
 
 ## Workflow Examples
@@ -79,20 +90,30 @@ metadata = extractor.process_file(Path("daily_note.md"))
 ### Academic Paper Processing
 ```python
 # Step 1: Analyze the paper
-analyzer = AcademicAnalyzer()
-analysis = analyzer.analyze_file(Path("raw_paper.md"))
-analysis_path = analyzer.save_analysis(analysis)
+analyzer_flash = AcademicAnalyzer()
+analysis = analyzer_flash.analyze_file(Path("raw_paper.md"))
+analysis_path = analyzer_flash.save_analysis(analysis)
 
 # Step 2: Extract entities from the analysis
-extractor = AcademicExtractor()
-entities = extractor.process_file(analysis_path)
+extractor_flash = AcademicExtractor()
+entities = extractor_flash.process_file(analysis_path)
+
+# Example with pro model
+analyzer_pro = AcademicAnalyzer(use_pro_model=True)
+analysis_pro = analyzer_pro.analyze_file(Path("raw_paper.md"))
+extractor_pro = AcademicExtractor(use_pro_model=True)
+entities_pro = extractor_pro.process_file(analysis_path)
 ```
 
 ### Chronicle Note Processing
 ```python
 # Direct extraction from notes
-extractor = SimpleMetadataExtractor()
-metadata = extractor.process_file(Path("2025-01-15.md"))
+extractor_flash = SimpleMetadataExtractor()
+metadata = extractor_flash.process_file(Path("2025-01-15.md"))
+
+# Example with pro model
+extractor_pro = SimpleMetadataExtractor(use_pro_model=True)
+metadata_pro = extractor_pro.process_file(Path("2025-01-15.md"))
 ```
 
 ## Configuration

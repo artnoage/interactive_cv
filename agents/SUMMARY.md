@@ -29,7 +29,10 @@ The `agents/` directory contains specialized AI agents for the Interactive CV pr
 - Added fields: domain, assumptions, limitations, future_work, key_insights
 - Aligned with the analysis guide structure
 
-### 4. Cleaned Up
+### 4. Added Model Selection
+- Agents now support `google/gemini-2.5-pro` via a `use_pro_model` flag, defaulting to `google/gemini-2.5-flash`.
+
+### 5. Cleaned Up
 - Removed: config_driven_extractor.py, demo_extractors.py, config_relationship_example.py
 - Removed: duplicate extraction_config.yaml
 - Kept only essential agents
@@ -37,14 +40,20 @@ The `agents/` directory contains specialized AI agents for the Interactive CV pr
 ## Workflow Example
 
 ```python
-# Step 1: Analyze a paper
+# Step 1: Analyze a paper (using the default flash model)
 analyzer = AcademicAnalyzer()
 analysis = analyzer.analyze_file(Path("paper.md"))
 analysis_path = analyzer.save_analysis(analysis)
 
-# Step 2: Extract entities from the analysis
+# Step 2: Extract entities from the analysis (using the default flash model)
 extractor = AcademicExtractor()
 entities = extractor.process_file(analysis_path)
+
+# Example using the pro model
+analyzer_pro = AcademicAnalyzer(use_pro_model=True)
+analysis_pro = analyzer_pro.analyze_file(Path("paper.md"))
+extractor_pro = AcademicExtractor(use_pro_model=True)
+entities_pro = extractor_pro.process_file(analysis_path)
 ```
 
 ## Config Files

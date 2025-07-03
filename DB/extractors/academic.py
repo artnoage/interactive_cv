@@ -45,12 +45,16 @@ class AcademicMetadata(BaseModel):
         description="Research topics and mathematical concepts", default=[]
     )
     
-    methods: List[str] = Field(
-        description="Methods and techniques used", default=[]
+    mathematical_concepts: List[Dict[str, str]] = Field(
+        description="Mathematical concepts with: name, category (theory/space/metric/operator/functional/equation/principle), description", default=[]
     )
     
-    algorithms: List[str] = Field(
-        description="Algorithm names", default=[]
+    methods: List[Dict[str, str]] = Field(
+        description="Methods with: name, type (analytical/computational/algorithmic/theoretical/experimental), description", default=[]
+    )
+    
+    algorithms: List[Dict[str, str]] = Field(
+        description="Algorithms with: name, purpose, key_idea, complexity", default=[]
     )
     
     people: List[str] = Field(
@@ -61,8 +65,12 @@ class AcademicMetadata(BaseModel):
         description="Institutions and organizations mentioned", default=[]
     )
     
-    applications: List[str] = Field(
-        description="Application domains", default=[]
+    applications: List[Dict[str, str]] = Field(
+        description="Applications with: domain, use_case, impact", default=[]
+    )
+    
+    research_areas: List[str] = Field(
+        description="High-level research areas and fields", default=[]
     )
     
     # Critical analysis elements
@@ -94,6 +102,14 @@ class AcademicMetadata(BaseModel):
     
     enables: List[str] = Field(
         description="Future work or applications this enables", default=[]
+    )
+    
+    theoretical_results: List[str] = Field(
+        description="Key theoretical results or theorems proven", default=[]
+    )
+    
+    related_concepts: List[str] = Field(
+        description="Concepts closely related but not part of core contribution", default=[]
     )
     
     # Evaluation details (stored as JSON in relationships)
@@ -140,18 +156,22 @@ The analyses follow this structure:
 - Phase 3: Synthesis & Future Work (Key insights, Open questions)
 
 Extract entities for the database schema:
-1. Topics: All research topics, mathematical concepts, theories
-2. Methods: Analytical methods, techniques, approaches
-3. Algorithms: Named algorithms (extract names only)
-4. People: Full names only (no usernames)
-5. Institutions: Universities, research centers, companies
-6. Applications: Application domains (e.g., healthcare, robotics, finance)
-7. Assumptions: Key assumptions made
-8. Limitations: Boundaries and limitations
-9. Future Work: Open questions and research directions
-10. Innovations: Novel contributions
-11. Builds On: Prior work this builds upon
-12. Enables: What this work enables
+1. Topics: General research topics and areas
+2. Mathematical Concepts: Specific mathematical objects with categories (theory/space/metric/operator/functional/equation/principle)
+3. Methods: Techniques with types (analytical/computational/algorithmic/theoretical/experimental)
+4. Algorithms: Named algorithms with purpose and complexity
+5. Research Areas: High-level fields (mathematics, computer_science, physics, etc.)
+6. People: Full names only (no usernames)
+7. Institutions: Universities, research centers, companies
+8. Applications: Concrete applications with domain, use_case, and impact
+9. Assumptions: Key assumptions made
+10. Limitations: Boundaries and limitations
+11. Future Work: Open questions and research directions
+12. Innovations: Novel contributions
+13. Builds On: Prior work this builds upon
+14. Enables: What this work enables
+15. Theoretical Results: Key theorems or results proven
+16. Related Concepts: Concepts related but not core
 
 Domain detection:
 - mathematics: proofs, theorems, mathematical structures
@@ -254,24 +274,46 @@ Be thorough but concise. Extract entity names, not full descriptions."""),
         # Entity counts
         entity_types = [
             ('topics', '🔬 TOPICS'),
+            ('mathematical_concepts', '📐 MATHEMATICAL CONCEPTS'),
             ('methods', '🔧 METHODS'),
             ('algorithms', '⚙️ ALGORITHMS'),
+            ('research_areas', '🎯 RESEARCH AREAS'),
             ('applications', '🌍 APPLICATIONS'),
             ('assumptions', '⚠️ ASSUMPTIONS'),
             ('limitations', '🚧 LIMITATIONS'),
             ('future_work', '🔮 FUTURE WORK'),
-            ('innovations', '✨ INNOVATIONS')
+            ('innovations', '✨ INNOVATIONS'),
+            ('theoretical_results', '📊 THEORETICAL RESULTS')
         ]
         
         for key, label in entity_types:
             if metadata.get(key):
-                count = len(metadata[key])
-                if count > 0:
-                    print(f"\n{label} ({count}):")
-                    for item in metadata[key][:5]:  # Show first 5
-                        print(f"  • {item}")
-                    if count > 5:
-                        print(f"  ... and {count - 5} more")
+                items = metadata[key]
+                if isinstance(items, list) and len(items) > 0:
+                    print(f"\n{label} ({len(items)}):")
+                    for i, item in enumerate(items[:5]):  # Show first 5
+                        if isinstance(item, dict):
+                            # For structured items (concepts, methods, algorithms, applications)
+                            if 'name' in item:
+                                extra_info = []
+                                if 'category' in item:
+                                    extra_info.append(f"category: {item['category']}")
+                                if 'type' in item:
+                                    extra_info.append(f"type: {item['type']}")
+                                if 'domain' in item:
+                                    extra_info.append(f"domain: {item['domain']}")
+                                if 'complexity' in item:
+                                    extra_info.append(f"complexity: {item['complexity']}")
+                                info_str = f" ({', '.join(extra_info)})" if extra_info else ""
+                                print(f"  • {item['name']}{info_str}")
+                            else:
+                                # For applications or other dict structures
+                                print(f"  • {item}")
+                        else:
+                            # For simple string items
+                            print(f"  • {item}")
+                    if len(items) > 5:
+                        print(f"  ... and {len(items) - 5} more")
 
 
 def demo_extraction():

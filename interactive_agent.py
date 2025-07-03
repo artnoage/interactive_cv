@@ -18,8 +18,8 @@ from langchain.agents import create_openai_tools_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 # Import metadata system components
-from metadata_system.graph_enhanced_query import GraphEnhancedQuery
-from metadata_system.embeddings import EmbeddingGenerator
+from KG.graph_enhanced_query import GraphEnhancedQuery
+from DB.embeddings import EmbeddingGenerator
 
 load_dotenv()
 
@@ -38,7 +38,7 @@ def search_academic_papers(
         topic: Optional specific topic to filter by
         limit: Maximum number of results to return
     """
-    db_path = "metadata_system/metadata.db"
+    db_path = "DB/metadata.db"
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
@@ -98,7 +98,7 @@ def get_paper_details(paper_title: str) -> str:
     Args:
         paper_title: Title or partial title of the paper
     """
-    db_path = "metadata_system/metadata.db"
+    db_path = "DB/metadata.db"
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
@@ -171,7 +171,7 @@ def search_chronicle_notes(
         date_to: Optional end date (YYYY-MM-DD)
         limit: Maximum number of results
     """
-    db_path = "metadata_system/metadata.db"
+    db_path = "DB/metadata.db"
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
@@ -228,7 +228,7 @@ def search_chronicle_by_date(
         date: Date in YYYY-MM-DD format
         keyword: Optional keyword to search within that day's notes
     """
-    db_path = "metadata_system/metadata.db"
+    db_path = "DB/metadata.db"
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
@@ -286,7 +286,7 @@ def find_research_topics(
         area: Optional area to focus on (e.g., 'optimal transport', 'machine learning')
         limit: Maximum number of topics to return
     """
-    db_path = "metadata_system/metadata.db"
+    db_path = "DB/metadata.db"
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     

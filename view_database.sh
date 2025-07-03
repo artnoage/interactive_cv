@@ -11,4 +11,4 @@ echo "Press Ctrl+C to stop"
 echo ""
 
 # Launch datasette on port 8001 (to avoid conflicts)
-datasette metadata_system/metadata.db -p 8001 --open
+datasette DB/metadata.db -p 8001 --open

@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class EmbeddingGenerator:
     """Generate and manage embeddings for documents."""
     
-    def __init__(self, db_path: str = "metadata_system/metadata.db"):
+    def __init__(self, db_path: str = "DB/metadata.db"):
         self.db_path = db_path
         
         # Initialize OpenAI embeddings directly

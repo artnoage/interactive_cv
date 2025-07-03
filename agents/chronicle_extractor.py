@@ -86,11 +86,12 @@ class SimpleChronicleMetadata(BaseModel):
 class SimpleMetadataExtractor:
     """Simplified chronicle metadata extractor"""
     
-    def __init__(self, model_name: str = "google/gemini-2.5-flash"):
+    def __init__(self, use_pro_model: bool = False):
         api_key = os.getenv("OPENROUTER_API_KEY")
         if not api_key:
             raise ValueError("OPENROUTER_API_KEY not found in .env file")
         
+        model_name = "google/gemini-2.5-pro" if use_pro_model else "google/gemini-2.5-flash"
         self.llm = ChatOpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=SecretStr(api_key),
@@ -252,7 +253,8 @@ Be concise and specific."""),
 
 def demo_extraction():
     """Demo extraction on sample notes"""
-    extractor = SimpleMetadataExtractor()
+    extractor_flash = SimpleMetadataExtractor(use_pro_model=False)
+    extractor_pro = SimpleMetadataExtractor(use_pro_model=True)
     
     # Test on available notes (daily, weekly, monthly)
     test_files = [
@@ -262,25 +264,38 @@ def demo_extraction():
         Path("chronicle/Monthly Notes/2025-06.md"),
     ]
     
-    all_metadata = []
+    all_metadata_flash = []
+    all_metadata_pro = []
     
     for file_path in test_files:
         if file_path.exists():
             print(f"\n{'#'*60}")
-            print(f"# {file_path.name}")
+            print(f"# {file_path.name} (Flash Model)")
             print(f"{'#'*60}")
+            metadata_flash = extractor_flash.extract_and_display(file_path)
+            all_metadata_flash.append(metadata_flash)
             
-            metadata = extractor.extract_and_display(file_path)
-            all_metadata.append(metadata)
+            print(f"\n{'#'*60}")
+            print(f"# {file_path.name} (Pro Model)")
+            print(f"{'#'*60}")
+            metadata_pro = extractor_pro.extract_and_display(file_path)
+            all_metadata_pro.append(metadata_pro)
         else:
             print(f"File not found: {file_path}")
     
-    # Save results
-    if all_metadata:
-        output_file = "extraction_results_simple.json"
-        with open(output_file, 'w') as f:
-            json.dump(all_metadata, f, indent=2)
-        print(f"\n✅ Saved to: {output_file}")
+    # Save results for Flash model
+    if all_metadata_flash:
+        output_file_flash = "extraction_results_flash.json"
+        with open(output_file_flash, 'w') as f:
+            json.dump(all_metadata_flash, f, indent=2)
+        print(f"\n✅ Saved Flash results to: {output_file_flash}")
+
+    # Save results for Pro model
+    if all_metadata_pro:
+        output_file_pro = "extraction_results_pro.json"
+        with open(output_file_pro, 'w') as f:
+            json.dump(all_metadata_pro, f, indent=2)
+        print(f"\n✅ Saved Pro results to: {output_file_pro}")
 
 
 if __name__ == "__main__":

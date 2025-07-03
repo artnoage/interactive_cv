@@ -205,12 +205,14 @@ The system combines:
 /interactive_cv/
 ├── academic/               # Research papers and analyses
 ├── chronicle/              # Daily/weekly notes (synced from Obsidian)
-├── metadata_system/        # Core extraction and query code
+├── DB/                     # Database and extraction system
 │   ├── extractors/         # Base and chronicle extractors
-│   ├── scripts/            # Import and setup scripts
 │   ├── embeddings.py       # Vector embedding generation
 │   ├── metadata.db         # SQLite database (not in git)
 │   └── query_comprehensive.py  # Database exploration tool
+├── KG/                     # Knowledge Graph system
+│   ├── knowledge_graph.py  # Graph builder from database
+│   └── graph_enhanced_query.py  # Graph-aware query system
 ├── .sync/                  # Sync scripts
 │   ├── sync-chronicle      # Shell wrapper
 │   └── sync_chronicle_with_metadata.py  # Main sync logic
@@ -245,17 +247,17 @@ The system combines:
 - **Major research areas**: Optimal transport (7 papers), Stochastic control (3), Probability theory (3)
 
 ### Key Files
-- `metadata_system/metadata.db`: SQLite database with all metadata
-- `.sync/sync_chronicle_with_metadata.py`: Main sync script with metadata extraction (updated for new DB structure)
+- `DB/metadata.db`: SQLite database with all metadata
+- `.sync/sync_chronicle_with_metadata.py`: Main sync script with metadata extraction
 - `.sync/sync-chronicle`: Shell wrapper for easy execution
-- `metadata_system/query_comprehensive.py`: Query tool to explore database
-- `metadata_system/scripts/import_*.py`: Import scripts for academic data
-- `metadata_extractor.py`: LLM-based metadata extraction (with improved prompts)
-- `metadata_system/knowledge_graph.py`: All-in-one database-agnostic graph generator (includes KnowledgeGraph class, DataProvider interface, and GenericSQLProvider)
-- `metadata_system/graph_enhanced_query.py`: Graph-aware query system
-- `metadata_system/knowledge_graph.html`: Interactive visualization (vis.js)
-- `metadata_system/extractors/base.py`: Base extractor updated for split document tables
-- `metadata_system/migrate_document_types.py`: Migration script for database restructuring
+- `DB/query_comprehensive.py`: Query tool to explore database
+- `DB/embeddings.py`: Vector embedding generation
+- `KG/knowledge_graph.py`: Database-agnostic graph generator
+- `KG/graph_enhanced_query.py`: Graph-aware query system
+- `KG/knowledge_graph.json`: Generated graph data
+- `web_ui/index.html`: Interactive visualization (vis.js)
+- `DB/extractors/base.py`: Base extractor for normalized schema
+- `DB/migrate_to_v2.py`: Migration script for new database structure
 
 ## Usage
 
@@ -299,8 +301,8 @@ Features:
 
 ### Knowledge Graph
 ```bash
-python3 metadata_system/knowledge_graph.py  # Generate/update graph
-# Creates metadata_system/knowledge_graph.json (required for queries)
+python3 KG/knowledge_graph.py  # Generate/update graph
+# Creates KG/knowledge_graph.json (required for queries)
 ```
 
 Graph Statistics:

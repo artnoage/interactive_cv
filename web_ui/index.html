@@ -439,7 +439,7 @@
 
         async function drawGraph() {
             // Fetch graph data first, as it's needed for default config population
-            const graphResponse = await fetch('../metadata_system/knowledge_graph.json?t=' + new Date().getTime());
+            const graphResponse = await fetch('../KG/knowledge_graph.json?t=' + new Date().getTime());
             graphData = await graphResponse.json();
 
             allNodes = new vis.DataSet(graphData.nodes.map(node => {

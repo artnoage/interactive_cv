@@ -22,7 +22,7 @@ def format_json_field(field_value):
     return None
 
 def main():
-    db_path = "metadata_system/metadata.db"
+    db_path = "DB/metadata.db"
     
     if not Path(db_path).exists():
         print(f"Error: Database {db_path} not found")

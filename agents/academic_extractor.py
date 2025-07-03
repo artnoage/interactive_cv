@@ -6,7 +6,7 @@ Based on the academic extraction schema for research papers
 
 import os
 import json
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
@@ -105,16 +105,71 @@ class AcademicMetadata(BaseModel):
     institutions: List[str] = Field(
         description="Institutions and organizations mentioned", default=[]
     )
+    theoretical_results: List[str] = Field(
+        description="Key theoretical results or theorems proven in the paper", default=[]
+    )
+    related_concepts: List[str] = Field(
+        description="Concepts closely related to the paper's topic but not directly part of its core contribution", default=[]
+    )
+    connections_to_other_work: Dict[str, List[str]] = Field(
+        description="How this work builds on, enables, or relates to other specific papers or research directions", default={}
+    )
+    
+    # Additional fields from analyzer that should be captured
+    claimed_contributions: List[str] = Field(
+        description="Main contributions claimed by the authors", default=[]
+    )
+    
+    structure_overview: Optional[str] = Field(
+        description="Brief description of how the paper is organized", default=None
+    )
+    
+    key_findings: List[str] = Field(
+        description="Most important results or discoveries", default=[]
+    )
+    
+    research_context: Optional[Dict[str, str]] = Field(
+        description="Historical context, current state, prior limitations, and advancement", default=None
+    )
+    
+    methodology_analysis: Optional[Dict[str, List[str]]] = Field(
+        description="Key technical innovations, mathematical framework, implementation details", default=None
+    )
+    
+    domain_specific_analysis: Optional[Dict[str, Any]] = Field(
+        description="Analysis specific to the paper's domain (math/CS/physics)", default=None
+    )
+    
+    critical_examination: Optional[Dict[str, List[str]]] = Field(
+        description="Assumptions, limitations, alternative explanations, evidence quality", default=None
+    )
+    
+    contextualization: Optional[str] = Field(
+        description="How this changes understanding of the field", default=None
+    )
+    
+    open_questions: List[str] = Field(
+        description="Questions raised by this work", default=[]
+    )
+    
+    thinking_patterns: Optional[Dict[str, str]] = Field(
+        description="Pattern recognition, systems thinking, probabilistic reasoning observed", default=None
+    )
+    
+    quality_assessment: Optional[Dict[str, str]] = Field(
+        description="Coherence, completeness, bias assessment", default=None
+    )
 
 
 class AcademicExtractor:
     """Academic paper metadata extractor"""
     
-    def __init__(self, model_name: str = "google/gemini-2.5-flash"):
+    def __init__(self, use_pro_model: bool = False):
         api_key = os.getenv("OPENROUTER_API_KEY")
         if not api_key:
             raise ValueError("OPENROUTER_API_KEY not found in .env file")
         
+        model_name = "google/gemini-2.5-pro" if use_pro_model else "google/gemini-2.5-flash"
         self.llm = ChatOpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=SecretStr(api_key),
@@ -185,7 +240,11 @@ Categories for mathematical concepts: theory, space, metric, operator, functiona
 Categories for methods: analytical, computational, algorithmic, theoretical, experimental
 Application domains: machine_learning, robotics, finance, healthcare, physics, biology, engineering, optimization, control_systems, other
 
-Be precise and technical. Extract full names for people (no usernames or placeholders)."""),
+Be precise and technical. Extract full names for people (no usernames or placeholders), including collaborators.
+Also, extract:
+- Key theoretical results or theorems proven in the paper.
+- Concepts closely related to the paper's topic but not directly part of its core contribution.
+- How this work builds on, enables, or relates to other specific papers or research directions."""),
             
             ("human", """Extract comprehensive metadata from this academic paper analysis following the three-phase structure:
 
@@ -309,7 +368,8 @@ Be precise and technical. Extract full names for people (no usernames or placeho
 
 def demo_extraction():
     """Demo extraction on academic papers"""
-    extractor = AcademicExtractor()
+    extractor_flash = AcademicExtractor(use_pro_model=False)
+    extractor_pro = AcademicExtractor(use_pro_model=True)
     
     # Test on available academic paper analyses
     test_files = [
@@ -318,25 +378,38 @@ def demo_extraction():
         Path("../raw_data/academic/Transcript_Analysis/Wasserstein_gradient_flows_large_deviations_analysis.md"),
     ]
     
-    all_metadata = []
+    all_metadata_flash = []
+    all_metadata_pro = []
     
     for file_path in test_files:
         if file_path.exists():
             print(f"\n{'#'*80}")
-            print(f"# {file_path.name}")
+            print(f"# {file_path.name} (Flash Model)")
             print(f"{'#'*80}")
+            metadata_flash = extractor_flash.extract_and_display(file_path)
+            all_metadata_flash.append(metadata_flash)
             
-            metadata = extractor.extract_and_display(file_path)
-            all_metadata.append(metadata)
+            print(f"\n{'#'*80}")
+            print(f"# {file_path.name} (Pro Model)")
+            print(f"{'#'*80}")
+            metadata_pro = extractor_pro.extract_and_display(file_path)
+            all_metadata_pro.append(metadata_pro)
         else:
             print(f"File not found: {file_path}")
     
-    # Save results
-    if all_metadata:
-        output_file = "academic_extraction_results.json"
-        with open(output_file, 'w') as f:
-            json.dump(all_metadata, f, indent=2)
-        print(f"\n✅ Saved to: {output_file}")
+    # Save results for Flash model
+    if all_metadata_flash:
+        output_file_flash = "academic_extraction_results_flash.json"
+        with open(output_file_flash, 'w') as f:
+            json.dump(all_metadata_flash, f, indent=2)
+        print(f"\n✅ Saved Flash results to: {output_file_flash}")
+
+    # Save results for Pro model
+    if all_metadata_pro:
+        output_file_pro = "academic_extraction_results_pro.json"
+        with open(output_file_pro, 'w') as f:
+            json.dump(all_metadata_pro, f, indent=2)
+        print(f"\n✅ Saved Pro results to: {output_file_pro}")
 
 
 if __name__ == "__main__":

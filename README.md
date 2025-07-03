@@ -50,9 +50,11 @@ Knowledge Graph Architecture (Database-Agnostic):
 interactive_cv/
 ├── academic/              # Research papers and analyses
 ├── chronicle/             # Daily notes (synced from Obsidian)
-├── metadata_system/       # Core extraction and query system
+├── DB/                    # Database and extraction system
 │   ├── extractors/        # Metadata extraction logic
 │   ├── embeddings.py      # Vector embedding generation
+│   └── query_comprehensive.py # Database exploration
+├── KG/                    # Knowledge Graph system
 │   ├── knowledge_graph.py # Graph generation
 │   └── graph_enhanced_query.py # Intelligent queries
 ├── .sync/                 # Sync scripts
@@ -106,13 +108,13 @@ chronicle-force
 ./view_database.sh
 
 # Query the database directly
-python metadata_system/query_comprehensive.py
+python DB/query_comprehensive.py
 ```
 
 ### Knowledge Graph
 ```bash
 # Generate/update the knowledge graph
-python metadata_system/knowledge_graph.py
+python KG/knowledge_graph.py
 
 # View in Gemini visualization
 open Gemini_knowledge_graph/index.html
@@ -137,134 +139,24 @@ open Gemini_knowledge_graph/index.html
 - **20 semantic concepts**: Mathematical foundations → ML applications
 - **19 semantic relationships**: Theory-to-practice connections
 
-## 🗄️ Database Structure Requirements
+## 🗄️ Database Structure (Normalized Schema)
 
-The system expects the following SQLite database structure:
+The system uses a normalized SQLite database with no redundancy:
 
-### Document Tables
-```sql
--- Chronicle documents (daily notes, journals)
-CREATE TABLE chronicle_documents (
-    id INTEGER PRIMARY KEY,
-    file_path TEXT UNIQUE NOT NULL,
-    title TEXT,
-    date DATE,
-    content_hash TEXT,
-    metadata JSON,
-    embedding BLOB,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+### Core Tables
+- **Document Tables**: `chronicle_documents`, `academic_documents` (with type-specific fields)
+- **Entity Tables**: `topics`, `people`, `projects`, `institutions`, `methods`, `applications` (with attributes)
+- **Relationships**: Single unified `relationships` table for ALL connections
+- **Graph Tables**: Pre-computed `graph_nodes` and `graph_edges` for performance
+- **Embeddings**: Unified `embeddings` table for all vector storage
 
--- Academic documents (papers, research)
-CREATE TABLE academic_documents (
-    id INTEGER PRIMARY KEY,
-    file_path TEXT UNIQUE NOT NULL,
-    title TEXT,
-    date DATE,
-    content_hash TEXT,
-    metadata JSON,
-    embedding BLOB,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
+### Key Features
+- **No Redundancy**: Relationships stored in ONE place only
+- **Direct Extraction**: Agents write directly to normalized tables
+- **Graph-Ready**: Pre-computed metrics (PageRank, centrality)
+- **Flexible**: Any entity can relate to any other entity
 
-### Entity Tables
-```sql
-CREATE TABLE topics (
-    id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL
-);
-
-CREATE TABLE people (
-    id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL
-);
-
-CREATE TABLE projects (
-    id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL
-);
-
-CREATE TABLE institutions (
-    id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    description TEXT
-);
-```
-
-### Relationship Tables
-```sql
--- Document-to-entity relationships
-CREATE TABLE document_topics (
-    document_id INTEGER,
-    topic_id INTEGER,
-    PRIMARY KEY (document_id, topic_id)
-);
-
-CREATE TABLE document_people (
-    document_id INTEGER,
-    person_id INTEGER,
-    PRIMARY KEY (document_id, person_id)
-);
-
-CREATE TABLE document_projects (
-    document_id INTEGER,
-    project_id INTEGER,
-    PRIMARY KEY (document_id, project_id)
-);
-
-CREATE TABLE document_institutions (
-    document_id INTEGER,
-    institution_id INTEGER,
-    PRIMARY KEY (document_id, institution_id)
-);
-```
-
-### Optional Tables
-```sql
--- For semantic relationships (optional but recommended)
-CREATE TABLE semantic_concepts (
-    concept_id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    concept_type TEXT,
-    description TEXT
-);
-
-CREATE TABLE semantic_relationships (
-    id INTEGER PRIMARY KEY,
-    source_type TEXT,
-    source_id TEXT,
-    target_type TEXT,
-    target_id TEXT,
-    relationship_type TEXT,
-    description TEXT
-);
-
--- For text chunks (used in RAG)
-CREATE TABLE chunks (
-    id INTEGER PRIMARY KEY,
-    document_id INTEGER,
-    chunk_index INTEGER,
-    content TEXT,
-    embedding BLOB,
-    metadata JSON
-);
-```
-
-### Backward Compatibility View
-```sql
--- View that combines both document types (for legacy queries)
-CREATE VIEW documents_view AS
-SELECT id, file_path, 'chronicle' as doc_type, title, date, 
-       content_hash, metadata, embedding, created_at, modified_at
-FROM chronicle_documents
-UNION ALL
-SELECT id, file_path, 'academic' as doc_type, title, date,
-       content_hash, metadata, embedding, created_at, modified_at
-FROM academic_documents;
-```
+For detailed schema documentation, see `DB/DATABASE_SCHEMA.md`
 
 ### Knowledge Graph Data Format
 
@@ -292,7 +184,7 @@ When using the database-agnostic knowledge graph system, your data provider shou
 
 ### How the Knowledge Graph System Works
 
-The knowledge graph system is now **completely database-agnostic** and consolidated into a single file (`metadata_system/knowledge_graph.py`). It contains:
+The knowledge graph system is now **completely database-agnostic** and consolidated into a single file (`KG/knowledge_graph.py`). It contains:
 
 1. **KnowledgeGraph Class**: Pure graph operations, no database knowledge
 2. **DataProvider Interface**: Abstract interface for data sources  

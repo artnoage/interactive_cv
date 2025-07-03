@@ -541,7 +541,7 @@ def main():
             print(f"  {node['label']} ({node['type']}): {node['score']:.4f}")
     
     # Export to JSON
-    output_path = "knowledge_graph.json"
+    output_path = "KG/knowledge_graph.json"
     graph.export_as_json(output_path)
     print(f"\nGraph exported to {output_path}")
     

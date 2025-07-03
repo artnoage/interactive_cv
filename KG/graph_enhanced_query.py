@@ -15,8 +15,8 @@ from pathlib import Path
 class GraphEnhancedQuery:
     """Combines database queries with knowledge graph traversal."""
     
-    def __init__(self, db_path: str = "metadata_system/metadata.db", 
-                 graph_path: str = "metadata_system/knowledge_graph.json"):
+    def __init__(self, db_path: str = "DB/metadata.db", 
+                 graph_path: str = "KG/knowledge_graph.json"):
         self.db_path = db_path
         self.graph = self._load_graph(graph_path)
         
