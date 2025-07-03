@@ -9,3 +9,4 @@ metadata_system/*.db
 temp
 metadata_system/knowledge_graph.html
 metadata_system/extractors/__pycache__
+raw_data/chronicle/

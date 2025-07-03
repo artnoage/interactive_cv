@@ -35,6 +35,13 @@ python interactive_agent.py
 │ Chronicle Notes │     │ Embeddings       │     │ Semantic Search │
 └─────────────────┘     │ Knowledge Graph  │     │ LangChain Agent │
                         └──────────────────┘     └─────────────────┘
+
+Knowledge Graph Architecture (Database-Agnostic):
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   Data Source   │────▶│  Data Provider   │────▶│ Knowledge Graph │
+│  (SQL, API,     │     │  (Adapter)       │     │  (Pure Logic)   │
+│   JSON, etc.)   │     │                  │     │                 │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
 ```
 
 ## 📁 Project Structure
@@ -61,10 +68,12 @@ interactive_cv/
 - Tracks document changes with content hashing
 
 ### 2. Knowledge Graph
-- 257 nodes: documents, topics, people, projects, concepts
-- 332 edges showing relationships
+- Database-agnostic design: can work with any data source
+- 257 nodes: documents, topics, people, projects, institutions, concepts
+- 326 edges showing relationships
 - Semantic relationships (e.g., "Gradient Flows" → "is_foundational_for" → "Diffusion Models")
 - PageRank algorithm identifies key research areas
+- Clean separation between data fetching and graph building
 
 ### 3. Semantic Search
 - OpenAI embeddings for all documents and chunks
@@ -123,9 +132,210 @@ open Gemini_knowledge_graph/index.html
 - **21 documents**: 12 academic papers + 9 chronicle notes
 - **193 unique topics**: From "optimal transport" to "machine learning"
 - **18 active projects**: Interactive CV, Collapsi RL, etc.
+- **4 institutions**: WIAS Berlin, TU Berlin, Brown University, University of Bath
 - **113 semantic chunks**: From academic paper analyses
-- **24 semantic concepts**: Mathematical foundations → ML applications
-- **47 semantic relationships**: Theory-to-practice connections
+- **20 semantic concepts**: Mathematical foundations → ML applications
+- **19 semantic relationships**: Theory-to-practice connections
+
+## 🗄️ Database Structure Requirements
+
+The system expects the following SQLite database structure:
+
+### Document Tables
+```sql
+-- Chronicle documents (daily notes, journals)
+CREATE TABLE chronicle_documents (
+    id INTEGER PRIMARY KEY,
+    file_path TEXT UNIQUE NOT NULL,
+    title TEXT,
+    date DATE,
+    content_hash TEXT,
+    metadata JSON,
+    embedding BLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Academic documents (papers, research)
+CREATE TABLE academic_documents (
+    id INTEGER PRIMARY KEY,
+    file_path TEXT UNIQUE NOT NULL,
+    title TEXT,
+    date DATE,
+    content_hash TEXT,
+    metadata JSON,
+    embedding BLOB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### Entity Tables
+```sql
+CREATE TABLE topics (
+    id INTEGER PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE people (
+    id INTEGER PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE projects (
+    id INTEGER PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE institutions (
+    id INTEGER PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    description TEXT
+);
+```
+
+### Relationship Tables
+```sql
+-- Document-to-entity relationships
+CREATE TABLE document_topics (
+    document_id INTEGER,
+    topic_id INTEGER,
+    PRIMARY KEY (document_id, topic_id)
+);
+
+CREATE TABLE document_people (
+    document_id INTEGER,
+    person_id INTEGER,
+    PRIMARY KEY (document_id, person_id)
+);
+
+CREATE TABLE document_projects (
+    document_id INTEGER,
+    project_id INTEGER,
+    PRIMARY KEY (document_id, project_id)
+);
+
+CREATE TABLE document_institutions (
+    document_id INTEGER,
+    institution_id INTEGER,
+    PRIMARY KEY (document_id, institution_id)
+);
+```
+
+### Optional Tables
+```sql
+-- For semantic relationships (optional but recommended)
+CREATE TABLE semantic_concepts (
+    concept_id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    concept_type TEXT,
+    description TEXT
+);
+
+CREATE TABLE semantic_relationships (
+    id INTEGER PRIMARY KEY,
+    source_type TEXT,
+    source_id TEXT,
+    target_type TEXT,
+    target_id TEXT,
+    relationship_type TEXT,
+    description TEXT
+);
+
+-- For text chunks (used in RAG)
+CREATE TABLE chunks (
+    id INTEGER PRIMARY KEY,
+    document_id INTEGER,
+    chunk_index INTEGER,
+    content TEXT,
+    embedding BLOB,
+    metadata JSON
+);
+```
+
+### Backward Compatibility View
+```sql
+-- View that combines both document types (for legacy queries)
+CREATE VIEW documents_view AS
+SELECT id, file_path, 'chronicle' as doc_type, title, date, 
+       content_hash, metadata, embedding, created_at, modified_at
+FROM chronicle_documents
+UNION ALL
+SELECT id, file_path, 'academic' as doc_type, title, date,
+       content_hash, metadata, embedding, created_at, modified_at
+FROM academic_documents;
+```
+
+### Knowledge Graph Data Format
+
+When using the database-agnostic knowledge graph system, your data provider should return:
+
+**Nodes Format:**
+```json
+{
+    "id": "unique_identifier",
+    "type": "document|topic|person|project|institution|concept",
+    "label": "Human readable name",
+    "additional_field": "any other attributes"
+}
+```
+
+**Edges Format:**
+```json
+{
+    "source": "source_node_id",
+    "target": "target_node_id", 
+    "relationship": "has_topic|mentions_person|relates_to_project|etc",
+    "additional_field": "any other attributes"
+}
+```
+
+### How the Knowledge Graph System Works
+
+The knowledge graph system is now **completely database-agnostic** and consolidated into a single file (`metadata_system/knowledge_graph.py`). It contains:
+
+1. **KnowledgeGraph Class**: Pure graph operations, no database knowledge
+2. **DataProvider Interface**: Abstract interface for data sources  
+3. **GenericSQLProvider**: Works with ANY SQLite database following conventions
+4. **Main Function**: Simple orchestration
+
+The system automatically extracts nodes and edges from your database without any hardcoded SQL. Just run:
+
+```bash
+python metadata_system/knowledge_graph.py
+```
+
+### Creating Custom Data Providers
+
+The consolidated file includes everything you need. For non-SQL data sources, implement the `DataProvider` interface:
+
+```python
+from metadata_system.knowledge_graph import DataProvider, KnowledgeGraph
+
+class MyDataProvider(DataProvider):
+    def get_nodes(self):
+        # Return list of nodes from your data source
+        return [{
+            'id': 'node_1',
+            'type': 'document',
+            'label': 'My Document',
+            'custom_field': 'any value'
+        }]
+    
+    def get_edges(self):
+        # Return list of edges from your data source
+        return [{
+            'source': 'node_1',
+            'target': 'topic_1',
+            'relationship': 'has_topic'
+        }]
+
+# Use it
+provider = MyDataProvider()
+kg = KnowledgeGraph()
+kg.add_nodes_batch(provider.get_nodes())
+kg.add_edges_batch(provider.get_edges())
+```
 
 ## 🔧 Configuration
 

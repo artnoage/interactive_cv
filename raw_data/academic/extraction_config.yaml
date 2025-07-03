@@ -1,0 +1,172 @@
+# Academic Paper Extraction Configuration
+# This file defines what entities and relationships to extract from academic papers
+
+entity_types:
+  paper:
+    required_fields: [title, file_path]
+    optional_fields: [authors, year, venue, core_contribution, problem_solved]
+    
+  mathematical_concept:
+    required_fields: [name]
+    categories:
+      - theory
+      - space
+      - metric
+      - operator
+      - functional
+      - equation
+      - principle
+    examples:
+      - Wasserstein distance
+      - Hellinger-Kantorovich space
+      - Gradient flows
+      - Optimal transport
+      
+  method:
+    required_fields: [name, type]
+    types:
+      - analytical
+      - computational
+      - algorithmic
+      - theoretical
+      - experimental
+    examples:
+      - Minimizing movement scheme
+      - Γ-convergence analysis
+      - Variational characterization
+      
+  application:
+    required_fields: [domain, use_case]
+    domains:
+      - machine_learning
+      - robotics
+      - finance
+      - healthcare
+      - physics
+      - computer_vision
+      - control_systems
+    priority: concrete_real_world
+    
+  algorithm:
+    required_fields: [name, purpose]
+    optional_fields: [complexity, key_idea]
+    
+  research_area:
+    required_fields: [name]
+    top_level_fields:
+      - mathematics
+      - computer_science
+      - physics
+      - engineering
+      - statistics
+      
+  innovation:
+    required_fields: [description, significance]
+    min_significance_length: 20
+    
+  person:
+    required_fields: [name]
+    validation:
+      - full_name_required
+      - no_usernames
+      - no_placeholders
+      
+  institution:
+    required_fields: [name]
+    types:
+      - university
+      - research_institute
+      - company
+      - government
+
+relationship_types:
+  - type: INTRODUCES
+    from: paper
+    to: [algorithm, method, concept]
+    description: Paper introduces new technique
+    
+  - type: APPLIES
+    from: paper
+    to: [mathematical_concept, method]
+    description: Paper uses existing theory
+    
+  - type: ENABLES
+    from: paper
+    to: [application, research_area]
+    description: Research enables new applications
+    
+  - type: BUILDS_ON
+    from: paper
+    to: [paper, theory]
+    description: Extends existing work
+    
+  - type: SOLVES
+    from: paper
+    to: problem
+    description: Addresses specific challenge
+    
+  - type: AUTHORED_BY
+    from: paper
+    to: person
+    bidirectional: false
+    
+  - type: AFFILIATED_WITH
+    from: person
+    to: institution
+    
+  - type: BELONGS_TO
+    from: paper
+    to: research_area
+    
+  - type: USES_FOR
+    from: [method, algorithm]
+    to: application
+
+extraction_priorities:
+  high:
+    - mathematical_concepts
+    - key_innovations
+    - methods_and_techniques
+    - applications
+  medium:
+    - algorithms
+    - research_areas
+    - collaborators
+  low:
+    - datasets
+    - limitations
+    - future_directions
+
+quality_rules:
+  mathematical_concepts:
+    - must_be_specific
+    - avoid_generic_terms
+    - include_formal_names
+    
+  applications:
+    - require_concrete_domain
+    - avoid_vague_descriptions
+    - include_use_case
+    
+  methods:
+    - must_be_actionable
+    - avoid_general_approaches
+    - include_technique_name
+    
+  innovations:
+    - require_genuine_advance
+    - avoid_incremental_improvements
+    - explain_significance
+
+extraction_limits:
+  mathematical_concepts:
+    min: 3
+    max: 20
+  methods:
+    min: 2
+    max: 10
+  applications:
+    min: 1
+    max: 10
+  relationships_per_type:
+    max: 20

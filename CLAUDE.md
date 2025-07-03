@@ -1,5 +1,30 @@
 # Interactive CV Project - CLAUDE.md
 
+## Recent Major Refactoring (2025-01-03)
+
+### Database System Overhaul
+We completely redesigned the database structure for cleaner, more efficient data management:
+
+1. **Renamed `metadata_system/` → `DB/`** for simplicity
+2. **Normalized Database Schema**:
+   - Single unified `relationships` table (no more redundancy!)
+   - Enhanced entity tables with proper attributes
+   - Pre-computed `graph_nodes` and `graph_edges` tables for performance
+   - Direct entity/relationship creation during extraction
+3. **Cleaner Extraction Workflow**: 
+   - No more intermediate JSON → database scripts
+   - Extractors write directly to normalized tables
+   - Relationships created on-the-fly during extraction
+
+### Agents System Architecture
+1. **Two-Step Academic Workflow**:
+   - **Academic Analyzer**: Analyzes raw papers following `How_to_analyze.md` methodology → produces structured analyses
+   - **Academic Extractor**: Extracts entities/relationships from analyses (not raw papers)
+2. **Chronicle Extractor**: Processes daily/weekly/monthly notes
+3. **Simplified Config Structure**: Single `extraction_schema.json` for academic, `extraction_config_simple.yaml` for chronicle
+
+**Key Insight**: The system now combines AI agents with a clean relational database, eliminating all redundancy while supporting both RAG queries and knowledge graph visualization.
+
 ## Project Overview
 
 This project creates an **Interactive CV System** that transforms academic research papers and personal chronicle notes into a dynamic, queryable professional profile. The system uses AI to extract metadata, build a knowledge graph, and enable intelligent conversations about your research expertise and work history.
@@ -19,48 +44,22 @@ This project creates an **Interactive CV System** that transforms academic resea
    - Weekly/monthly summaries
    - Project updates and insights
 
-### Metadata System Design
+### Database System Design
 
-We use a **split-table SQLite database** approach with separate tables for different document types:
+We use a **normalized SQLite database** with clean entity-relationship structure:
 
-```sql
--- Separate tables for each document type
-CREATE TABLE chronicle_documents (
-    id INTEGER PRIMARY KEY,
-    file_path TEXT UNIQUE NOT NULL,
-    title TEXT,
-    date DATE,
-    content_hash TEXT,  -- For change detection
-    metadata JSON,  -- Flexible metadata storage
-    embedding BLOB,  -- Vector embeddings for RAG
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+**Key Tables:**
+- `chronicle_documents` & `academic_documents`: Core document storage
+- `topics`, `people`, `projects`, `institutions`, `methods`, `applications`: Entity tables with attributes
+- `relationships`: Single unified table for ALL relationships (no redundancy!)
+- `graph_nodes` & `graph_edges`: Pre-computed graph structures for fast queries
+- `embeddings`: Vector storage for RAG
 
-CREATE TABLE academic_documents (
-    id INTEGER PRIMARY KEY,
-    file_path TEXT UNIQUE NOT NULL,
-    title TEXT,
-    date DATE,
-    content_hash TEXT,
-    metadata JSON,
-    embedding BLOB,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Entity tables
-CREATE TABLE topics (id, name);
-CREATE TABLE people (id, name);
-CREATE TABLE projects (id, name);
-CREATE TABLE institutions (id, name, description);
-
--- Relationship tables (work with both document types)
-CREATE TABLE document_topics (document_id, topic_id);
-CREATE TABLE document_people (document_id, person_id);
-CREATE TABLE document_projects (document_id, project_id);
-CREATE TABLE document_institutions (document_id, institution_id);
-```
+**Design Principles:**
+- Single source of truth (no duplicate data)
+- Direct extraction to database (no intermediate JSON processing)
+- Graph-ready structure with pre-computed metrics
+- Flexible relationship metadata support
 
 ### Enhanced Templates
 
@@ -124,7 +123,7 @@ llm = ChatOpenAI(
 17. **Visualization Tools**: Datasette for DB exploration, vis.js for graph visualization
 18. **Graph-Enhanced Queries**: Combined SQL + graph traversal for intelligent queries
 19. **Database Restructuring**: Split documents table into chronicle_documents and academic_documents
-20. **Knowledge Graph Refactoring**: Made configurable and database-agnostic with schema-driven extraction
+20. **Knowledge Graph Refactoring**: Made completely database-agnostic and consolidated into single file
 21. **Institution Support**: Added institutions as first-class entities with proper relationships
 
 ### 📋 TODO
@@ -252,7 +251,7 @@ The system combines:
 - `metadata_system/query_comprehensive.py`: Query tool to explore database
 - `metadata_system/scripts/import_*.py`: Import scripts for academic data
 - `metadata_extractor.py`: LLM-based metadata extraction (with improved prompts)
-- `metadata_system/knowledge_graph.py`: Configurable graph generator with schema-driven extraction
+- `metadata_system/knowledge_graph.py`: All-in-one database-agnostic graph generator (includes KnowledgeGraph class, DataProvider interface, and GenericSQLProvider)
 - `metadata_system/graph_enhanced_query.py`: Graph-aware query system
 - `metadata_system/knowledge_graph.html`: Interactive visualization (vis.js)
 - `metadata_system/extractors/base.py`: Base extractor updated for split document tables
@@ -305,15 +304,17 @@ python3 metadata_system/knowledge_graph.py  # Generate/update graph
 ```
 
 Graph Statistics:
-- 257 nodes (documents, topics, people, projects, semantic concepts)
-- 332 edges showing relationships
+- 257 nodes (documents, topics, people, projects, semantic concepts, institutions)
+- 326 edges showing relationships
 - Interactive visualization with color-coded node types:
-  - 🔴 Documents (red)
+  - 🔴 Documents (red) - now split into academic_document and chronicle_document
   - 🔵 Topics (blue)
   - 🟢 People (green)
   - 🟠 Projects (orange)
   - 🟣 Semantic concepts (purple)
+  - 🏛️ Institutions (teal)
 - PageRank identifies most connected/important nodes
+- Configurable via schema-driven extraction approach
 
 ### Alternative Desktop Tools
 - **DB Browser for SQLite**: `sudo apt install sqlitebrowser`
@@ -378,6 +379,11 @@ python interactive_agent.py
 - Malformed notes are skipped gracefully
 - LLM prompts now enforce proper name extraction (no placeholders)
 - Knowledge graph provides relationship insights beyond SQL queries
+- Database split: documents table now separated into chronicle_documents and academic_documents
+- Institutions are now first-class entities with their own table
+- Knowledge graph system is now completely database-agnostic (single file: knowledge_graph.py)
+- Backward compatibility maintained through documents_view for queries
+- No hardcoded SQL - works with any database following the naming conventions
 
 ## Integration Points
 
