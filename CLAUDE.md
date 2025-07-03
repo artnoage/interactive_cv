@@ -48,18 +48,50 @@ This project creates an **Interactive CV System** that transforms academic resea
 
 We use a **normalized SQLite database** with clean entity-relationship structure:
 
-**Key Tables:**
-- `chronicle_documents` & `academic_documents`: Core document storage
-- `topics`, `people`, `projects`, `institutions`, `methods`, `applications`: Entity tables with attributes
-- `relationships`: Single unified table for ALL relationships (no redundancy!)
-- `graph_nodes` & `graph_edges`: Pre-computed graph structures for fast queries
-- `embeddings`: Vector storage for RAG
+**Core Tables:**
+- **Document Tables**: 
+  - `chronicle_documents`: Daily/weekly/monthly notes from Obsidian
+  - `academic_documents`: Research papers and analyses
+  - `documents`: Unified view for backward compatibility
+- **Entity Tables** (with attributes):
+  - `topics`: Mathematical concepts, research areas (name, category, description)
+  - `people`: Authors, collaborators (name, role, affiliation)
+  - `projects`: Research projects (name, description, dates)
+  - `institutions`: Universities, research centers (name, type, location)
+  - `methods`: Algorithms, techniques (name, category, description)
+  - `applications`: Real-world uses (name, domain, description)
+- **Relationship & Graph**:
+  - `relationships`: Single unified table for ALL connections (no redundancy!)
+  - `graph_nodes` & `graph_edges`: Pre-computed for visualization
+  - `document_chunks`: Semantic segments for RAG
+  - `chunk_entities`: Maps entities to chunks
+  - `embeddings`: Vector storage for all entities
 
 **Design Principles:**
 - Single source of truth (no duplicate data)
 - Direct extraction to database (no intermediate JSON processing)
 - Graph-ready structure with pre-computed metrics
-- Flexible relationship metadata support
+- Flexible JSON metadata fields for extensibility
+- Unified ID format: `{type}_{id}` (e.g., 'academic_1', 'chronicle_2')
+
+### Chunking and Extraction Strategy
+
+**Core Principle**: Extraction needs context, retrieval needs focus.
+
+We use a multi-stage pipeline that preserves full context during extraction while enabling efficient retrieval:
+
+1. **Full Document Analysis**: LLM analyzes complete paper (all 3 phases)
+2. **Entity Extraction**: Extract from FULL analysis (sees complete context)
+3. **Database Population**: Store entities and relationships atomically
+4. **Smart Chunking**: Split AFTER extraction into 1000-1500 token chunks
+5. **Entity Mapping**: Map which entities appear in each chunk
+6. **Embeddings**: Generate for documents, chunks, and entities
+
+**Why This Order Matters**:
+- Extraction catches cross-document references and relationships
+- Chunking preserves semantic boundaries
+- Each chunk knows its entities (no re-extraction needed)
+- Queries can use entities, embeddings, or both
 
 ### Enhanced Templates
 
@@ -125,6 +157,8 @@ llm = ChatOpenAI(
 19. **Database Restructuring**: Split documents table into chronicle_documents and academic_documents
 20. **Knowledge Graph Refactoring**: Made completely database-agnostic and consolidated into single file
 21. **Institution Support**: Added institutions as first-class entities with proper relationships
+22. **Database Schema Documentation**: Created comprehensive DATABASE_SCHEMA.md file
+23. **Academic Pipeline**: Complete process_paper_pipeline.py for end-to-end paper processing
 
 ### 📋 TODO
 1. **Query API**: REST/GraphQL interface for searching and retrieving information
@@ -227,27 +261,33 @@ The system combines:
 
 ## Current Status
 
-### Database Contents
-- **21 documents total**: 12 academic papers + 9 chronicle notes
-- **170 unique topics**: Mathematical concepts, research areas, and project tags
-- **18 projects**: From daily work (Collapsi RL, Interactive CV, etc.)
-- **1 person**: Mark S. Ball (cleaned from incomplete entries)
-- **4 institutions**: WIAS Berlin, TU Berlin, Brown University, University of Bath
-- **113 semantic chunks**: From academic paper analyses
-- **All content has embeddings**: For semantic search capabilities
-- **257 knowledge graph nodes**: With 326 edges showing relationships
-- **Node types in graph**: 
-  - 12 academic_document nodes
-  - 9 chronicle_document nodes
-  - 193 topic nodes
-  - 18 project nodes
-  - 1 person node
-  - 4 institution nodes
-  - 20 semantic_concept nodes
-- **Major research areas**: Optimal transport (7 papers), Stochastic control (3), Probability theory (3)
+### Database Status (Updated 2025-01-03)
+- **Database**: Fully populated with all 12 academic papers
+- **Academic Papers**: 12 papers successfully processed
+- **Chronicle Notes**: 0 (sync system ready but not populated)
+- **Entities Extracted**:
+  - 192 topics (mathematical concepts, research areas)
+  - 18 people (authors and researchers)
+  - 57 methods (analytical and computational techniques)
+  - 0 institutions (extraction needs enhancement)
+- **Document Processing**:
+  - 186 semantic chunks created
+  - 447 embeddings generated
+  - 315 relationships established
+- **Pipeline Status**: ✅ Complete and operational
+
+### Processing Results
+- All 12 papers analyzed and stored
+- Comprehensive metadata extracted using LLMs
+- Semantic search capabilities enabled
+- Knowledge graph data structure ready (graph_nodes/edges tables need population)
 
 ### Key Files
-- `DB/metadata.db`: SQLite database with all metadata
+- `DB/metadata.db`: SQLite database with all metadata (✅ created and populated)
+- `DB/DATABASE_SCHEMA.md`: Complete database schema documentation
+- `DB/process_paper_pipeline.py`: End-to-end academic paper processing
+- `agents/academic_analyzer.py`: Analyzes papers following How_to_analyze.md
+- `agents/academic_extractor.py`: Extracts entities from analyses
 - `.sync/sync_chronicle_with_metadata.py`: Main sync script with metadata extraction
 - `.sync/sync-chronicle`: Shell wrapper for easy execution
 - `DB/query_comprehensive.py`: Query tool to explore database
@@ -257,9 +297,28 @@ The system combines:
 - `KG/knowledge_graph.json`: Generated graph data
 - `web_ui/index.html`: Interactive visualization (vis.js)
 - `DB/extractors/base.py`: Base extractor for normalized schema
-- `DB/migrate_to_v2.py`: Migration script for new database structure
 
 ## Usage
+
+### Academic Paper Processing
+
+To process all academic papers through the pipeline:
+
+```bash
+# Process a single paper (for testing)
+cd /home/artnoage/Projects/interactive_cv
+python DB/process_paper_pipeline.py
+
+# Process all papers (create a batch script)
+python scripts/process_all_papers.py
+```
+
+The pipeline performs these steps for each paper:
+1. **Analyze**: Generate comprehensive analysis using academic_analyzer
+2. **Extract**: Extract entities and relationships using academic_extractor
+3. **Store**: Save to normalized database with proper relationships
+4. **Chunk**: Create semantic chunks for RAG
+5. **Embed**: Generate embeddings for semantic search
 
 ### Chronicle Sync Commands
 After setting up, use these commands from anywhere:

@@ -181,7 +181,7 @@ class V2SQLProvider:
         
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT node_id, entity_type, label, attributes, 
+            SELECT node_id, node_type as entity_type, node_label as label, attributes, 
                    pagerank_score, degree, community_id
             FROM graph_nodes
             ORDER BY pagerank_score DESC

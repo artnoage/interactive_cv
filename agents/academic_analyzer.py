@@ -7,7 +7,7 @@ Produces structured analyses that can then be processed by the academic_extracto
 
 import os
 import json
-from typing import Dict, List, Optional, Literal, Any
+from typing import Dict, List, Optional, Literal
 from pathlib import Path
 from datetime import datetime
 from dotenv import load_dotenv
@@ -180,8 +180,7 @@ class AcademicAnalyzer:
                 "HTTP-Referer": "http://localhost:3000",
                 "X-Title": "Academic Paper Analyzer",
             },
-            temperature=0.1,
-            max_tokens=8000  # Increased for comprehensive analysis
+            temperature=0.1
         )
         
         self.parser = PydanticOutputParser(pydantic_object=PaperAnalysis)
@@ -197,7 +196,7 @@ class AcademicAnalyzer:
     
     def _load_analysis_guide(self) -> str:
         """Load the How_to_analyze.md guide"""
-        guide_path = Path(__file__).parent.parent / "raw_data" / "academic" / "How_to_analyze.md"
+        guide_path = Path(__file__).parent / "How_to_analyze.md"
         if guide_path.exists():
             with open(guide_path, 'r') as f:
                 return f.read()
