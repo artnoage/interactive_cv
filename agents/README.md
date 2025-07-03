@@ -6,10 +6,10 @@ This directory contains specialized AI agents for the Interactive CV project.
 
 ### Academic Workflow
 1. **Academic Analyzer** (`academic_analyzer.py`) - Analyzes raw papers → produces structured analyses
-2. **Academic Extractor** (`academic_extractor.py`) - Extracts entities/relationships from analyses
+2. **Academic Metadata Extractor** (`academic_metadata_extractor.py`) - Extracts metadata to JSON
 
 ### Chronicle Workflow
-- **Chronicle Extractor** (`chronicle_extractor.py`) - Extracts metadata from daily/weekly/monthly notes
+- **Chronicle Metadata Extractor** (`chronicle_metadata_extractor.py`) - Extracts metadata to JSON
 
 ## Academic Analyzer (`academic_analyzer.py`)
 
@@ -40,9 +40,9 @@ output_path = analyzer_flash.save_analysis(analysis)
 
 **Output:** Creates a comprehensive analysis following the three-phase structure, ready for entity extraction.
 
-## Academic Extractor (`academic_extractor.py`)
+## Academic Metadata Extractor (`academic_metadata_extractor.py`)
 
-Extracts entities and relationships from paper analyses (not raw papers).
+Extracts entities and relationships from paper analyses (not raw papers) to JSON files.
 
 **Features:**
 - Works on analyses produced by the Academic Analyzer
@@ -63,26 +63,29 @@ extractor_pro = AcademicExtractor(use_pro_model=True)
 metadata = extractor_flash.process_file(Path("paper_analysis.md"))
 ```
 
-## Chronicle Extractor (`chronicle_extractor.py`)
+## Chronicle Metadata Extractor (`chronicle_metadata_extractor.py`)
 
-Extracts metadata from daily, weekly, and monthly notes.
+Extracts metadata from daily, weekly, and monthly notes to JSON files.
 
 **Features:**
 - Multi-type support (daily, weekly, monthly)
 - Template-aligned extraction
 - Automatic note type detection
 - Common fields + type-specific fields
+- Outputs JSON files for modular workflow
 
 **Usage:**
 ```python
-from agents import SimpleMetadataExtractor
+from agents import ChronicleMetadataExtractor
 
 # Use the default (flash) model
-extractor_flash = SimpleMetadataExtractor()
-# Or use the pro model
-extractor_pro = SimpleMetadataExtractor(use_pro_model=True)
+extractor = ChronicleMetadataExtractor()
 
-metadata = extractor_flash.process_file(Path("daily_note.md"))
+# Process a file and save to JSON
+output_path = extractor.process_file(
+    Path("daily_note.md"), 
+    Path("output_dir")
+)
 ```
 
 ## Workflow Examples
@@ -107,13 +110,15 @@ entities_pro = extractor_pro.process_file(analysis_path)
 
 ### Chronicle Note Processing
 ```python
-# Direct extraction from notes
-extractor_flash = SimpleMetadataExtractor()
-metadata = extractor_flash.process_file(Path("2025-01-15.md"))
+# Direct extraction from notes to JSON
+extractor = ChronicleMetadataExtractor()
+output_path = extractor.process_file(
+    Path("2025-01-15.md"),
+    Path("output_metadata")
+)
 
-# Example with pro model
-extractor_pro = SimpleMetadataExtractor(use_pro_model=True)
-metadata_pro = extractor_pro.process_file(Path("2025-01-15.md"))
+# Batch processing
+python scripts/extract_personal_notes_metadata.py
 ```
 
 ## Configuration

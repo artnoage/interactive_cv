@@ -1,0 +1,18 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [],
+  "links": [],
+  "metadata": {
+    "version": "2.0",
+    "statistics": {
+      "total_nodes": 0,
+      "total_edges": 0,
+      "node_types": {},
+      "relationship_types": {},
+      "average_degree": 0,
+      "connected_components": 0
+    }
+  }
+}

@@ -1,8 +1,8 @@
 *.pdf
-
 .sync
 .env
 __pycache__/
 .backup
 temp
 raw_data/chronicle/
+raw_data/academic/

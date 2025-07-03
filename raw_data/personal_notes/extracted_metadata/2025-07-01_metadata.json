@@ -1,0 +1,73 @@
+{
+  "date": "2025-07-01",
+  "note_type": "daily",
+  "title": "Daily Note - 2025-07-01",
+  "summary": "Successfully completed the core metadata system for the Interactive CV project, including SQLite database setup, OpenAI embeddings integration, and semantic search functionality. Also made progress on the Collapsi RL project's evaluation system.",
+  "topics": [
+    "sqlite",
+    "embeddings",
+    "semantic-search",
+    "database-design",
+    "llm-integration",
+    "metadata-extraction",
+    "document-chunking"
+  ],
+  "projects": [
+    "Interactive CV",
+    "Collapsi RL"
+  ],
+  "people": [],
+  "institutions": [],
+  "methods": [
+    "cosine similarity",
+    "MCTS"
+  ],
+  "tools": [
+    "Python",
+    "SQLite",
+    "OpenAI API",
+    "LangChain",
+    "watchdog",
+    "rsync",
+    "FastAPI"
+  ],
+  "accomplishments": [
+    "Completed Interactive CV metadata system implementation",
+    "Implemented document chunking for academic papers",
+    "Set up embeddings with OpenAI API",
+    "Tested semantic search functionality",
+    "Chunked all academic papers into 113 searchable sections",
+    "Generated embeddings for all content (6 chronicle notes + 113 chunks)",
+    "Demonstrated working semantic search across domains",
+    "Updated plan.md to reflect completed work",
+    "Suggested sync integration instead of separate watcher daemon",
+    "Collapsi RL system supports comparing raw neural network vs MCTS-enhanced versions"
+  ],
+  "insights": [
+    "Document chunking enables granular search",
+    "Embeddings in SQLite BLOBs work well",
+    "Sync integration is better than a separate daemon",
+    "OpenAI embeddings can be stored efficiently in SQLite as BLOB fields",
+    "Chunk-based retrieval improves search precision for academic content",
+    "One-command workflow (sync + metadata) is better UX than separate daemon"
+  ],
+  "learning": [
+    "OpenAI embeddings can be stored efficiently in SQLite as BLOB fields",
+    "Chunk-based retrieval improves search precision for academic content",
+    "One-command workflow (sync + metadata) is better UX than separate daemon"
+  ],
+  "challenges": [],
+  "future_work": [
+    "Consider implementing Query API for Interactive CV",
+    "Design RAG pipeline architecture",
+    "Continue Collapsi RL model training"
+  ],
+  "metrics": {
+    "chunks_created": 113,
+    "academic_papers_processed": 12,
+    "content_embedded": "6 chronicle notes + 113 chunks"
+  },
+  "papers": [],
+  "file_path": "raw_data/personal_notes/Daily Notes/2025-07-01.md",
+  "extracted_at": "2025-07-03T19:46:49.291723"
+}

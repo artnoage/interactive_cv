@@ -18,13 +18,17 @@ cp .env.example .env
 # OPENROUTER_API_KEY=your_key_here
 # OPENAI_API_KEY=your_key_here
 
-# 4. Process academic papers (if starting fresh)
-python scripts/process_all_papers.py
+# 4. Extract and populate metadata (modular workflow)
+# Extract personal notes metadata to JSON
+python scripts/extract_personal_notes_metadata.py
 
-# 5. Sync chronicle notes (if you have Obsidian set up)
-chronicle
+# Populate database from JSON metadata
+python DB/unified_metadata_populator.py
 
-# 6. Run the interactive agent
+# Update knowledge graph
+python populate_graph_tables.py
+
+# 5. Run the interactive agent
 python interactive_agent.py
 ```
 
@@ -35,7 +39,7 @@ python interactive_agent.py
 │  Data Sources   │     │ Processing Layer │     │   Query Layer   │
 ├─────────────────┤     ├──────────────────┤     ├─────────────────┤
 │ Academic Papers │────▶│ LLM Analysis     │────▶│ SQL + Graph     │
-│ Chronicle Notes │     │ Entity Extraction│     │ Semantic Search │
+│ Personal Notes  │     │ Entity Extraction│     │ Semantic Search │
 └─────────────────┘     │ Embeddings       │     │ LangChain Agent │
                         │ Chunking         │     └─────────────────┘
                         └──────────────────┘     
@@ -46,6 +50,13 @@ Processing Pipeline:
 └──────────────┘    └─────────────┘    └──────────────┘    └──────────┘
                            │                    │                  │
                     (Full Analysis)    (Entity Extraction)   (Normalized)
+
+Modular Workflow (NEW):
+┌──────────────┐    ┌──────────────┐    ┌─────────────┐    ┌──────────┐
+│ Raw Document │───▶│ LLM Extractor│───▶│ JSON Files  │───▶│ Database │
+└──────────────┘    └──────────────┘    └─────────────┘    └──────────┘
+                           │                    │                  │
+                    (Extract Metadata)   (Inspectable)      (Unified Import)
 ```
 
 ## 📁 Project Structure
@@ -53,7 +64,7 @@ Processing Pipeline:
 ```
 interactive_cv/
 ├── academic/              # Research papers and analyses
-├── chronicle/             # Daily notes (synced from Obsidian)
+├── personal_notes/        # Daily and weekly notes
 ├── agents/                # LLM-based analyzers and extractors
 ├── DB/                    # Database and processing system
 │   ├── extractors/        # Base extraction logic
@@ -94,10 +105,10 @@ Raw Paper → Full Analysis → Entity Extraction → Database → Chunking → 
 
 ### 2. Knowledge Graph
 - Database-agnostic design
-- 450+ nodes and edges from 12 academic papers
+- 790 nodes and 546 edges from academic papers and personal notes
 - Entity types: documents, topics, people, projects, methods, institutions
 - Pre-computed graph tables for performance
-- PageRank identifies key research areas
+- PageRank identifies key research areas and connections
 
 ### 3. Semantic Search & RAG
 
@@ -115,7 +126,29 @@ Raw Paper → Full Analysis → Entity Extraction → Database → Chunking → 
 - Chunk-entity mappings with relevance scores
 - Combined SQL + vector search for best results
 
-### 4. Interactive Agent
+### 4. Modular Metadata Workflow
+
+The system now supports a modular approach that separates extraction from storage:
+
+**Benefits**:
+- **Separation of Concerns**: Extraction logic is independent of storage
+- **Inspectable Metadata**: JSON files can be reviewed before database import
+- **Flexibility**: Re-run database population without re-extracting
+- **Consistency**: Academic and personal notes follow the same pattern
+- **Debugging**: Easy to see what was extracted and modify if needed
+
+**Components**:
+- `agents/academic_metadata_extractor.py` - Extracts academic metadata to JSON
+- `agents/chronicle_metadata_extractor.py` - Extracts personal notes metadata to JSON  
+- `DB/unified_metadata_populator.py` - Populates database from JSON files
+
+**Workflow**:
+1. Extract metadata from documents → JSON files
+2. Review/modify JSON if needed
+3. Import JSON to database
+4. Update knowledge graph
+
+### 5. Interactive Agent
 - Natural language interface
 - Multiple specialized tools
 - Conversation memory
@@ -125,11 +158,11 @@ Raw Paper → Full Analysis → Entity Extraction → Database → Chunking → 
 
 ### Database Statistics
 - **12 academic papers**: All successfully processed
-- **0 chronicle notes**: Sync system ready
+- **7 personal notes**: Extracted and ready
 - **192 topics**: Mathematical concepts and research areas
 - **18 people**: Authors and researchers
 - **57 methods**: Analytical and computational techniques
-- **0 institutions**: Extraction needs enhancement
+- **25 institutions**: Universities and organizations
 - **186 document chunks**: For semantic search
 - **447 embeddings**: For RAG capabilities
 - **315 relationships**: Between entities

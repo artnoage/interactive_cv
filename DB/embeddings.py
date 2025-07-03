@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Basic embeddings generation using OpenAI API.
-Stores embeddings in the database for semantic search.
+Embeddings generation using OpenAI API.
+Stores embeddings in the dedicated embeddings table for semantic search.
 """
 
 import os
 import json
 import sqlite3
 import numpy as np
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict
 import logging
 from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
@@ -23,12 +23,12 @@ logger = logging.getLogger(__name__)
 
 
 class EmbeddingGenerator:
-    """Generate and manage embeddings for documents."""
+    """Generate and manage embeddings for documents, chunks, and entities."""
     
     def __init__(self, db_path: str = "DB/metadata.db"):
         self.db_path = db_path
         
-        # Initialize OpenAI embeddings directly
+        # Initialize OpenAI embeddings
         api_key = os.getenv("OPENAI_API_KEY")
         if not api_key:
             raise ValueError("OPENAI_API_KEY not found in environment")
@@ -37,67 +37,13 @@ class EmbeddingGenerator:
             api_key=SecretStr(api_key),
             model="text-embedding-3-small"  # Good balance of performance/cost
         )
+        self.model_name = "text-embedding-3-small"
     
     def get_connection(self) -> sqlite3.Connection:
         """Get database connection."""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         return conn
-    
-    def prepare_document_text(self, doc_id: int) -> Optional[str]:
-        """Prepare document text for embedding."""
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        
-        try:
-            # Get document metadata
-            cursor.execute("""
-                SELECT file_path, title, doc_type, metadata 
-                FROM documents 
-                WHERE id = ?
-            """, (doc_id,))
-            
-            doc = cursor.fetchone()
-            if not doc:
-                return None
-            
-            # Parse metadata
-            metadata = json.loads(doc['metadata'])
-            
-            # Build text representation based on document type
-            text_parts = [f"Title: {doc['title']}"]
-            
-            if doc['doc_type'] == 'academic':
-                # For academic papers, include key concepts and contributions
-                if metadata.get('core_contributions'):
-                    text_parts.append(f"Core Contributions: {metadata['core_contributions']}")
-                if metadata.get('problem_solved'):
-                    text_parts.append(f"Problem Solved: {metadata['problem_solved']}")
-                if metadata.get('mathematical_concepts'):
-                    text_parts.append(f"Mathematical Concepts: {', '.join(metadata['mathematical_concepts'])}")
-                if metadata.get('applications'):
-                    text_parts.append(f"Applications: {', '.join(metadata['applications'])}")
-                if metadata.get('key_innovations'):
-                    text_parts.append(f"Key Innovations: {', '.join(metadata['key_innovations'])}")
-                    
-            else:  # chronicle
-                # For chronicle notes, include work focus and key insights
-                if metadata.get('work_focus'):
-                    text_parts.append(f"Work Focus: {metadata['work_focus']}")
-                if metadata.get('daily_summary'):
-                    text_parts.append(f"Summary: {metadata['daily_summary']}")
-                if metadata.get('topics'):
-                    text_parts.append(f"Topics: {', '.join(metadata['topics'])}")
-                if metadata.get('projects'):
-                    text_parts.append(f"Projects: {', '.join(metadata['projects'])}")
-                if metadata.get('insights'):
-                    insights_text = ' '.join(metadata['insights'][:3])  # First 3 insights
-                    text_parts.append(f"Key Insights: {insights_text}")
-            
-            return '\n'.join(text_parts)
-            
-        finally:
-            conn.close()
     
     def generate_embedding(self, text: str) -> List[float]:
         """Generate embedding for text."""
@@ -108,8 +54,8 @@ class EmbeddingGenerator:
             logger.error(f"Error generating embedding: {e}")
             raise
     
-    def store_embedding(self, doc_id: int, embedding: List[float]):
-        """Store embedding in database."""
+    def store_embedding(self, entity_type: str, entity_id: str, embedding: List[float]):
+        """Store embedding in the embeddings table."""
         conn = self.get_connection()
         cursor = conn.cursor()
         
@@ -117,15 +63,15 @@ class EmbeddingGenerator:
             # Convert embedding to bytes for storage
             embedding_bytes = np.array(embedding, dtype=np.float32).tobytes()
             
-            # Update document with embedding
+            # Insert or update embedding
             cursor.execute("""
-                UPDATE documents 
-                SET embedding = ? 
-                WHERE id = ?
-            """, (embedding_bytes, doc_id))
+                INSERT OR REPLACE INTO embeddings 
+                (entity_type, entity_id, embedding, model_name)
+                VALUES (?, ?, ?, ?)
+            """, (entity_type, entity_id, embedding_bytes, self.model_name))
             
             conn.commit()
-            logger.info(f"Stored embedding for document {doc_id}")
+            logger.debug(f"Stored embedding for {entity_type}:{entity_id}")
             
         except Exception as e:
             conn.rollback()
@@ -134,166 +80,333 @@ class EmbeddingGenerator:
         finally:
             conn.close()
     
-    def process_document(self, doc_id: int) -> bool:
-        """Generate and store embedding for a single document."""
-        try:
-            # Prepare text
-            text = self.prepare_document_text(doc_id)
-            if not text:
-                logger.warning(f"No text found for document {doc_id}")
-                return False
-            
-            logger.info(f"Generating embedding for document {doc_id}")
-            logger.debug(f"Text preview: {text[:200]}...")
-            
-            # Generate embedding
-            embedding = self.generate_embedding(text)
-            
-            # Store in database
-            self.store_embedding(doc_id, embedding)
-            
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error processing document {doc_id}: {e}")
-            return False
-    
-    def process_all_documents(self, doc_type: Optional[str] = None):
-        """Process all documents without embeddings."""
+    def prepare_document_text(self, doc_id: int, doc_type: str) -> Optional[str]:
+        """Prepare document text for embedding."""
         conn = self.get_connection()
         cursor = conn.cursor()
         
         try:
-            # Find documents without embeddings
-            query = "SELECT id, title FROM documents WHERE embedding IS NULL"
-            params = []
+            # Get document details
+            table = f"{doc_type}_documents"
+            cursor.execute(f"""
+                SELECT title, content, date 
+                FROM {table} 
+                WHERE id = ?
+            """, (doc_id,))
             
-            if doc_type:
-                query += " AND doc_type = ?"
-                params.append(doc_type)
+            doc = cursor.fetchone()
+            if not doc:
+                return None
             
-            cursor.execute(query, params)
-            documents = cursor.fetchall()
+            # Build text representation
+            text_parts = [f"Title: {doc['title']}"]
             
-            logger.info(f"Found {len(documents)} documents without embeddings")
+            if doc['date']:
+                text_parts.append(f"Date: {doc['date']}")
             
-            successful = 0
-            for doc in documents:
-                if self.process_document(doc['id']):
-                    successful += 1
-                    logger.info(f"✓ Processed: {doc['title']}")
-                else:
-                    logger.error(f"✗ Failed: {doc['title']}")
+            # Add content preview (first 2000 chars)
+            if doc['content']:
+                text_parts.append(f"Content:\n{doc['content'][:2000]}")
             
-            logger.info(f"Successfully generated embeddings for {successful}/{len(documents)} documents")
-            
-        finally:
-            conn.close()
-    
-    def generate_chunk_embeddings(self, doc_id: Optional[int] = None):
-        """Generate embeddings for document chunks."""
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        
-        try:
-            # Find chunks without embeddings
-            if doc_id:
-                query = """
-                    SELECT c.id, c.chunk_title, c.chunk_content, d.title as doc_title
-                    FROM document_chunks c
-                    JOIN documents d ON c.document_id = d.id
-                    WHERE c.embedding IS NULL AND c.document_id = ?
-                """
-                cursor.execute(query, (doc_id,))
-            else:
-                query = """
-                    SELECT c.id, c.chunk_title, c.chunk_content, d.title as doc_title
-                    FROM document_chunks c
-                    JOIN documents d ON c.document_id = d.id
-                    WHERE c.embedding IS NULL
-                """
-                cursor.execute(query)
-            
-            chunks = cursor.fetchall()
-            logger.info(f"Found {len(chunks)} chunks without embeddings")
-            
-            successful = 0
-            for chunk in chunks:
-                try:
-                    # Prepare chunk text
-                    text = f"Document: {chunk['doc_title']}\n"
-                    text += f"Section: {chunk['chunk_title']}\n"
-                    text += f"Content: {chunk['chunk_content'][:1000]}"  # Limit length
-                    
-                    # Generate embedding
-                    embedding = self.generate_embedding(text)
-                    
-                    # Store in database
-                    embedding_bytes = np.array(embedding, dtype=np.float32).tobytes()
-                    cursor.execute("""
-                        UPDATE document_chunks 
-                        SET embedding = ? 
-                        WHERE id = ?
-                    """, (embedding_bytes, chunk['id']))
-                    
-                    conn.commit()
-                    successful += 1
-                    logger.info(f"✓ Generated embedding for chunk: {chunk['chunk_title']}")
-                    
-                except Exception as e:
-                    logger.error(f"Failed to embed chunk {chunk['id']}: {e}")
-            
-            logger.info(f"Successfully generated embeddings for {successful}/{len(chunks)} chunks")
-            
-        finally:
-            conn.close()
-    
-    def find_similar_chunks(self, query_text: str, top_k: int = 5) -> List[Tuple[int, float, str, str]]:
-        """Find similar document chunks using cosine similarity."""
-        try:
-            # Generate query embedding
-            query_embedding = np.array(self.generate_embedding(query_text), dtype=np.float32)
-            
-            conn = self.get_connection()
-            cursor = conn.cursor()
-            
-            # Get all chunks with embeddings
+            # Add related entities
+            unified_id = f"{doc_type}_{doc_id}"
             cursor.execute("""
-                SELECT c.id, c.chunk_title, c.embedding, d.title as doc_title
+                SELECT target_type, target_id, relationship_type
+                FROM relationships
+                WHERE source_type = 'document' AND source_id = ?
+                LIMIT 20
+            """, (unified_id,))
+            
+            relationships = cursor.fetchall()
+            if relationships:
+                entities_by_type = {}
+                for rel in relationships:
+                    entity_type = rel['target_type']
+                    if entity_type not in entities_by_type:
+                        entities_by_type[entity_type] = []
+                    
+                    # Get entity name
+                    table_map = {
+                        'topic': 'topics',
+                        'person': 'people',
+                        'project': 'projects',
+                        'institution': 'institutions',
+                        'method': 'methods',
+                        'application': 'applications'
+                    }
+                    
+                    if entity_type in table_map:
+                        entity_table = table_map[entity_type]
+                        cursor.execute(f"SELECT name FROM {entity_table} WHERE id = ?", 
+                                     (rel['target_id'],))
+                        result = cursor.fetchone()
+                        if result:
+                            entities_by_type[entity_type].append(result['name'])
+                
+                # Add entities to text
+                if entities_by_type.get('topic'):
+                    text_parts.append(f"Topics: {', '.join(entities_by_type['topic'][:10])}")
+                if entities_by_type.get('person'):
+                    text_parts.append(f"People: {', '.join(entities_by_type['person'][:5])}")
+                if entities_by_type.get('method'):
+                    text_parts.append(f"Methods: {', '.join(entities_by_type['method'][:5])}")
+            
+            return '\n'.join(text_parts)
+            
+        finally:
+            conn.close()
+    
+    def prepare_chunk_text(self, chunk_id: int) -> Optional[str]:
+        """Prepare chunk text for embedding."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            # Get chunk details
+            cursor.execute("""
+                SELECT c.content, c.section_name, c.document_type, c.document_id
                 FROM document_chunks c
-                JOIN documents d ON c.document_id = d.id
-                WHERE c.embedding IS NOT NULL
-            """)
+                WHERE c.id = ?
+            """, (chunk_id,))
             
-            results = []
-            for row in cursor.fetchall():
-                # Convert bytes back to numpy array
-                chunk_embedding = np.frombuffer(row['embedding'], dtype=np.float32)
-                
-                # Calculate cosine similarity
-                similarity = np.dot(query_embedding, chunk_embedding) / (
-                    np.linalg.norm(query_embedding) * np.linalg.norm(chunk_embedding)
-                )
-                
-                results.append((
-                    row['id'], 
-                    float(similarity), 
-                    row['chunk_title'],
-                    row['doc_title']
-                ))
+            chunk = cursor.fetchone()
+            if not chunk:
+                return None
             
-            # Sort by similarity and return top k
-            results.sort(key=lambda x: x[1], reverse=True)
+            # Get document title
+            table = f"{chunk['document_type']}_documents"
+            cursor.execute(f"SELECT title FROM {table} WHERE id = ?", 
+                         (chunk['document_id'],))
+            doc = cursor.fetchone()
             
+            # Build text representation
+            text_parts = []
+            if doc:
+                text_parts.append(f"Document: {doc['title']}")
+            if chunk['section_name']:
+                text_parts.append(f"Section: {chunk['section_name']}")
+            text_parts.append(f"Content:\n{chunk['content']}")
+            
+            return '\n'.join(text_parts)
+            
+        finally:
             conn.close()
-            return results[:top_k]
-            
-        except Exception as e:
-            logger.error(f"Error finding similar chunks: {e}")
-            return []
     
-    def find_similar_documents(self, query_text: str, top_k: int = 5) -> List[Tuple[int, float, str]]:
-        """Find similar documents using cosine similarity."""
+    def prepare_entity_text(self, entity_type: str, entity_id: int) -> Optional[str]:
+        """Prepare entity text for embedding."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        try:
+            # Map entity types to tables
+            table_map = {
+                'topic': 'topics',
+                'person': 'people',
+                'project': 'projects',
+                'institution': 'institutions',
+                'method': 'methods',
+                'application': 'applications'
+            }
+            
+            if entity_type not in table_map:
+                return None
+            
+            table = table_map[entity_type]
+            
+            # Get entity details
+            cursor.execute(f"SELECT * FROM {table} WHERE id = ?", (entity_id,))
+            entity = cursor.fetchone()
+            
+            if not entity:
+                return None
+            
+            # Build text representation
+            text_parts = [f"{entity_type.title()}: {entity['name']}"]
+            
+            # Add additional fields based on entity type
+            if entity_type == 'topic' and entity.get('category'):
+                text_parts.append(f"Category: {entity['category']}")
+            elif entity_type == 'person':
+                if entity.get('role'):
+                    text_parts.append(f"Role: {entity['role']}")
+                if entity.get('affiliation'):
+                    text_parts.append(f"Affiliation: {entity['affiliation']}")
+            elif entity_type == 'method' and entity.get('category'):
+                text_parts.append(f"Type: {entity['category']}")
+            elif entity_type == 'application' and entity.get('domain'):
+                text_parts.append(f"Domain: {entity['domain']}")
+            
+            # Add description if available
+            if entity.get('description'):
+                text_parts.append(f"Description: {entity['description']}")
+            
+            # Add related documents
+            cursor.execute("""
+                SELECT source_id, relationship_type
+                FROM relationships
+                WHERE target_type = ? AND target_id = ?
+                AND source_type = 'document'
+                LIMIT 10
+            """, (entity_type, str(entity_id)))
+            
+            doc_relationships = cursor.fetchall()
+            if doc_relationships:
+                doc_titles = []
+                for rel in doc_relationships:
+                    doc_type, doc_id = rel['source_id'].split('_')
+                    table = f"{doc_type}_documents"
+                    cursor.execute(f"SELECT title FROM {table} WHERE id = ?", (doc_id,))
+                    doc = cursor.fetchone()
+                    if doc:
+                        doc_titles.append(doc['title'])
+                
+                if doc_titles:
+                    text_parts.append(f"Mentioned in: {', '.join(doc_titles[:5])}")
+            
+            return '\n'.join(text_parts)
+            
+        finally:
+            conn.close()
+    
+    def generate_document_embeddings(self) -> int:
+        """Generate embeddings for all documents."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        count = 0
+        
+        try:
+            # Process academic documents
+            cursor.execute("SELECT id FROM academic_documents")
+            for row in cursor.fetchall():
+                doc_id = row['id']
+                entity_id = f"academic_{doc_id}"
+                
+                # Check if embedding already exists
+                cursor.execute("""
+                    SELECT 1 FROM embeddings 
+                    WHERE entity_type = 'document' AND entity_id = ?
+                """, (entity_id,))
+                
+                if not cursor.fetchone():
+                    text = self.prepare_document_text(doc_id, 'academic')
+                    if text:
+                        embedding = self.generate_embedding(text)
+                        self.store_embedding('document', entity_id, embedding)
+                        count += 1
+                        logger.info(f"Generated embedding for academic document {doc_id}")
+            
+            # Process chronicle documents
+            cursor.execute("SELECT id FROM chronicle_documents")
+            for row in cursor.fetchall():
+                doc_id = row['id']
+                entity_id = f"chronicle_{doc_id}"
+                
+                # Check if embedding already exists
+                cursor.execute("""
+                    SELECT 1 FROM embeddings 
+                    WHERE entity_type = 'document' AND entity_id = ?
+                """, (entity_id,))
+                
+                if not cursor.fetchone():
+                    text = self.prepare_document_text(doc_id, 'chronicle')
+                    if text:
+                        embedding = self.generate_embedding(text)
+                        self.store_embedding('document', entity_id, embedding)
+                        count += 1
+                        logger.info(f"Generated embedding for chronicle document {doc_id}")
+            
+            return count
+            
+        finally:
+            conn.close()
+    
+    def generate_chunk_embeddings(self) -> int:
+        """Generate embeddings for all chunks."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        count = 0
+        
+        try:
+            # Get all chunks
+            cursor.execute("SELECT id FROM document_chunks")
+            chunk_ids = [row['id'] for row in cursor.fetchall()]
+            
+            for chunk_id in chunk_ids:
+                entity_id = f"chunk_{chunk_id}"
+                
+                # Check if embedding already exists
+                cursor.execute("""
+                    SELECT 1 FROM embeddings 
+                    WHERE entity_type = 'chunk' AND entity_id = ?
+                """, (entity_id,))
+                
+                if not cursor.fetchone():
+                    text = self.prepare_chunk_text(chunk_id)
+                    if text:
+                        embedding = self.generate_embedding(text)
+                        self.store_embedding('chunk', entity_id, embedding)
+                        count += 1
+                        
+                        if count % 10 == 0:
+                            logger.info(f"Generated {count} chunk embeddings...")
+            
+            logger.info(f"Generated embeddings for {count} chunks")
+            return count
+            
+        finally:
+            conn.close()
+    
+    def generate_entity_embeddings(self) -> int:
+        """Generate embeddings for all entities."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        count = 0
+        
+        entity_types = [
+            ('topic', 'topics'),
+            ('person', 'people'),
+            ('project', 'projects'),
+            ('institution', 'institutions'),
+            ('method', 'methods'),
+            ('application', 'applications')
+        ]
+        
+        try:
+            for entity_type, table in entity_types:
+                cursor.execute(f"SELECT id FROM {table}")
+                entity_ids = [row['id'] for row in cursor.fetchall()]
+                
+                for entity_id in entity_ids:
+                    entity_str_id = f"{entity_type}_{entity_id}"
+                    
+                    # Check if embedding already exists
+                    cursor.execute("""
+                        SELECT 1 FROM embeddings 
+                        WHERE entity_type = ? AND entity_id = ?
+                    """, (entity_type, entity_str_id))
+                    
+                    if not cursor.fetchone():
+                        text = self.prepare_entity_text(entity_type, entity_id)
+                        if text:
+                            embedding = self.generate_embedding(text)
+                            self.store_embedding(entity_type, entity_str_id, embedding)
+                            count += 1
+                            
+                            if count % 20 == 0:
+                                logger.info(f"Generated {count} entity embeddings...")
+            
+            logger.info(f"Generated embeddings for {count} entities")
+            return count
+            
+        finally:
+            conn.close()
+    
+    def find_similar(self, query_text: str, entity_type: Optional[str] = None, 
+                    top_k: int = 10) -> List[Dict]:
+        """Find similar entities using cosine similarity."""
         try:
             # Generate query embedding
             query_embedding = np.array(self.generate_embedding(query_text), dtype=np.float32)
@@ -301,103 +414,43 @@ class EmbeddingGenerator:
             conn = self.get_connection()
             cursor = conn.cursor()
             
-            # Get all documents with embeddings
-            cursor.execute("""
-                SELECT id, title, embedding 
-                FROM documents 
-                WHERE embedding IS NOT NULL
-            """)
+            # Build query based on entity type filter
+            if entity_type:
+                cursor.execute("""
+                    SELECT entity_type, entity_id, embedding
+                    FROM embeddings
+                    WHERE entity_type = ?
+                """, (entity_type,))
+            else:
+                cursor.execute("""
+                    SELECT entity_type, entity_id, embedding
+                    FROM embeddings
+                """)
             
             results = []
             for row in cursor.fetchall():
                 # Convert bytes back to numpy array
-                doc_embedding = np.frombuffer(row['embedding'], dtype=np.float32)
+                embedding = np.frombuffer(row['embedding'], dtype=np.float32)
                 
                 # Calculate cosine similarity
-                similarity = np.dot(query_embedding, doc_embedding) / (
-                    np.linalg.norm(query_embedding) * np.linalg.norm(doc_embedding)
+                similarity = np.dot(query_embedding, embedding) / (
+                    np.linalg.norm(query_embedding) * np.linalg.norm(embedding)
                 )
                 
-                results.append((row['id'], float(similarity), row['title']))
+                results.append({
+                    'entity_type': row['entity_type'],
+                    'entity_id': row['entity_id'],
+                    'similarity': float(similarity)
+                })
             
             # Sort by similarity and return top k
-            results.sort(key=lambda x: x[1], reverse=True)
+            results.sort(key=lambda x: x['similarity'], reverse=True)
             
             conn.close()
             return results[:top_k]
             
         except Exception as e:
-            logger.error(f"Error finding similar documents: {e}")
-            return []
+            logger.error(f"Error finding similar entities: {e}")
+            raise
 
 
-def test_embeddings():
-    """Test embedding generation and similarity search."""
-    generator = EmbeddingGenerator()
-    
-    # Test processing a few documents
-    print("Testing embedding generation...")
-    
-    # Process first 3 documents
-    conn = generator.get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, title FROM documents LIMIT 3")
-    test_docs = cursor.fetchall()
-    conn.close()
-    
-    for doc in test_docs:
-        print(f"\nProcessing: {doc['title']}")
-        success = generator.process_document(doc['id'])
-        print(f"Result: {'✓ Success' if success else '✗ Failed'}")
-    
-    # Test similarity search
-    print("\n" + "="*60)
-    print("Testing similarity search...")
-    
-    test_queries = [
-        "optimal transport and machine learning",
-        "reinforcement learning and game development",
-        "mathematical theory and probability"
-    ]
-    
-    for query in test_queries:
-        print(f"\nQuery: '{query}'")
-        similar = generator.find_similar_documents(query, top_k=3)
-        
-        if similar:
-            print("Similar documents:")
-            for _, similarity, title in similar:
-                print(f"  - {title[:60]}... (similarity: {similarity:.3f})")
-        else:
-            print("  No results found")
-
-
-if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Generate embeddings for documents")
-    parser.add_argument(
-        "--test",
-        action="store_true",
-        help="Run test mode with a few documents"
-    )
-    parser.add_argument(
-        "--all",
-        action="store_true",
-        help="Process all documents without embeddings"
-    )
-    parser.add_argument(
-        "--doc-type",
-        choices=['academic', 'chronicle'],
-        help="Process only specific document type"
-    )
-    
-    args = parser.parse_args()
-    
-    if args.test:
-        test_embeddings()
-    elif args.all:
-        generator = EmbeddingGenerator()
-        generator.process_all_documents(doc_type=args.doc_type)
-    else:
-        print("Use --test for testing or --all to process all documents")

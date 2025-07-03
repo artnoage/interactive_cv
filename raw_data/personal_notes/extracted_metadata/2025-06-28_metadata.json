@@ -1,0 +1,75 @@
+{
+  "date": "2025-06-28",
+  "note_type": "daily",
+  "title": "Daily Note - 2025-06-28",
+  "summary": "A highly productive day focused on enhancing the Collapsi RL training system, completing a comprehensive academic paper analysis project, and initiating the Interactive CV project. Key achievements include implementing session timestamps and architecture preservation for RL checkpoints, integrating MCTS with PPO training, and transforming academic paper summaries into detailed technical documents.",
+  "topics": [
+    "reinforcement-learning",
+    "mcts",
+    "ppo",
+    "academic-analysis",
+    "optimal-transport",
+    "control-theory",
+    "statistical-mechanics"
+  ],
+  "projects": [
+    "collapsi-rl",
+    "interactive-cv",
+    "academic-paper-analysis"
+  ],
+  "people": [],
+  "institutions": [],
+  "methods": [
+    "Monte Carlo Tree Search",
+    "Proximal Policy Optimization",
+    "Generalized Advantage Estimation",
+    "Monte Carlo returns",
+    "type checking",
+    "diagnostic analysis",
+    "tournament evaluation",
+    "heatmap visualization",
+    "systematic paper analysis"
+  ],
+  "tools": [
+    "python",
+    "pytorch",
+    "git",
+    "CLAUDE.md"
+  ],
+  "accomplishments": [
+    "Implemented session timestamps for Collapsi RL training checkpoints",
+    "Added complete architecture preservation in Collapsi RL checkpoints",
+    "Created comprehensive model evaluation system for Collapsi RL",
+    "Integrated Monte Carlo Tree Search (MCTS) with PPO training for Collapsi RL",
+    "Fixed all type checking and diagnostic issues across Collapsi RL codebase",
+    "Rewrote README.md and updated CLAUDE.md documentation for Collapsi RL",
+    "Completed comprehensive analysis and enrichment of all academic papers",
+    "Transformed basic paper summaries into 300+ line technical documents",
+    "Added deep mathematical frameworks and theoretical implications to paper analyses",
+    "Connected research to broader literature in optimal transport, control theory, and statistical mechanics",
+    "Created publication-quality analyses suitable for graduate reference",
+    "Set up initial repository for Interactive CV project with academic profiles and paper analyses",
+    "Created comprehensive academic profile with research style and technical mastery sections",
+    "Made initial git commit preserving all academic work for Interactive CV"
+  ],
+  "insights": [
+    "Session timestamps are crucial for preventing checkpoint confusion in long training runs",
+    "MCTS integration can add 200-400 Elo strength but at 50x computational cost",
+    "Monte Carlo returns work better than GAE for short-horizon games like Collapsi",
+    "Systematic paper analysis methodology produces significantly better academic documentation"
+  ],
+  "learning": [
+    "MCTS implementation patterns for two-player games",
+    "Terminal outcome prediction as auxiliary loss improves credit assignment in RL"
+  ],
+  "challenges": [],
+  "future_work": [
+    "Start comparative training runs: Standard PPO vs PPO+MCTS",
+    "Set up GitHub repository for interactive CV project",
+    "Begin frontend development for interactive CV presentation"
+  ],
+  "metrics": {},
+  "papers": [],
+  "file_path": "raw_data/personal_notes/Daily Notes/2025-06-28.md",
+  "extracted_at": "2025-07-03T19:46:35.362116"
+}

@@ -1,0 +1,79 @@
+{
+  "date": "2025-06-29",
+  "note_type": "daily",
+  "title": "Daily Note - 2025-06-29",
+  "summary": "A productive day focused on enhancing the Collapsi RL training system and enriching the interactive CV project. Significant architectural improvements were made, leading to breakthrough performance in RL training and comprehensive academic paper analyses.",
+  "topics": [
+    "reinforcement-learning",
+    "mcts",
+    "ppo",
+    "monte-carlo-returns",
+    "dynamic-opponent-pool",
+    "modular-architecture",
+    "academic-analysis",
+    "game-ai",
+    "adaptive-learning"
+  ],
+  "projects": [
+    "Collapsi RL",
+    "Interactive CV",
+    "Academic Paper Analysis"
+  ],
+  "people": [],
+  "institutions": [],
+  "methods": [
+    "Reinforcement Learning",
+    "Monte Carlo Tree Search (MCTS)",
+    "Proximal Policy Optimization (PPO)",
+    "Generalized Advantage Estimation (GAE)",
+    "Mixed Batch Training",
+    "Dynamic Opponent Pool Selection",
+    "Round-robin tournaments"
+  ],
+  "tools": [
+    "Python",
+    "PyTorch",
+    "Git",
+    "collapsi_net.py",
+    "collapsi_env.py",
+    "logging",
+    "heatmap-visualization"
+  ],
+  "accomplishments": [
+    "Refactored Collapsi RL training architecture into modular components",
+    "Achieved breakthrough performance with mixed batch training (50.9-54.7% win rates)",
+    "Completed comprehensive academic paper analyses for interactive CV project (300+ lines)",
+    "Fixed all diagnostics issues and improved code quality",
+    "Implemented MCTS integration with on/off flag",
+    "Developed robust session management to prevent checkpoint mixing",
+    "Created an evaluation system with heatmap visualization"
+  ],
+  "insights": [
+    "Mixed batch training with checkpoint opponents proved more effective than pure self-play",
+    "Dynamic opponent pool evolution prevents training plateaus",
+    "Monte Carlo returns work better than GAE for short-horizon games like Collapsi",
+    "MCTS integration adds significant playing strength (200-400 Elo) at the cost of computation time",
+    "Modular architecture benefits for ML training systems",
+    "Importance of diverse training opponents"
+  ],
+  "learning": [
+    "Advanced RL techniques for board games",
+    "MCTS implementation patterns",
+    "Benefits of modular architecture for ML training systems",
+    "Importance of diverse training opponents"
+  ],
+  "challenges": [],
+  "future_work": [
+    "Test the new dynamic opponent pool selection system",
+    "Run comparative experiments between standard PPO and PPO+MCTS",
+    "Begin interactive frontend development for CV project"
+  ],
+  "metrics": {
+    "Collapsi_Win_Rates": "50.9-54.7% vs checkpoint opponents",
+    "MCTS_Elo_Gain": "200-400 Elo",
+    "Academic_Paper_Analysis_Lines": "300+"
+  },
+  "papers": [],
+  "file_path": "raw_data/personal_notes/Daily Notes/2025-06-29.md",
+  "extracted_at": "2025-07-03T19:46:39.700335"
+}

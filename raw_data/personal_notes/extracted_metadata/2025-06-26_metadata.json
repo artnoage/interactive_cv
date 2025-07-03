@@ -1,0 +1,50 @@
+{
+  "date": "2025-06-26",
+  "note_type": "daily",
+  "title": "Daily Note - 2025-06-26",
+  "summary": "Successfully integrated Obsidian with Claude Code using the MCP server, tested all MCP tools, and created comprehensive guidance documentation, including a template system.",
+  "topics": [
+    "obsidian-integration",
+    "mcp-tools",
+    "automation",
+    "documentation"
+  ],
+  "projects": [
+    "obsidian-mcp-setup"
+  ],
+  "people": [],
+  "institutions": [],
+  "methods": [
+    "template system creation"
+  ],
+  "tools": [
+    "obsidian",
+    "mcp",
+    "claude-code"
+  ],
+  "accomplishments": [
+    "Installed and configured mcp-obsidian server",
+    "Created comprehensive guidance documentation",
+    "Tested all 12 MCP tools",
+    "Created template system"
+  ],
+  "insights": [
+    "Templates work by reading template files and replacing variables",
+    "MCP provides direct access to Obsidian without manual API calls",
+    "Can automate daily note creation with templates"
+  ],
+  "learning": [
+    "MCP documentation for Obsidian integration",
+    "obsidian_patch_content can target specific headings"
+  ],
+  "challenges": [],
+  "future_work": [
+    "Explore more complex automation workflows",
+    "Create additional templates",
+    "Test batch operations"
+  ],
+  "metrics": {},
+  "papers": [],
+  "file_path": "raw_data/personal_notes/Daily Notes/2025-06-26.md",
+  "extracted_at": "2025-07-03T19:46:27.991974"
+}

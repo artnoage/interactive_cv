@@ -11,23 +11,31 @@ We completely redesigned the database structure for cleaner, more efficient data
    - Enhanced entity tables with proper attributes
    - Pre-computed `graph_nodes` and `graph_edges` tables for performance
    - Direct entity/relationship creation during extraction
-3. **Cleaner Extraction Workflow**: 
-   - No more intermediate JSON → database scripts
-   - Extractors write directly to normalized tables
-   - Relationships created on-the-fly during extraction
+3. **Modular Extraction Workflow**: 
+   - Extractors generate JSON metadata files
+   - Unified populator imports JSON to database
+   - Separation of concerns for better debugging
 
 ### Agents System Architecture
 1. **Two-Step Academic Workflow**:
    - **Academic Analyzer**: Analyzes raw papers following `How_to_analyze.md` methodology → produces structured analyses
-   - **Academic Extractor**: Extracts entities/relationships from analyses (not raw papers)
-2. **Chronicle Extractor**: Processes daily/weekly/monthly notes
-3. **Simplified Config Structure**: Single `extraction_schema.json` for academic, `extraction_config_simple.yaml` for chronicle
+   - **Academic Metadata Extractor**: Extracts entities/relationships from analyses (not raw papers) to JSON
+2. **Personal Notes Extractor**: Processes daily/weekly notes to JSON
+3. **Unified Database Population**: Single script imports all JSON metadata
 
-**Key Insight**: The system now combines AI agents with a clean relational database, eliminating all redundancy while supporting both RAG queries and knowledge graph visualization.
+### Complete Processing Pipeline (NEW!)
+We now have a complete pipeline that includes chunking and embeddings:
+
+1. **Document Chunking**: Smart semantic chunking (1000-1500 tokens) with section preservation
+2. **Entity-Chunk Mapping**: Maps which entities appear in each chunk
+3. **Multi-Level Embeddings**: Generated for documents, chunks, AND entities
+4. **Database Management Scripts**: `DB/build_database.py` and `DB/update_database.py` handle all operations
+
+**Key Insight**: The system now implements the full RAG architecture with proper chunking, enabling efficient semantic search at multiple granularities.
 
 ## Project Overview
 
-This project creates an **Interactive CV System** that transforms academic research papers and personal chronicle notes into a dynamic, queryable professional profile. The system uses AI to extract metadata, build a knowledge graph, and enable intelligent conversations about your research expertise and work history.
+This project creates an **Interactive CV System** that transforms academic research papers and personal notes into a dynamic, queryable professional profile. The system uses AI to extract metadata, build a knowledge graph, and enable intelligent conversations about your research expertise and work history.
 
 **Core Purpose**: Build a RAG-powered interactive CV that can answer questions about your research, skills, and experience by analyzing your academic papers and daily notes.
 
@@ -39,9 +47,9 @@ This project creates an **Interactive CV System** that transforms academic resea
    - Detailed analyses of each paper
    - Mathematical concepts, methods, applications
 
-2. **Chronicle Notes** (`/chronicle/`)
+2. **Personal Notes** (`/personal_notes/`)
    - Daily notes with work progress
-   - Weekly/monthly summaries
+   - Weekly summaries
    - Project updates and insights
 
 ### Database System Design
@@ -50,7 +58,7 @@ We use a **normalized SQLite database** with clean entity-relationship structure
 
 **Core Tables:**
 - **Document Tables**: 
-  - `chronicle_documents`: Daily/weekly/monthly notes from Obsidian
+  - `chronicle_documents`: Daily/weekly notes from personal notes
   - `academic_documents`: Research papers and analyses
   - `documents`: Unified view for backward compatibility
 - **Entity Tables** (with attributes):
@@ -175,9 +183,9 @@ llm = ChatOpenAI(
 - Easy backup and migration
 - Supports JSON fields for flexible metadata
 
-### Why Separate Academic/Chronicle Processing?
+### Why Separate Academic/Personal Notes Processing?
 - **Academic**: Rarely changes, one-time bulk extraction
-- **Chronicle**: Daily updates, needs file watcher
+- **Personal Notes**: Daily updates, frequent changes
 - Different metadata schemas and extraction strategies
 
 ### Why LangChain + OpenRouter?
@@ -196,7 +204,7 @@ Extract comprehensive metadata including:
 - Collaborators and research connections
 - Limitations and future directions
 
-### Chronicle Notes
+### Personal Notes
 Use LLM to extract nuanced metadata:
 - Work focus and project progress
 - Technical breakthroughs with context
@@ -238,9 +246,9 @@ The system combines:
 ```
 /interactive_cv/
 ├── academic/               # Research papers and analyses
-├── chronicle/              # Daily/weekly notes (synced from Obsidian)
+├── personal_notes/         # Daily/weekly notes
 ├── DB/                     # Database and extraction system
-│   ├── extractors/         # Base and chronicle extractors
+│   ├── extractors/         # Base and specialized extractors
 │   ├── embeddings.py       # Vector embedding generation
 │   ├── metadata.db         # SQLite database (not in git)
 │   └── query_comprehensive.py  # Database exploration tool
@@ -285,7 +293,8 @@ The system combines:
 ### Key Files
 - `DB/metadata.db`: SQLite database with all metadata (✅ created and populated)
 - `DB/DATABASE_SCHEMA.md`: Complete database schema documentation
-- `DB/process_paper_pipeline.py`: End-to-end academic paper processing
+- `DB/build_database.py`: Build database from scratch with complete pipeline
+- `DB/update_database.py`: Update database with new documents incrementally
 - `agents/academic_analyzer.py`: Analyzes papers following How_to_analyze.md
 - `agents/academic_extractor.py`: Extracts entities from analyses
 - `.sync/sync_chronicle_with_metadata.py`: Main sync script with metadata extraction
@@ -300,25 +309,86 @@ The system combines:
 
 ## Usage
 
-### Academic Paper Processing
+### Database Management (Updated 2025-01-03)
 
-To process all academic papers through the pipeline:
+We now have two dedicated database management scripts in the DB folder:
 
-```bash
-# Process a single paper (for testing)
-cd /home/artnoage/Projects/interactive_cv
-python DB/process_paper_pipeline.py
-
-# Process all papers (create a batch script)
-python scripts/process_all_papers.py
+```
+Metadata JSONs → Database → Chunks → Entity Mappings → Embeddings → Knowledge Graph
 ```
 
-The pipeline performs these steps for each paper:
-1. **Analyze**: Generate comprehensive analysis using academic_analyzer
-2. **Extract**: Extract entities and relationships using academic_extractor
-3. **Store**: Save to normalized database with proper relationships
-4. **Chunk**: Create semantic chunks for RAG
-5. **Embed**: Generate embeddings for semantic search
+#### 1. Build Database from Scratch
+```bash
+# Complete rebuild with all features
+cd DB
+python build_database.py
+
+# This script:
+# 1. Creates fresh database with proper schema
+# 2. Imports all metadata from JSON files
+# 3. Chunks documents intelligently (1000-1500 tokens)
+# 4. Maps entities to chunks for granular search
+# 5. Generates embeddings at all levels (docs, chunks, entities)
+# 6. Updates graph tables
+
+# Options:
+python build_database.py --backup              # Backup existing database first
+python build_database.py --skip-embeddings     # Skip embedding generation
+python build_database.py --skip-graph          # Skip graph population
+```
+
+#### 2. Update Database with New Documents
+```bash
+# Add only new documents (incremental update)
+cd DB
+python update_database.py
+
+# This script:
+# 1. Scans for new metadata files not in database
+# 2. Imports only new documents
+# 3. Creates chunks for new documents
+# 4. Generates embeddings for new content
+# 5. Updates graph with new relationships
+
+# Options:
+python update_database.py --skip-embeddings    # Skip embedding generation
+python update_database.py --skip-graph         # Skip graph update
+```
+
+#### Metadata Extraction (if needed)
+```bash
+# Extract personal notes metadata to JSON (academic already done)
+python scripts/extract_personal_notes_metadata.py
+# Creates JSON files in raw_data/personal_notes/extracted_metadata/
+```
+
+#### Why Modular?
+1. **Separation of Concerns**: Extraction logic separate from storage
+2. **Inspectable Data**: Review JSON metadata before database import
+3. **Flexibility**: Re-run database population without re-extracting
+4. **Consistency**: Academic and chronicle follow same pattern
+5. **Debugging**: Easy to see what was extracted
+
+#### Key Components
+- `agents/academic_metadata_extractor.py` - Extracts academic metadata → JSON
+- `agents/chronicle_metadata_extractor.py` - Extracts personal notes metadata → JSON
+- `scripts/extract_personal_notes_metadata.py` - Batch extraction script for personal notes
+- `DB/unified_metadata_populator.py` - Populates DB from JSON files
+- `DB/chunker.py` - Smart document chunking with section preservation
+- `DB/build_database.py` - Build database from scratch with complete pipeline
+- `DB/update_database.py` - Update database with new documents incrementally
+
+### Chunking Strategy
+
+The chunking system (`DB/chunker.py`) implements intelligent document segmentation:
+
+1. **Section-Aware**: Preserves markdown sections and headers
+2. **Semantic Boundaries**: Chunks at paragraph boundaries when possible
+3. **Optimal Size**: 1000-1500 tokens per chunk with 200 token overlap
+4. **Entity Preservation**: Maps entities to the chunks they appear in
+5. **Metadata Rich**: Each chunk knows its section and position
+
+This enables efficient RAG by retrieving only relevant chunks instead of full documents.
 
 ### Chronicle Sync Commands
 After setting up, use these commands from anywhere:

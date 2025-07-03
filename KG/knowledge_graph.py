@@ -181,10 +181,8 @@ class V2SQLProvider:
         
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT node_id, node_type as entity_type, node_label as label, attributes, 
-                   pagerank_score, degree, community_id
+            SELECT node_id, node_type as entity_type, node_label as label, attributes
             FROM graph_nodes
-            ORDER BY pagerank_score DESC
         """)
         
         for row in cursor.fetchall():
@@ -192,9 +190,9 @@ class V2SQLProvider:
                 'id': row['node_id'],
                 'type': row['entity_type'],
                 'label': row['label'],
-                'pagerank': row['pagerank_score'],
-                'degree': row['degree'],
-                'community': row['community_id']
+                'pagerank': 0.0,  # Default value, will be computed later
+                'degree': 0,      # Default value, will be computed later
+                'community': 0    # Default value, will be computed later
             }
             
             # Add attributes if present
@@ -237,27 +235,27 @@ class V2SQLProvider:
             },
             # People
             {
-                'query': "SELECT id, name, affiliation, role, expertise FROM people",
+                'query': "SELECT id, name, affiliation, role FROM people",
                 'type': 'person',
                 'id_field': 'id',
                 'label_field': 'name',
-                'extra_fields': ['affiliation', 'role', 'expertise']
+                'extra_fields': ['affiliation', 'role']
             },
             # Projects
             {
-                'query': "SELECT id, name, description, status, project_type FROM projects",
+                'query': "SELECT id, name, description FROM projects",
                 'type': 'project',
                 'id_field': 'id',
                 'label_field': 'name',
-                'extra_fields': ['description', 'status', 'project_type']
+                'extra_fields': ['description']
             },
             # Institutions
             {
-                'query': "SELECT id, name, type, location, description FROM institutions",
+                'query': "SELECT id, name, type, location FROM institutions",
                 'type': 'institution',
                 'id_field': 'id',
                 'label_field': 'name',
-                'extra_fields': ['type', 'location', 'description']
+                'extra_fields': ['type', 'location']
             },
             # Methods
             {
@@ -269,11 +267,11 @@ class V2SQLProvider:
             },
             # Applications
             {
-                'query': "SELECT id, name, domain, description, impact_level FROM applications",
+                'query': "SELECT id, name, domain, description FROM applications",
                 'type': 'application',
                 'id_field': 'id',
                 'label_field': 'name',
-                'extra_fields': ['domain', 'description', 'impact_level']
+                'extra_fields': ['domain', 'description']
             }
         ]
         
@@ -309,6 +307,7 @@ class V2SQLProvider:
     def get_edges(self) -> List[Dict[str, Any]]:
         """Extract all edges from the database."""
         conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
         
         try:
             # Check if pre-computed graph_edges table exists
@@ -327,7 +326,7 @@ class V2SQLProvider:
         
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT source_node_id, target_node_id, relationship_type, 
+            SELECT source_node_id, target_node_id, edge_type as relationship_type, 
                    weight, attributes
             FROM graph_edges
         """)
@@ -359,7 +358,7 @@ class V2SQLProvider:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT source_type, source_id, target_type, target_id, 
-                   relationship_type, confidence, context, metadata
+                   relationship_type, confidence, metadata
             FROM relationships
         """)
         
@@ -378,8 +377,6 @@ class V2SQLProvider:
             if row['confidence'] and row['confidence'] != 1.0:
                 edge['confidence'] = row['confidence']
                 
-            if row['context']:
-                edge['context'] = row['context']
                 
             if row['metadata']:
                 try:
@@ -456,18 +453,13 @@ def update_graph_tables(db_path: str):
             
             cursor.execute("""
                 INSERT INTO graph_nodes 
-                (node_id, entity_type, entity_id, label, attributes, 
-                 degree, pagerank_score, betweenness_centrality)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (node_id, node_type, node_label, attributes)
+                VALUES (?, ?, ?, ?)
             """, (
                 node_id,
                 data.get('type', 'unknown'),
-                node_id.split('_', 1)[1] if '_' in node_id else node_id,
                 data.get('label', node_id),
-                json.dumps(attrs) if attrs else None,
-                degree,
-                pagerank.get(node_id, 0),
-                betweenness.get(node_id, 0)
+                json.dumps(attrs) if attrs else None
             ))
         
         # Insert edges
@@ -479,11 +471,9 @@ def update_graph_tables(db_path: str):
             
             cursor.execute("""
                 INSERT INTO graph_edges 
-                (edge_id, source_node_id, target_node_id, 
-                 relationship_type, weight, attributes)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (source_node_id, target_node_id, edge_type, weight, attributes)
+                VALUES (?, ?, ?, ?, ?)
             """, (
-                edge_id,
                 source,
                 target,
                 data.get('relationship', 'unknown'),

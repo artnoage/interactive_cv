@@ -1,0 +1,86 @@
+{
+  "date": "2025-06-30",
+  "note_type": "daily",
+  "title": "Daily Note - 2025-06-30",
+  "summary": "A highly productive day focused on refactoring the Collapsi project into a standalone web application, integrating AI with ONNX, improving code quality, and implementing AlphaZero-style training. Major architectural changes were made, removing backend dependencies and enhancing performance.",
+  "topics": [
+    "web-architecture",
+    "javascript-porting",
+    "mcts-optimization",
+    "alphazero",
+    "onnx",
+    "policy-value-consistency",
+    "client-side-development",
+    "game development",
+    "machine learning"
+  ],
+  "projects": [
+    "Collapsi Web",
+    "Collapsi AlphaZero",
+    "Hierarchical Notes"
+  ],
+  "people": [
+    "Mark S. Ball"
+  ],
+  "institutions": [],
+  "methods": [
+    "Monte Carlo Tree Search (MCTS)",
+    "AlphaZero",
+    "Policy Distillation",
+    "Temperature-based Exploration",
+    "PPO (Proximal Policy Optimization)"
+  ],
+  "tools": [
+    "JavaScript",
+    "ONNX",
+    "PyTorch",
+    "Tailscale",
+    "localStorage",
+    "webstorage",
+    "CUDA"
+  ],
+  "accomplishments": [
+    "Refactored Collapsi to standalone web architecture",
+    "Created complete JavaScript port of game logic and environment wrapper",
+    "Removed backend dependency, making game 100% client-side",
+    "Implemented save/load system with localStorage",
+    "Extracted MCTS into standalone module supporting PyTorch and ONNX",
+    "Created ONNX conversion script with 60-70% file size reduction",
+    "Integrated AI opponent into web UI using ONNX runtime",
+    "Improved UI with three-column layout and enlarged game board",
+    "Added creator attribution with tutorial video by Mark S. Ball",
+    "Fixed MCTS performance issue (instance per move)",
+    "Extracted common evaluation logic reducing ~40 lines of duplicate code",
+    "Created centralized state preparation helper function",
+    "Made all PPO hyperparameters configurable via CLI",
+    "Built complete AlphaZero-style training system",
+    "Implemented policy distillation from MCTS",
+    "Added temperature-based exploration",
+    "Improved CUDA detection and logging",
+    "Created proper session-based checkpoint management",
+    "Set up Tailscale for secure networking across devices",
+    "Created hierarchical note template system (Daily \u2192 Weekly \u2192 Monthly)",
+    "Documented all changes comprehensively in README and CLAUDE.md"
+  ],
+  "insights": [
+    "AlphaZero policy loss can decrease while value loss remains high, suggesting policy might be memorizing MCTS patterns without true understanding.",
+    "If the policy truly understands good moves, it should implicitly understand position values; a persistent gap indicates potential for improvement.",
+    "Standalone web architecture offers massive benefits: zero server costs, instant deployment on static hosts, better performance (no network latency), offline capability, and simpler development workflow.",
+    "MCTS instantiation per move was a major performance bottleneck."
+  ],
+  "learning": [
+    "Various code review feedback on RL training patterns",
+    "Mark S. Ball's Collapsi tutorial",
+    "MCTS instantiation was a major performance bottleneck"
+  ],
+  "challenges": [],
+  "future_work": [
+    "Test the AlphaZero training with full 1M episodes",
+    "Implement the policy-value consistency loss experiment",
+    "Create more sophisticated AI difficulty levels for web UI"
+  ],
+  "metrics": {},
+  "papers": [],
+  "file_path": "raw_data/personal_notes/Daily Notes/2025-06-30.md",
+  "extracted_at": "2025-07-03T19:46:44.845251"
+}
