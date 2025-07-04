@@ -5,7 +5,7 @@ Uses Gemini Flash 2.5 to compare agent responses against expected answers.
 """
 
 import os
-from typing import Dict, Any
+from typing import Optional
 from dataclasses import dataclass
 from enum import Enum
 import json
@@ -58,7 +58,7 @@ class JudgeAgent:
         }
     }
     
-    def __init__(self, model: str = None):
+    def __init__(self, model: Optional[str] = None):
         """Initialize judge with specified or configured model."""
         api_key = os.getenv("OPENROUTER_API_KEY")
         if not api_key:

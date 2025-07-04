@@ -210,6 +210,7 @@ def find_entities_by_type(entity_type: str, name_filter: str = None) -> str:
     Find entities by type: topic, person, method, institution, application, or project.
     Optionally filter by name pattern.
     """
+    config = AgentConfig()
     conn = sqlite3.connect(config.db_path)
     try:
         # Map entity type to table
@@ -228,7 +229,7 @@ def find_entities_by_type(entity_type: str, name_filter: str = None) -> str:
         table, fields = type_map[entity_type]
         
         # Try semantic search first if available
-        if config.use_semantic_search and name_filter:
+        if config.use_semantic_search and name_filter and find_similar_entities:
             entities = find_similar_entities(config.db_path, name_filter, entity_type, limit=10)
             if entities:
                 output = f"Found {len(entities)} similar {entity_type}s:\n\n"
@@ -272,14 +273,16 @@ def find_entities_by_type(entity_type: str, name_filter: str = None) -> str:
 
 
 @tool
-def get_entity_relationships(entity_name: str, entity_type: str = None, config: AgentConfig = AgentConfig()) -> str:
+def get_entity_relationships(entity_name: str, entity_type: str = None) -> str:
     """
     Get all relationships for a specific entity.
     Shows what papers discuss it, who uses it, etc.
     """
+    config = AgentConfig()
     conn = sqlite3.connect(config.db_path)
     try:
         # Find the entity
+        entity = None
         if entity_type:
             type_map = {
                 'topic': 'topics', 'person': 'people', 'method': 'methods',
@@ -291,7 +294,6 @@ def get_entity_relationships(entity_name: str, entity_type: str = None, config: 
                                     (f"%{entity_name}%",)).fetchone()
         else:
             # Search across all entity types
-            entity = None
             for table in ['topics', 'people', 'methods', 'institutions', 'applications', 'projects']:
                 result = conn.execute(f"SELECT id, name, '{table[:-1]}' as type FROM {table} WHERE name LIKE ?", 
                                     (f"%{entity_name}%",)).fetchone()
@@ -364,7 +366,8 @@ def get_entity_relationships(entity_name: str, entity_type: str = None, config: 
 @tool
 def get_database_statistics() -> str:
     """Get overview statistics about the knowledge base."""
-    conn = sqlite3.connect(AgentConfig().db_path)
+    config = AgentConfig()
+    conn = sqlite3.connect(config.db_path)
     try:
         stats = {}
         
@@ -436,10 +439,11 @@ class ImprovedInteractiveCVAgent:
         if not api_key:
             raise ValueError("OPENROUTER_API_KEY not found in .env file")
             
+        from pydantic import SecretStr
         max_tokens = 8192 if "pro" in self.config.model_name else 4096
         self.llm = ChatOpenAI(
             model=self.config.model_name,
-            api_key=api_key,
+            api_key=SecretStr(api_key),
             base_url="https://openrouter.ai/api/v1",
             temperature=0.7,
             model_kwargs={"max_tokens": max_tokens}
@@ -563,7 +567,9 @@ def main():
                 print("👋 Goodbye!")
                 break
             elif user_input.lower() == 'stats':
-                print("\n🤖 Assistant:", get_database_statistics())
+                # Get stats directly
+                response = agent.chat("show me database statistics")
+                print(response)
                 continue
             elif not user_input:
                 continue
