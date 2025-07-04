@@ -1,0 +1,938 @@
+[
+  {
+    "timestamp": "2025-07-04T11:12:52.120096",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 503,
+      "name": "Benefits of modular architecture for ML training systems"
+    },
+    "duplicate": {
+      "id": 412,
+      "name": "Modular architecture is essential for ML systems"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.124738",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 503,
+      "name": "Benefits of modular architecture for ML training systems"
+    },
+    "duplicate": {
+      "id": 499,
+      "name": "Modular architecture benefits for ML training systems"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.130318",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 256,
+      "name": "Relative Entropy (H(\u00b5|\u03c0))"
+    },
+    "duplicate": {
+      "id": 127,
+      "name": "Relative Entropy (R(\u03bc|\u03bd))"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.134602",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 256,
+      "name": "Relative Entropy (H(\u00b5|\u03c0))"
+    },
+    "duplicate": {
+      "id": 156,
+      "name": "Relative Entropy (R(\u00b5|\u03bd))"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.140102",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 551,
+      "name": "Begin frontend development for interactive CV presentation"
+    },
+    "duplicate": {
+      "id": 422,
+      "name": "Build interactive CV frontend"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.144178",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 551,
+      "name": "Begin frontend development for interactive CV presentation"
+    },
+    "duplicate": {
+      "id": 506,
+      "name": "Begin interactive frontend development for CV project"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.149451",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 257,
+      "name": "Empirical Measure (L^N)"
+    },
+    "duplicate": {
+      "id": 121,
+      "name": "Empirical Measure (Ln)"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.154916",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 124,
+      "name": "Space of Probability Measures (P(S))"
+    },
+    "duplicate": {
+      "id": 248,
+      "name": "Space of Probability Measures (P(X))"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.160979",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 282,
+      "name": "Local Angle Condition (LAC)"
+    },
+    "duplicate": {
+      "id": 7,
+      "name": "Local Angle Condition (m-LAC)"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.166528",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 498,
+      "name": "MCTS integration adds significant playing strength (200-400 Elo) at the cost of computation time"
+    },
+    "duplicate": {
+      "id": 546,
+      "name": "MCTS integration can add 200-400 Elo strength but at 50x computational cost"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.172540",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 297,
+      "name": "Extend the analysis to more general base spaces X beyond compact, convex subsets of Euclidean space."
+    },
+    "duplicate": {
+      "id": 293,
+      "name": "The analysis is restricted to base spaces X that are compact and convex subsets of R^d. Extension to more general metric spaces would be a non-trivial future work."
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.178314",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 477,
+      "name": "MCTS instantiation per move was a major performance bottleneck."
+    },
+    "duplicate": {
+      "id": 480,
+      "name": "MCTS instantiation was a major performance bottleneck"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.183689",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 285,
+      "name": "Logarithmic-Entropy Transport (LET) formulation"
+    },
+    "duplicate": {
+      "id": 9,
+      "name": "Logarithmic-Entropy Transport (LET) Functional"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.189046",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 253,
+      "name": "Fisher Information (I)"
+    },
+    "duplicate": {
+      "id": 190,
+      "name": "Fisher Information"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.194748",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 538,
+      "name": "Transformed basic paper summaries into 300+ line technical documents"
+    },
+    "duplicate": {
+      "id": 398,
+      "name": "Transformed academic papers into 300+ line technical documents"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.199955",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 155,
+      "name": "Lower Semicontinuous Function"
+    },
+    "duplicate": {
+      "id": 129,
+      "name": "Lower Semi-continuous (lsc) function"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.205816",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 505,
+      "name": "Run comparative experiments between standard PPO and PPO+MCTS"
+    },
+    "duplicate": {
+      "id": 549,
+      "name": "Start comparative training runs: Standard PPO vs PPO+MCTS"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.211096",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 493,
+      "name": "Developed robust session management to prevent checkpoint mixing"
+    },
+    "duplicate": {
+      "id": 470,
+      "name": "Created proper session-based checkpoint management"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.216452",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 501,
+      "name": "Advanced RL techniques for board games"
+    },
+    "duplicate": {
+      "id": 415,
+      "name": "RL techniques for board games"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.221640",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 565,
+      "name": "Demonstrated working semantic search across domains"
+    },
+    "duplicate": {
+      "id": 562,
+      "name": "Tested semantic search functionality"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.226996",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 491,
+      "name": "Fixed all diagnostics issues and improved code quality"
+    },
+    "duplicate": {
+      "id": 406,
+      "name": "Fixed all code diagnostics"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.232385",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 572,
+      "name": "OpenAI embeddings can be stored efficiently in SQLite as BLOB fields"
+    },
+    "duplicate": {
+      "id": 570,
+      "name": "Embeddings in SQLite BLOBs work well"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.237838",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 545,
+      "name": "Session timestamps are crucial for preventing checkpoint confusion in long training runs"
+    },
+    "duplicate": {
+      "id": 410,
+      "name": "Session timestamps prevent checkpoint confusion in RL training"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.243433",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 377,
+      "name": "The method is developed for finite state/action/observation spaces, and extension to continuous spaces is not addressed."
+    },
+    "duplicate": {
+      "id": 383,
+      "name": "Extending the framework to handle continuous state, action, or observation spaces."
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.248906",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 347,
+      "name": "The analysis is restricted to subsets of R. The extension to higher-dimensional domains X subset R^d is not discussed and would likely be much more complex."
+    },
+    "duplicate": {
+      "id": 351,
+      "name": "Extend the analysis of the upper graph box dimension to subsets X of higher-dimensional Euclidean spaces (R^d for d > 1)."
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.254845",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 247,
+      "name": "Free Energy Functional (F)"
+    },
+    "duplicate": {
+      "id": 184,
+      "name": "Free Energy (F)"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.260348",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 78,
+      "name": "Theorem 5.1: A Lusin-type theorem stating that if f(t,x) is measurable and f^t is continuous for a.e. t, then for any \u03b5>0, f is jointly continuous on T_\u03b5 x \u03a9 where \u00b5([0,1] \\ T_\u03b5) < \u03b5."
+    },
+    "duplicate": {
+      "id": 66,
+      "name": "Theorem 5.1 assumes f(t,x) is Borel measurable and f^t is continuous for \u00b5-a.e. t."
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.266119",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 414,
+      "name": "MCTS implementation patterns for two-player games"
+    },
+    "duplicate": {
+      "id": 502,
+      "name": "MCTS implementation patterns"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:12:52.271725",
+    "action": "merge",
+    "entity_type": "topic",
+    "keeper": {
+      "id": 496,
+      "name": "Dynamic opponent pool evolution prevents training plateaus"
+    },
+    "duplicate": {
+      "id": 408,
+      "name": "Mixed opponent pools prevent training plateaus"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:16.231975",
+    "action": "merge",
+    "entity_type": "person",
+    "keeper": {
+      "id": 80,
+      "name": "R. S. Ellis"
+    },
+    "duplicate": {
+      "id": 91,
+      "name": "R.S. Ellis"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:21.947058",
+    "action": "merge",
+    "entity_type": "project",
+    "keeper": {
+      "id": 9,
+      "name": "Academic Paper Analysis"
+    },
+    "duplicate": {
+      "id": 13,
+      "name": "academic-paper-analysis"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:21.952714",
+    "action": "merge",
+    "entity_type": "project",
+    "keeper": {
+      "id": 3,
+      "name": "Interactive CV"
+    },
+    "duplicate": {
+      "id": 12,
+      "name": "interactive-cv"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:21.958805",
+    "action": "merge",
+    "entity_type": "project",
+    "keeper": {
+      "id": 2,
+      "name": "Collapsi RL"
+    },
+    "duplicate": {
+      "id": 11,
+      "name": "collapsi-rl"
+    },
+    "actions": [
+      "Transfer 2 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:21.964374",
+    "action": "merge",
+    "entity_type": "project",
+    "keeper": {
+      "id": 4,
+      "name": "Obsidian MCP Setup"
+    },
+    "duplicate": {
+      "id": 5,
+      "name": "obsidian-mcp-setup"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.360110",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 75,
+      "name": "Proximal Policy Optimization"
+    },
+    "duplicate": {
+      "id": 96,
+      "name": "PPO (Proximal Policy Optimization)"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.364709",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 75,
+      "name": "Proximal Policy Optimization"
+    },
+    "duplicate": {
+      "id": 102,
+      "name": "Proximal Policy Optimization (PPO)"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.369944",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 92,
+      "name": "Monte Carlo Tree Search (MCTS)"
+    },
+    "duplicate": {
+      "id": 74,
+      "name": "Monte Carlo Tree Search"
+    },
+    "actions": [
+      "Transfer 2 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.374609",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 92,
+      "name": "Monte Carlo Tree Search (MCTS)"
+    },
+    "duplicate": {
+      "id": 126,
+      "name": "MCTS"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.379670",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 87,
+      "name": "Claude Code"
+    },
+    "duplicate": {
+      "id": 91,
+      "name": "claude-code"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.383710",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 87,
+      "name": "Claude Code"
+    },
+    "duplicate": {
+      "id": 124,
+      "name": "CLAUDE.md"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.388864",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 85,
+      "name": "Git"
+    },
+    "duplicate": {
+      "id": 123,
+      "name": "git"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.394250",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 81,
+      "name": "JavaScript"
+    },
+    "duplicate": {
+      "id": 113,
+      "name": "javascript"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.399470",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 84,
+      "name": "MCP"
+    },
+    "duplicate": {
+      "id": 90,
+      "name": "mcp"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.407051",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 104,
+      "name": "Mixed Batch Training"
+    },
+    "duplicate": {
+      "id": 76,
+      "name": "Mixed batch training"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.412374",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 83,
+      "name": "Obsidian"
+    },
+    "duplicate": {
+      "id": 89,
+      "name": "obsidian"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.417776",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 80,
+      "name": "PyTorch"
+    },
+    "duplicate": {
+      "id": 122,
+      "name": "pytorch"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.423043",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 79,
+      "name": "Python"
+    },
+    "duplicate": {
+      "id": 112,
+      "name": "python"
+    },
+    "actions": [
+      "Transfer 2 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.428311",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 82,
+      "name": "React"
+    },
+    "duplicate": {
+      "id": 114,
+      "name": "react"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.433886",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 120,
+      "name": "heatmap visualization"
+    },
+    "duplicate": {
+      "id": 110,
+      "name": "heatmap-visualization"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.439043",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 103,
+      "name": "Generalized Advantage Estimation (GAE)"
+    },
+    "duplicate": {
+      "id": 115,
+      "name": "Generalized Advantage Estimation"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:51.444403",
+    "action": "merge",
+    "entity_type": "method",
+    "keeper": {
+      "id": 105,
+      "name": "Dynamic Opponent Pool Selection"
+    },
+    "duplicate": {
+      "id": 77,
+      "name": "Dynamic opponent pool evolution"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  },
+  {
+    "timestamp": "2025-07-04T11:13:55.597654",
+    "action": "merge",
+    "entity_type": "application",
+    "keeper": {
+      "id": 21,
+      "name": "{'domain': 'Applied Mathematics', 'use_case': 'Analysis of nonlinear reaction-diffusion equations', 'impact': 'Provides a powerful geometric and variational framework for analyzing a class of degenerate parabolic PDEs, offering insights into solution structure and uniqueness that are hard to obtain with classical PDE methods.'}"
+    },
+    "duplicate": {
+      "id": 1,
+      "name": "{'domain': 'Partial Differential Equations', 'use_case': 'Variational formulation of reaction-diffusion systems', 'impact': 'Provides a new way to understand the structure, solutions, and long-time behavior of these equations by interpreting them as gradient-driven flows on a geometric landscape.'}"
+    },
+    "actions": [
+      "Transfer 1 relationships as target",
+      "Delete duplicate entity",
+      "Delete duplicate embeddings"
+    ]
+  }
+]

@@ -145,7 +145,7 @@ def update_entity_embeddings(embedder: EmbeddingGenerator, doc_id: int, doc_type
 
 
 def update_database(db_path: str, academic_dir: Path, personal_dir: Path,
-                   skip_embeddings: bool = False, skip_graph: bool = False):
+                   skip_embeddings: bool = False, skip_graph: bool = False, skip_deduplication: bool = False):
     """Update database with new documents only"""
     
     print("\n" + "="*60)
@@ -224,8 +224,73 @@ def update_database(db_path: str, academic_dir: Path, personal_dir: Path,
     else:
         print("No new personal notes found")
     
+    # Check and regenerate embeddings if using old model
+    if not skip_embeddings:
+        print("\nChecking embedding model version...")
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        
+        # Check if we have embeddings with the old model
+        cursor.execute("""
+            SELECT DISTINCT model_name FROM embeddings
+        """)
+        models = [row[0] for row in cursor.fetchall()]
+        conn.close()
+        
+        if 'text-embedding-3-small' in models:
+            print("Found embeddings with old model (text-embedding-3-small)")
+            print("Regenerating ALL embeddings with new model (text-embedding-3-large)...")
+            
+            try:
+                # Delete old embeddings
+                conn = sqlite3.connect(db_path)
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM embeddings WHERE model_name = 'text-embedding-3-small'")
+                conn.commit()
+                conn.close()
+                
+                # Regenerate all embeddings
+                embedder = EmbeddingGenerator(db_path)
+                doc_count = embedder.generate_document_embeddings()
+                chunk_count = embedder.generate_chunk_embeddings()
+                entity_count = embedder.generate_entity_embeddings()
+                
+                total_new_embeddings += doc_count + chunk_count + entity_count
+                print(f"✓ Regenerated {doc_count} document, {chunk_count} chunk, and {entity_count} entity embeddings")
+                
+            except Exception as e:
+                print(f"⚠️  Warning: Could not regenerate embeddings: {e}")
+    
+    # Run deduplication if there are new documents or entities
+    if not skip_deduplication and total_new_docs > 0:
+        print("\nRunning entity deduplication...")
+        try:
+            # Import here to avoid circular dependencies
+            sys.path.append(str(Path(__file__).parent.parent))
+            from agents.entity_deduplicator import EntityDeduplicator
+            
+            deduplicator = EntityDeduplicator(db_path)
+            
+            # First ensure entity embeddings exist
+            if not skip_embeddings:
+                print("  Ensuring entity embeddings are up to date...")
+                embedder = EmbeddingGenerator(db_path)
+                entity_count = embedder.generate_entity_embeddings()
+                if entity_count > 0:
+                    print(f"  ✓ Generated {entity_count} entity embeddings")
+            
+            # Run deduplication
+            print("  Running deduplication with 20 parallel workers...")
+            deduplicator.deduplicate_all(dry_run=False, use_clustering=True, parallel_workers=20)
+            print("✓ Entity deduplication complete")
+            
+        except Exception as e:
+            print(f"⚠️  Warning: Could not deduplicate entities: {e}")
+            print("   You can run deduplication manually with:")
+            print("   python agents/entity_deduplicator.py --parallel-workers 20 --merge")
+    
     # Update graph tables if needed
-    if not skip_graph and total_new_docs > 0:
+    if not skip_graph and (total_new_docs > 0 or not skip_deduplication):
         print("\nUpdating knowledge graph...")
         try:
             from DB.populate_graph_tables import populate_graph_tables
@@ -295,6 +360,8 @@ def main():
                        help='Skip embedding generation')
     parser.add_argument('--skip-graph', action='store_true',
                        help='Skip graph table update')
+    parser.add_argument('--no-deduplication', action='store_true',
+                       help='Skip entity deduplication')
     
     args = parser.parse_args()
     
@@ -308,7 +375,7 @@ def main():
     
     # Update database
     update_database(str(db_path), args.academic_dir, args.personal_dir,
-                   args.skip_embeddings, args.skip_graph)
+                   args.skip_embeddings, args.skip_graph, args.no_deduplication)
     
     return 0
 
