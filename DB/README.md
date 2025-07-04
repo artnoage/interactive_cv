@@ -292,7 +292,7 @@ python populate_graph_tables.py
 ### Query Database
 ```bash
 # Interactive exploration
-python query_comprehensive.py
+python utils/query_comprehensive.py
 
 # SQL queries
 sqlite3 metadata.db "SELECT * FROM topics WHERE category='machine-learning'"
@@ -301,7 +301,7 @@ sqlite3 metadata.db "SELECT * FROM topics WHERE category='machine-learning'"
 ### Entity Deduplication Workflow
 ```bash
 # 1. Verify current database state
-python verify_entities.py
+python utils/verify_entities.py
 
 # 2. Generate entity embeddings with verification
 python embeddings.py --entities-only --verify
@@ -336,16 +336,15 @@ DB/
 ├── README.md                    # This file
 ├── metadata.db                  # SQLite database (not in git)
 ├── build_database.py            # Complete database builder
-├── update_database.py           # Incremental updater
-├── unified_metadata_populator.py # JSON to database importer
+├── update_database.py           # Incremental updater (NEW!)
+├── populator.py                 # Blueprint-driven metadata importer
 ├── chunker.py                   # Document chunking
 ├── embeddings.py                # Vector embedding generation
 ├── populate_graph_tables.py     # Graph table population
-├── query_comprehensive.py       # Database exploration
-├── verify_entities.py           # Entity quality verification
-└── extractors/                  # Base extraction classes
+└── utils/                       # Database utilities
     ├── __init__.py
-    └── base_extractor.py        # Shared extraction logic
+    ├── query_comprehensive.py   # Database exploration tool
+    └── verify_entities.py       # Entity quality verification
 ```
 
 ## Dependencies

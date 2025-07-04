@@ -1043,7 +1043,11 @@ Brief explanation (1 line).""")
         
         # Save audit log
         if not dry_run and self.audit_log:
-            log_file = f"deduplication_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            # Ensure logs directory exists
+            logs_dir = Path("logs")
+            logs_dir.mkdir(exist_ok=True)
+            
+            log_file = logs_dir / f"deduplication_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
             with open(log_file, 'w') as f:
                 json.dump(self.audit_log, f, indent=2)
             print(f"\nAudit log saved to: {log_file}")
@@ -1114,7 +1118,12 @@ def main():
         print("\n\nOperation cancelled by user")
         return 1
     except Exception as e:
+        import traceback
         print(f"\nError: {e}")
+        print("\nFull traceback:")
+        print("-" * 60)
+        traceback.print_exc()
+        print("-" * 60)
         return 1
     
     return 0

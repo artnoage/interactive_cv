@@ -26,8 +26,8 @@ except ImportError as e:
     print(f"Blueprint path: {blueprint_core_path}")
     raise
 from DB.populator import DatabasePopulator
-from DB.chunker import DocumentChunker
-from DB.embeddings import EmbeddingGenerator
+from DB.utils.chunker import DocumentChunker
+from DB.utils.embeddings import EmbeddingGenerator
 from KG.graph_builder import GraphBuilder
 
 
@@ -271,9 +271,11 @@ def build_database(db_path: str, skip_embeddings: bool = False, skip_graph: bool
     # Process all document types found in blueprints
     total_docs = 0
     for doc_type in blueprint_loader.list_document_types():
-        metadata_dir = Path(f"raw_data/{doc_type}/extracted_metadata")
+        # Use absolute paths relative to project root
+        project_root = Path(__file__).parent.parent
+        metadata_dir = project_root / f"raw_data/{doc_type}/extracted_metadata"
         if doc_type == 'personal':
-            metadata_dir = Path("raw_data/personal_notes/extracted_metadata")
+            metadata_dir = project_root / "raw_data/personal_notes/extracted_metadata"
         
         if metadata_dir.exists():
             print(f"\nProcessing {doc_type} metadata from {metadata_dir}")
@@ -287,7 +289,8 @@ def build_database(db_path: str, skip_embeddings: bool = False, skip_graph: bool
     print("\nStep 2: Creating document chunks")
     print("-" * 40)
     
-    chunker = DocumentChunker(chunk_size=1200, chunk_overlap=200)
+    # Use smaller chunk size for personal notes which tend to be shorter
+    chunker = DocumentChunker(chunk_size=800, chunk_overlap=150, min_chunk_size=300)
     
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
@@ -308,8 +311,10 @@ def build_database(db_path: str, skip_embeddings: bool = False, skip_graph: bool
             doc_mappings = 0
             
             for doc_id, content in docs:
-                chunk_ids = chunker.chunk_and_store(db_path, doc_id, doc_type, content)
-                mappings = chunker.map_entities_to_chunks(db_path, doc_id, doc_type)
+                # Map doc_type to the database document type
+                db_doc_type = 'chronicle' if doc_type == 'personal' else doc_type
+                chunk_ids = chunker.chunk_and_store(db_path, doc_id, db_doc_type, content)
+                mappings = chunker.map_entities_to_chunks(db_path, doc_id, db_doc_type)
                 doc_chunks += len(chunk_ids)
                 doc_mappings += mappings
             
@@ -352,15 +357,38 @@ def build_database(db_path: str, skip_embeddings: bool = False, skip_graph: bool
             import subprocess
             result = subprocess.run([
                 sys.executable, "../agents/entity_deduplicator.py", 
+                "--db", "metadata.db",  # Specify correct path when running from DB dir
                 "--parallel-workers", "20", "--merge"
             ], cwd="DB", capture_output=True, text=True)
             
             if result.returncode == 0:
                 print("✓ Entity deduplication completed")
-                print(result.stdout.split('\n')[-5:])  # Show last few lines
+                # Show summary from stdout
+                if result.stdout:
+                    lines = result.stdout.strip().split('\n')
+                    for line in lines[-5:]:
+                        if line.strip():
+                            print(f"  {line}")
             else:
                 print("⚠️  Deduplication encountered issues")
-                print(result.stderr[:500])  # Show first part of error
+                print(f"  Return code: {result.returncode}")
+                
+                # Show detailed error information
+                if result.stderr:
+                    print("\n  Error details:")
+                    print("-" * 40)
+                    # Show full stderr output
+                    for line in result.stderr.strip().split('\n'):
+                        print(f"  {line}")
+                    print("-" * 40)
+                
+                # Also show any stdout that might contain error info
+                if result.stdout:
+                    print("\n  Output before error:")
+                    print("-" * 40)
+                    for line in result.stdout.strip().split('\n')[-10:]:
+                        print(f"  {line}")
+                    print("-" * 40)
         except Exception as e:
             print(f"⚠️  Could not run deduplication: {e}")
     

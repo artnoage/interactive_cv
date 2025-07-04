@@ -86,14 +86,18 @@ interactive_cv/
 │   └── entity_deduplicator.py         # Deduplication
 ├── DB/                   # Database and processing system
 │   ├── build_database.py              # Complete database builder
+│   ├── update_database.py             # Incremental database updater (NEW!)
 │   ├── populator.py                   # Generic metadata populator
 │   ├── chunker.py                     # Document chunking
 │   ├── embeddings.py                  # Vector embeddings
 │   ├── populate_graph_tables.py       # Graph table population
-│   └── query_comprehensive.py         # Database exploration
+│   └── utils/                         # Database utilities
+│       ├── query_comprehensive.py     # Database exploration
+│       └── verify_entities.py         # Entity verification
 ├── KG/                   # Knowledge Graph system
-│   ├── graph_builder.py               # Rich knowledge graph generator
-│   └── graph_enhanced_query.py        # Intelligent queries
+│   └── graph_builder.py               # Rich knowledge graph generator
+├── RAG/                  # Retrieval-Augmented Generation system
+│   └── graph_enhanced_query.py        # Intelligent RAG queries
 ├── .sync/                # Chronicle sync system
 ├── interactive_agent.py  # Conversational AI interface
 └── web_ui/              # Visualization interface
@@ -119,10 +123,11 @@ interactive_cv/
 - **Methods**: `numerical` → `computational_method`, `proof` → `theoretical_method`
 - **Personal Work**: `accomplishment` → `personal_achievement`, `learning` → `personal_learning`
 
-## 📊 Current Status (2025-01-04 - Blueprint Update)
+## 📊 Current Status (2025-01-04 - Blueprint Update & Fixes)
 
 ### Database Statistics
 - **19 documents**: 12 academic papers + 7 personal notes
+- **Full content loaded**: Academic papers (20-29k chars), Personal notes (1.6-5.4k chars)
 - **Entities with Rich Categories**:
   - **745 topics**: Categorized by domain (math_foundation, research_area, etc.)
   - **181 people**: Authors and collaborators
@@ -131,17 +136,21 @@ interactive_cv/
   - **21 applications**: Real-world use cases
   - **13 projects**: Research initiatives
 - **1,249 relationships**: Categorized by type (discusses, proves, uses_method, etc.)
-- **Document chunks**: Semantic segmentation for RAG
+- **Document Processing**:
+  - **38 chunks**: Created from academic documents (800-token chunks)
+  - **285 entity-chunk mappings**: For precise entity location
 
 ### Processing Pipeline Status
 ✅ **Blueprint-driven architecture** - Complete domain separation
 ✅ **Rich entity type preservation** - 24+ node types instead of generic "topics"
 ✅ **Academic paper analysis and extraction**
+✅ **Full content loading** - Fixed to load complete documents not just summaries
 ✅ **Configurable database population**
-✅ **Semantic chunking with entity mapping**
+✅ **Semantic chunking with entity mapping** - Working for academic papers
 ✅ **High-quality embeddings** with text-embedding-3-large
-✅ **Integrated entity deduplication**
+✅ **Integrated entity deduplication** - 20 parallel workers with LLM verification
 ✅ **Blueprint-driven knowledge graph** with rich visualization
+⏳ Personal notes chunking optimization (notes are shorter than chunk threshold)
 ⏳ Interactive web UI completion
 
 ## 🛠️ Blueprint System Usage
@@ -149,7 +158,7 @@ interactive_cv/
 ### 1. Build Database with Blueprints
 
 ```bash
-# Complete build with validation
+# Complete build with validation (from scratch)
 python DB/build_database.py --validate-blueprints
 
 # Options:
@@ -160,7 +169,26 @@ python DB/build_database.py --validate-blueprints
 # --db custom.db        # Use custom database name
 ```
 
-### 2. Extract Metadata Using Blueprints
+### 2. Update Existing Database (NEW!)
+
+```bash
+# Incremental update - only process new documents
+python DB/update_database.py
+
+# The update process:
+# - Detects new documents automatically
+# - Only processes changes (no duplicates)
+# - Checks and upgrades embedding model if needed
+# - Runs deduplication on new entities only
+# - Updates knowledge graph incrementally
+
+# Options:
+# --skip-embeddings     # Skip embedding generation
+# --skip-graph          # Skip graph update
+# --no-deduplication    # Skip deduplication
+```
+
+### 3. Extract Metadata Using Blueprints
 
 ```bash
 # Extract academic papers (uses academic blueprints)
@@ -172,7 +200,7 @@ python agents/extractor.py personal \
   --input personal_notes/ --output raw_data/personal_notes/extracted_metadata/
 ```
 
-### 3. Generate Rich Knowledge Graph
+### 4. Generate Rich Knowledge Graph
 
 ```bash
 # Generate graph with rich node types
@@ -182,7 +210,7 @@ python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
 open web_ui/index.html
 ```
 
-### 4. Validate Blueprint Configurations
+### 5. Validate Blueprint Configurations
 
 ```bash
 # Check all blueprints for errors
@@ -314,6 +342,26 @@ Edit YAML files in `blueprints/` to modify:
 5. **Collaborative**: Non-programmers can modify extraction rules
 6. **Version Control**: Blueprint changes are tracked in git
 7. **Validation**: Schema validation prevents configuration errors
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Empty document_chunks table**
+   - **Cause**: Documents only containing summaries instead of full content
+   - **Fix**: Ensure populator loads full content from analysis files (fixed in latest version)
+
+2. **Personal notes not chunked**
+   - **Cause**: Personal notes are shorter than minimum chunk size (300 tokens)
+   - **Fix**: Adjust `min_chunk_size` in `build_database.py` or use different chunking strategy
+
+3. **Blueprint file not found errors**
+   - **Cause**: Relative path issues when running from different directories
+   - **Fix**: Always run scripts from project root or use absolute paths
+
+4. **Deduplication taking too long**
+   - **Cause**: Too many false positive pairs to check
+   - **Fix**: Increase similarity threshold or use `--no-deduplication` flag
 
 ## 🤝 Contributing
 

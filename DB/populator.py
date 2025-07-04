@@ -71,14 +71,39 @@ class DatabasePopulator:
             # Read actual content if available
             content = ""
             content_source = document_mapping.get('content_source')
-            if content_source and content_source in metadata:
+            
+            # For academic documents, try to find the analysis file
+            if doc_type == 'academic':
+                # Extract base name from metadata JSON file
+                base_name = json_path.stem.replace('_metadata', '')
+                analysis_path = json_path.parent.parent / 'generated_analyses' / f'{base_name}.md'
+                
+                if analysis_path.exists():
+                    content = analysis_path.read_text()
+                    print(f"    Loaded full analysis content from {analysis_path.name} ({len(content)} chars)")
+                else:
+                    print(f"    Warning: Analysis file not found: {analysis_path}")
+                    # Fall back to core_contribution
+                    content = metadata.get('core_contribution', metadata.get('summary', ''))
+            
+            # For other document types, use the configured content source
+            elif content_source and content_source in metadata:
                 content_value = metadata[content_source]
                 # Check if it's a file path or direct content
                 if content_source == 'file_path' and isinstance(content_value, str):
-                    source_path = Path(content_value)
+                    # Try relative to project root first
+                    project_root = Path(__file__).parent.parent
+                    source_path = project_root / content_value
+                    
+                    if not source_path.exists():
+                        # Try as absolute path
+                        source_path = Path(content_value)
+                    
                     if source_path.exists():
                         content = source_path.read_text()
+                        print(f"    Loaded content from {source_path.name} ({len(content)} chars)")
                     else:
+                        print(f"    Warning: Content file not found: {content_value}")
                         # Fallback content sources
                         content = metadata.get('core_contribution', metadata.get('summary', ''))
                 else:

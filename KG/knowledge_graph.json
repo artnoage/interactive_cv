@@ -253,15 +253,6 @@
       "category": "accomplishment"
     },
     {
-      "id": "topic_11",
-      "type": "personal_achievement",
-      "label": "Transformed academic papers into 300+ line technical documents",
-      "original_category": "accomplishment",
-      "color": "#44ff88",
-      "size": 11,
-      "category": "accomplishment"
-    },
-    {
       "id": "topic_12",
       "type": "personal_achievement",
       "label": "Overhauled Collapsi into a full RL system with web UI",
@@ -325,27 +316,9 @@
       "category": "accomplishment"
     },
     {
-      "id": "topic_19",
-      "type": "personal_achievement",
-      "label": "Fixed all code diagnostics",
-      "original_category": "accomplishment",
-      "color": "#44ff88",
-      "size": 11,
-      "category": "accomplishment"
-    },
-    {
       "id": "topic_20",
       "type": "research_insight",
       "label": "DFS pathfinding is effective for constrained movement on small boards",
-      "original_category": "insight",
-      "color": "#aa44ff",
-      "size": 10,
-      "category": "insight"
-    },
-    {
-      "id": "topic_21",
-      "type": "research_insight",
-      "label": "Mixed opponent pools prevent training plateaus",
       "original_category": "insight",
       "color": "#aa44ff",
       "size": 10,
@@ -361,27 +334,9 @@
       "category": "insight"
     },
     {
-      "id": "topic_23",
-      "type": "research_insight",
-      "label": "Session timestamps prevent checkpoint confusion in RL training",
-      "original_category": "insight",
-      "color": "#aa44ff",
-      "size": 10,
-      "category": "insight"
-    },
-    {
       "id": "topic_24",
       "type": "research_insight",
       "label": "Movement rule flexibility significantly transforms game strategy",
-      "original_category": "insight",
-      "color": "#aa44ff",
-      "size": 10,
-      "category": "insight"
-    },
-    {
-      "id": "topic_25",
-      "type": "research_insight",
-      "label": "Modular architecture is essential for ML systems",
       "original_category": "insight",
       "color": "#aa44ff",
       "size": 10,
@@ -400,15 +355,6 @@
       "id": "topic_27",
       "type": "personal_learning",
       "label": "MCTS implementation patterns for two-player games",
-      "original_category": "learning",
-      "color": "#66ff66",
-      "size": 11,
-      "category": "learning"
-    },
-    {
-      "id": "topic_28",
-      "type": "personal_learning",
-      "label": "RL techniques for board games",
       "original_category": "learning",
       "color": "#66ff66",
       "size": 11,
@@ -463,15 +409,6 @@
       "id": "topic_34",
       "type": "future_direction",
       "label": "Implement AlphaZero training for Collapsi",
-      "original_category": "future_work",
-      "color": "#8888ff",
-      "size": 11,
-      "category": "future_work"
-    },
-    {
-      "id": "topic_35",
-      "type": "future_direction",
-      "label": "Build interactive CV frontend",
       "original_category": "future_work",
       "color": "#8888ff",
       "size": 11,
@@ -901,15 +838,6 @@
       "category": "accomplishment"
     },
     {
-      "id": "topic_84",
-      "type": "personal_achievement",
-      "label": "Created proper session-based checkpoint management",
-      "original_category": "accomplishment",
-      "color": "#44ff88",
-      "size": 11,
-      "category": "accomplishment"
-    },
-    {
       "id": "topic_85",
       "type": "personal_achievement",
       "label": "Set up Tailscale for secure networking across devices",
@@ -985,15 +913,6 @@
       "id": "topic_93",
       "type": "personal_learning",
       "label": "Mark S. Ball's Collapsi tutorial",
-      "original_category": "learning",
-      "color": "#66ff66",
-      "size": 11,
-      "category": "learning"
-    },
-    {
-      "id": "topic_94",
-      "type": "personal_learning",
-      "label": "MCTS instantiation was a major performance bottleneck",
       "original_category": "learning",
       "color": "#66ff66",
       "size": 11,
@@ -1162,15 +1081,6 @@
       "category": "insight"
     },
     {
-      "id": "topic_118",
-      "type": "research_insight",
-      "label": "Modular architecture benefits for ML training systems",
-      "original_category": "insight",
-      "color": "#aa44ff",
-      "size": 10,
-      "category": "insight"
-    },
-    {
       "id": "topic_119",
       "type": "research_insight",
       "label": "Importance of diverse training opponents",
@@ -1183,15 +1093,6 @@
       "id": "topic_120",
       "type": "personal_learning",
       "label": "Advanced RL techniques for board games",
-      "original_category": "learning",
-      "color": "#66ff66",
-      "size": 11,
-      "category": "learning"
-    },
-    {
-      "id": "topic_121",
-      "type": "personal_learning",
-      "label": "MCTS implementation patterns",
       "original_category": "learning",
       "color": "#66ff66",
       "size": 11,
@@ -1219,15 +1120,6 @@
       "id": "topic_125",
       "type": "future_direction",
       "label": "Run comparative experiments between standard PPO and PPO+MCTS",
-      "original_category": "future_work",
-      "color": "#8888ff",
-      "size": 11,
-      "category": "future_work"
-    },
-    {
-      "id": "topic_126",
-      "type": "future_direction",
-      "label": "Begin interactive frontend development for CV project",
       "original_category": "future_work",
       "color": "#8888ff",
       "size": 11,
@@ -1585,15 +1477,6 @@
       "category": "insight"
     },
     {
-      "id": "topic_172",
-      "type": "research_insight",
-      "label": "MCTS integration can add 200-400 Elo strength but at 50x computational cost",
-      "original_category": "insight",
-      "color": "#aa44ff",
-      "size": 10,
-      "category": "insight"
-    },
-    {
       "id": "topic_174",
       "type": "research_insight",
       "label": "Systematic paper analysis methodology produces significantly better academic documentation",
@@ -1610,15 +1493,6 @@
       "color": "#66ff66",
       "size": 11,
       "category": "learning"
-    },
-    {
-      "id": "topic_177",
-      "type": "future_direction",
-      "label": "Start comparative training runs: Standard PPO vs PPO+MCTS",
-      "original_category": "future_work",
-      "color": "#8888ff",
-      "size": 11,
-      "category": "future_work"
     },
     {
       "id": "topic_178",
@@ -1687,15 +1561,6 @@
       "id": "topic_185",
       "type": "general_topic",
       "label": "metadata-extraction",
-      "original_category": "general",
-      "color": "#999999",
-      "size": 8,
-      "category": "general"
-    },
-    {
-      "id": "topic_186",
-      "type": "general_topic",
-      "label": "document-chunking",
       "original_category": "general",
       "color": "#999999",
       "size": 8,
@@ -1795,15 +1660,6 @@
       "id": "topic_197",
       "type": "research_insight",
       "label": "Document chunking enables granular search",
-      "original_category": "insight",
-      "color": "#aa44ff",
-      "size": 10,
-      "category": "insight"
-    },
-    {
-      "id": "topic_198",
-      "type": "research_insight",
-      "label": "Embeddings in SQLite BLOBs work well",
       "original_category": "insight",
       "color": "#aa44ff",
       "size": 10,
@@ -1951,16 +1807,6 @@
       "size": 12,
       "description": "A property of a function f where f(t) - Kt^2 is concave. In this paper, it refers to the property that the function t -> d^2(x2, x01(t)) is K*d^2(x0,x1)-semiconcave for a geodesic x01 and an observer x2.",
       "category": "principle"
-    },
-    {
-      "id": "topic_217",
-      "type": "math_foundation",
-      "label": "Logarithmic-Entropy Transport (LET) Functional",
-      "original_category": "functional",
-      "color": "#4444ff",
-      "size": 12,
-      "description": "A functional defined on transport plans whose minimization is equivalent to computing the squared HK distance. It consists of two relative entropy terms and a transport cost term.",
-      "category": "functional"
     },
     {
       "id": "topic_218",
@@ -2284,15 +2130,6 @@
       "id": "topic_253",
       "type": "general_concept",
       "label": "Gradient Structures",
-      "original_category": "concept",
-      "color": "#aaaaaa",
-      "size": 9,
-      "category": "concept"
-    },
-    {
-      "id": "topic_254",
-      "type": "general_concept",
-      "label": "Reaction-Diffusion Systems",
       "original_category": "concept",
       "color": "#aaaaaa",
       "size": 9,
@@ -3338,15 +3175,6 @@
       "category": "insight"
     },
     {
-      "id": "topic_368",
-      "type": "innovation",
-      "label": "First neural OT solver that generalizes across datasets and resolutions for a fixed cost function.",
-      "original_category": "innovation",
-      "color": "#ff44aa",
-      "size": 10,
-      "category": "innovation"
-    },
-    {
       "id": "topic_369",
       "type": "innovation",
       "label": "Use of Fourier Neural Operators for solving OT problems.",
@@ -3383,16 +3211,6 @@
       "size": 12,
       "description": "A function Hn assigning an energy to an n-particle configuration, typically composed of a sum of one-body potential terms (V) and two-body interaction terms (W). Defined in (1.1).",
       "category": "functional"
-    },
-    {
-      "id": "topic_373",
-      "type": "math_foundation",
-      "label": "Empirical Measure (Ln)",
-      "original_category": "operator",
-      "color": "#4444ff",
-      "size": 12,
-      "description": "A random probability measure that places a mass of 1/n at the location of each of the n particles: Ln = (1/n) \u03a3 \u03b4_xi. It describes the macroscopic distribution of particles.",
-      "category": "operator"
     },
     {
       "id": "topic_374",
@@ -3445,16 +3263,6 @@
       "category": "theory"
     },
     {
-      "id": "topic_379",
-      "type": "math_foundation",
-      "label": "Relative Entropy (R(\u03bc|\u03bd))",
-      "original_category": "functional",
-      "color": "#4444ff",
-      "size": 12,
-      "description": "A measure of dissimilarity between two probability measures \u03bc and \u03bd. R(\u03bc|\u03bd) = \u222b log(d\u03bc/d\u03bd) d\u03bc if \u03bc is absolutely continuous with respect to \u03bd, and \u221e otherwise. Also known as Kullback-Leibler divergence.",
-      "category": "functional"
-    },
-    {
       "id": "topic_380",
       "type": "math_foundation",
       "label": "Energy Functional (I(\u03bc), J(\u03bc))",
@@ -3465,16 +3273,6 @@
       "category": "functional"
     },
     {
-      "id": "topic_381",
-      "type": "math_foundation",
-      "label": "Lower Semi-continuous (lsc) function",
-      "original_category": "theory",
-      "color": "#4444ff",
-      "size": 12,
-      "description": "A function f for which the level sets {x: f(x) \u2264 c} are closed for all c. This is a key property of rate functions.",
-      "category": "theory"
-    },
-    {
       "id": "topic_382",
       "type": "math_foundation",
       "label": "Tightness",
@@ -3483,16 +3281,6 @@
       "size": 12,
       "description": "A property of a collection of probability measures ensuring they do not 'escape to infinity'. A collection is tight if for any \u03b5>0, there is a compact set K such that every measure gives K a mass of at least 1-\u03b5.",
       "category": "theory"
-    },
-    {
-      "id": "topic_383",
-      "type": "math_foundation",
-      "label": "Pushforward Measure (f#\u03bc)",
-      "original_category": "operator",
-      "color": "#4444ff",
-      "size": 12,
-      "description": "The measure induced on the codomain of a function f by a measure \u03bc on its domain. (f#\u03bc)(B) = \u03bc(f\u207b\u00b9(B)).",
-      "category": "operator"
     },
     {
       "id": "topic_384",
@@ -3852,16 +3640,6 @@
       "size": 12,
       "description": "A function for which the epigraph is a closed set. This property is crucial for the duality theorem.",
       "category": "property"
-    },
-    {
-      "id": "topic_425",
-      "type": "math_foundation",
-      "label": "Relative Entropy (R(\u00b5|\u03bd))",
-      "original_category": "functional",
-      "color": "#4444ff",
-      "size": 12,
-      "description": "A measure of difference between two probability distributions, also known as Kullback-Leibler divergence. Used in the Donsker-Varadhan example.",
-      "category": "functional"
     },
     {
       "id": "topic_426",
@@ -4305,16 +4083,6 @@
       "color": "#4444ff",
       "size": 12,
       "description": "A measure of how one probability distribution is different from a second, reference probability distribution. H(\u03c1|\u03bc) = \u222b log(d\u03c1/d\u03bc) d\u03c1.",
-      "category": "functional"
-    },
-    {
-      "id": "topic_479",
-      "type": "math_foundation",
-      "label": "Fisher Information",
-      "original_category": "functional",
-      "color": "#4444ff",
-      "size": 12,
-      "description": "A functional measuring the 'information' content of a distribution, related to its smoothness. In this paper, it appears as ||\u0394\u03c1||\u00b2\u208b\u2081,\u03c1 = \u222b |\u2207\u03c1(x)|\u00b2/\u03c1(x) dx.",
       "category": "functional"
     },
     {
@@ -5779,24 +5547,6 @@
       "category": "theorem"
     },
     {
-      "id": "topic_660",
-      "type": "general_concept",
-      "label": "Wasserstein space",
-      "original_category": "concept",
-      "color": "#aaaaaa",
-      "size": 9,
-      "category": "concept"
-    },
-    {
-      "id": "topic_661",
-      "type": "general_concept",
-      "label": "Fokker-Planck equation",
-      "original_category": "concept",
-      "color": "#aaaaaa",
-      "size": 9,
-      "category": "concept"
-    },
-    {
       "id": "topic_662",
       "type": "general_concept",
       "label": "Reaction-diffusion equations",
@@ -5818,15 +5568,6 @@
       "id": "topic_664",
       "type": "general_concept",
       "label": "Doubly degenerate diffusion equations",
-      "original_category": "concept",
-      "color": "#aaaaaa",
-      "size": 9,
-      "category": "concept"
-    },
-    {
-      "id": "topic_665",
-      "type": "general_concept",
-      "label": "Otto calculus",
       "original_category": "concept",
       "color": "#aaaaaa",
       "size": 9,
@@ -5962,16 +5703,6 @@
       "size": 12,
       "description": "Related to the optimal transport distance where the cost function is the squared Euclidean distance, c(x,y) = d(x,y)^2.",
       "category": "metric"
-    },
-    {
-      "id": "topic_680",
-      "type": "math_foundation",
-      "label": "Push-forward measure (T#\u03bc)",
-      "original_category": "operator",
-      "color": "#4444ff",
-      "size": 12,
-      "description": "A measure induced on a space Y by mapping a measure \u03bc from space X via a map T. Defined in Definition 2.1.",
-      "category": "operator"
     },
     {
       "id": "topic_681",
@@ -6508,15 +6239,6 @@
       "category": "theorem"
     },
     {
-      "id": "topic_745",
-      "type": "general_concept",
-      "label": "Baire category theorem",
-      "original_category": "concept",
-      "color": "#aaaaaa",
-      "size": 9,
-      "category": "concept"
-    },
-    {
       "id": "topic_746",
       "type": "general_concept",
       "label": "Perfect sets",
@@ -6702,16 +6424,6 @@
       "size": 12,
       "description": "An operator T that performs a one-step dynamic programming backup. The optimal value function is a fixed point of this operator.",
       "category": "operator"
-    },
-    {
-      "id": "topic_766",
-      "type": "math_foundation",
-      "label": "Pushforward Measure",
-      "original_category": "measure",
-      "color": "#4444ff",
-      "size": 12,
-      "description": "A measure induced on a target space by a measurable map from a source space with a given measure. Used to define the transition kernel of the augmented MDP.",
-      "category": "measure"
     },
     {
       "id": "topic_767",
@@ -7183,14 +6895,6 @@
       "id": "person_23",
       "type": "person",
       "label": "M. M. Deza",
-      "original_category": null,
-      "color": "#44cc44",
-      "size": 14
-    },
-    {
-      "id": "person_24",
-      "type": "person",
-      "label": "E. Deza",
       "original_category": null,
       "color": "#44cc44",
       "size": 14
@@ -7735,14 +7439,6 @@
       "id": "person_112",
       "type": "person",
       "label": "P. Dupuis",
-      "original_category": null,
-      "color": "#44cc44",
-      "size": 14
-    },
-    {
-      "id": "person_113",
-      "type": "person",
-      "label": "R.S. Ellis",
       "original_category": null,
       "color": "#44cc44",
       "size": 14
@@ -8492,14 +8188,6 @@
       "size": 14
     },
     {
-      "id": "project_5",
-      "type": "project",
-      "label": "obsidian-mcp-setup",
-      "original_category": null,
-      "color": "#ff8844",
-      "size": 14
-    },
-    {
       "id": "project_6",
       "type": "project",
       "label": "Collapsi Web",
@@ -8535,30 +8223,6 @@
       "id": "project_12",
       "type": "project",
       "label": "collapsi-game",
-      "original_category": null,
-      "color": "#ff8844",
-      "size": 14
-    },
-    {
-      "id": "project_13",
-      "type": "project",
-      "label": "collapsi-rl",
-      "original_category": null,
-      "color": "#ff8844",
-      "size": 14
-    },
-    {
-      "id": "project_15",
-      "type": "project",
-      "label": "interactive-cv",
-      "original_category": null,
-      "color": "#ff8844",
-      "size": 14
-    },
-    {
-      "id": "project_16",
-      "type": "project",
-      "label": "academic-paper-analysis",
       "original_category": null,
       "color": "#ff8844",
       "size": 14
@@ -8764,33 +8428,9 @@
       "size": 10
     },
     {
-      "id": "method_2",
-      "type": "general_method",
-      "label": "Monte Carlo Tree Search",
-      "original_category": null,
-      "color": "#cc44cc",
-      "size": 10
-    },
-    {
       "id": "method_3",
       "type": "general_method",
       "label": "Proximal Policy Optimization",
-      "original_category": null,
-      "color": "#cc44cc",
-      "size": 10
-    },
-    {
-      "id": "method_4",
-      "type": "general_method",
-      "label": "Mixed batch training",
-      "original_category": null,
-      "color": "#cc44cc",
-      "size": 10
-    },
-    {
-      "id": "method_5",
-      "type": "general_method",
-      "label": "Dynamic opponent pool evolution",
       "original_category": null,
       "color": "#cc44cc",
       "size": 10
@@ -8893,33 +8533,6 @@
       "size": 10
     },
     {
-      "id": "method_17",
-      "type": "tool",
-      "label": "obsidian",
-      "original_category": "tool",
-      "color": "#ee44ee",
-      "size": 10,
-      "category": "tool"
-    },
-    {
-      "id": "method_18",
-      "type": "tool",
-      "label": "mcp",
-      "original_category": "tool",
-      "color": "#ee44ee",
-      "size": 10,
-      "category": "tool"
-    },
-    {
-      "id": "method_19",
-      "type": "tool",
-      "label": "claude-code",
-      "original_category": "tool",
-      "color": "#ee44ee",
-      "size": 10,
-      "category": "tool"
-    },
-    {
       "id": "method_20",
       "type": "general_method",
       "label": "Monte Carlo Tree Search (MCTS)",
@@ -8947,14 +8560,6 @@
       "id": "method_23",
       "type": "general_method",
       "label": "Temperature-based Exploration",
-      "original_category": null,
-      "color": "#cc44cc",
-      "size": 10
-    },
-    {
-      "id": "method_24",
-      "type": "general_method",
-      "label": "PPO (Proximal Policy Optimization)",
       "original_category": null,
       "color": "#cc44cc",
       "size": 10
@@ -8999,14 +8604,6 @@
       "id": "method_32",
       "type": "general_method",
       "label": "Reinforcement Learning",
-      "original_category": null,
-      "color": "#cc44cc",
-      "size": 10
-    },
-    {
-      "id": "method_34",
-      "type": "general_method",
-      "label": "Proximal Policy Optimization (PPO)",
       "original_category": null,
       "color": "#cc44cc",
       "size": 10
@@ -9071,53 +8668,9 @@
       "category": "tool"
     },
     {
-      "id": "method_45",
-      "type": "tool",
-      "label": "heatmap-visualization",
-      "original_category": "tool",
-      "color": "#ee44ee",
-      "size": 10,
-      "category": "tool"
-    },
-    {
       "id": "method_47",
       "type": "general_method",
       "label": "backtracking",
-      "original_category": null,
-      "color": "#cc44cc",
-      "size": 10
-    },
-    {
-      "id": "method_48",
-      "type": "tool",
-      "label": "python",
-      "original_category": "tool",
-      "color": "#ee44ee",
-      "size": 10,
-      "category": "tool"
-    },
-    {
-      "id": "method_49",
-      "type": "tool",
-      "label": "javascript",
-      "original_category": "tool",
-      "color": "#ee44ee",
-      "size": 10,
-      "category": "tool"
-    },
-    {
-      "id": "method_50",
-      "type": "tool",
-      "label": "react",
-      "original_category": "tool",
-      "color": "#ee44ee",
-      "size": 10,
-      "category": "tool"
-    },
-    {
-      "id": "method_54",
-      "type": "general_method",
-      "label": "Generalized Advantage Estimation",
       "original_category": null,
       "color": "#cc44cc",
       "size": 10
@@ -9156,11 +8709,12 @@
     },
     {
       "id": "method_59",
-      "type": "general_method",
+      "type": "tool",
       "label": "heatmap visualization",
-      "original_category": null,
-      "color": "#cc44cc",
-      "size": 10
+      "original_category": "tool",
+      "color": "#ee44ee",
+      "size": 10,
+      "category": "tool"
     },
     {
       "id": "method_60",
@@ -9171,44 +8725,9 @@
       "size": 10
     },
     {
-      "id": "method_62",
-      "type": "tool",
-      "label": "pytorch",
-      "original_category": "tool",
-      "color": "#ee44ee",
-      "size": 10,
-      "category": "tool"
-    },
-    {
-      "id": "method_63",
-      "type": "tool",
-      "label": "git",
-      "original_category": "tool",
-      "color": "#ee44ee",
-      "size": 10,
-      "category": "tool"
-    },
-    {
-      "id": "method_64",
-      "type": "tool",
-      "label": "CLAUDE.md",
-      "original_category": "tool",
-      "color": "#ee44ee",
-      "size": 10,
-      "category": "tool"
-    },
-    {
       "id": "method_65",
       "type": "general_method",
       "label": "cosine similarity",
-      "original_category": null,
-      "color": "#cc44cc",
-      "size": 10
-    },
-    {
-      "id": "method_66",
-      "type": "general_method",
-      "label": "MCTS",
       "original_category": null,
       "color": "#cc44cc",
       "size": 10
@@ -10327,7 +9846,7 @@
     },
     {
       "source": "document_chronicle_1",
-      "target": "method_2",
+      "target": "method_20",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -10345,7 +9864,7 @@
     },
     {
       "source": "document_chronicle_1",
-      "target": "method_4",
+      "target": "method_36",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -10354,7 +9873,7 @@
     },
     {
       "source": "document_chronicle_1",
-      "target": "method_5",
+      "target": "method_37",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -10471,7 +9990,7 @@
     },
     {
       "source": "document_chronicle_1",
-      "target": "topic_11",
+      "target": "topic_164",
       "type": "accomplished",
       "confidence": 0.9,
       "color": "#44ff44",
@@ -10543,7 +10062,7 @@
     },
     {
       "source": "document_chronicle_1",
-      "target": "topic_19",
+      "target": "topic_110",
       "type": "accomplished",
       "confidence": 0.9,
       "color": "#44ff44",
@@ -10561,7 +10080,7 @@
     },
     {
       "source": "document_chronicle_1",
-      "target": "topic_21",
+      "target": "topic_115",
       "type": "discovered",
       "confidence": 0.9,
       "color": "#44ffaa",
@@ -10579,7 +10098,7 @@
     },
     {
       "source": "document_chronicle_1",
-      "target": "topic_23",
+      "target": "topic_171",
       "type": "discovered",
       "confidence": 0.9,
       "color": "#44ffaa",
@@ -10597,7 +10116,7 @@
     },
     {
       "source": "document_chronicle_1",
-      "target": "topic_25",
+      "target": "topic_122",
       "type": "discovered",
       "confidence": 0.9,
       "color": "#44ffaa",
@@ -10624,7 +10143,7 @@
     },
     {
       "source": "document_chronicle_1",
-      "target": "topic_28",
+      "target": "topic_120",
       "type": "learned",
       "confidence": 0.8,
       "color": "#999999",
@@ -10687,7 +10206,7 @@
     },
     {
       "source": "document_chronicle_1",
-      "target": "topic_35",
+      "target": "topic_179",
       "type": "plans",
       "confidence": 0.6,
       "color": "#8888ff",
@@ -10786,7 +10305,7 @@
     },
     {
       "source": "document_chronicle_2",
-      "target": "project_5",
+      "target": "project_4",
       "type": "part_of",
       "confidence": 1.0,
       "color": "#ff8800",
@@ -10804,7 +10323,7 @@
     },
     {
       "source": "document_chronicle_2",
-      "target": "method_17",
+      "target": "method_11",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -10813,7 +10332,7 @@
     },
     {
       "source": "document_chronicle_2",
-      "target": "method_18",
+      "target": "method_12",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -10822,7 +10341,7 @@
     },
     {
       "source": "document_chronicle_2",
-      "target": "method_19",
+      "target": "method_15",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -11092,7 +10611,7 @@
     },
     {
       "source": "document_chronicle_3",
-      "target": "method_24",
+      "target": "method_3",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -11317,7 +10836,7 @@
     },
     {
       "source": "document_chronicle_3",
-      "target": "topic_84",
+      "target": "topic_112",
       "type": "accomplished",
       "confidence": 0.9,
       "color": "#44ff44",
@@ -11407,7 +10926,7 @@
     },
     {
       "source": "document_chronicle_3",
-      "target": "topic_94",
+      "target": "topic_91",
       "type": "learned",
       "confidence": 0.8,
       "color": "#999999",
@@ -11569,7 +11088,7 @@
     },
     {
       "source": "document_chronicle_4",
-      "target": "method_34",
+      "target": "method_3",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -11668,7 +11187,7 @@
     },
     {
       "source": "document_chronicle_4",
-      "target": "method_45",
+      "target": "method_59",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -11776,7 +11295,7 @@
     },
     {
       "source": "document_chronicle_4",
-      "target": "topic_118",
+      "target": "topic_122",
       "type": "discovered",
       "confidence": 0.9,
       "color": "#44ffaa",
@@ -11803,7 +11322,7 @@
     },
     {
       "source": "document_chronicle_4",
-      "target": "topic_121",
+      "target": "topic_27",
       "type": "learned",
       "confidence": 0.8,
       "color": "#999999",
@@ -11848,7 +11367,7 @@
     },
     {
       "source": "document_chronicle_4",
-      "target": "topic_126",
+      "target": "topic_179",
       "type": "plans",
       "confidence": 0.6,
       "color": "#8888ff",
@@ -11947,7 +11466,7 @@
     },
     {
       "source": "document_chronicle_5",
-      "target": "project_13",
+      "target": "project_2",
       "type": "part_of",
       "confidence": 1.0,
       "color": "#ff8800",
@@ -11974,7 +11493,7 @@
     },
     {
       "source": "document_chronicle_5",
-      "target": "method_48",
+      "target": "method_7",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -11983,7 +11502,7 @@
     },
     {
       "source": "document_chronicle_5",
-      "target": "method_49",
+      "target": "method_9",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -11992,7 +11511,7 @@
     },
     {
       "source": "document_chronicle_5",
-      "target": "method_50",
+      "target": "method_10",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -12199,7 +11718,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "project_13",
+      "target": "project_2",
       "type": "part_of",
       "confidence": 1.0,
       "color": "#ff8800",
@@ -12208,7 +11727,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "project_15",
+      "target": "project_3",
       "type": "part_of",
       "confidence": 1.0,
       "color": "#ff8800",
@@ -12217,7 +11736,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "project_16",
+      "target": "project_11",
       "type": "part_of",
       "confidence": 1.0,
       "color": "#ff8800",
@@ -12226,7 +11745,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "method_2",
+      "target": "method_20",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -12244,7 +11763,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "method_54",
+      "target": "method_35",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -12307,7 +11826,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "method_48",
+      "target": "method_7",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -12316,7 +11835,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "method_62",
+      "target": "method_8",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -12325,7 +11844,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "method_63",
+      "target": "method_13",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -12334,7 +11853,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "method_64",
+      "target": "method_15",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -12478,7 +11997,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "topic_172",
+      "target": "topic_117",
       "type": "discovered",
       "confidence": 0.9,
       "color": "#44ffaa",
@@ -12523,7 +12042,7 @@
     },
     {
       "source": "document_chronicle_6",
-      "target": "topic_177",
+      "target": "topic_125",
       "type": "plans",
       "confidence": 0.6,
       "color": "#8888ff",
@@ -12604,7 +12123,7 @@
     },
     {
       "source": "document_chronicle_7",
-      "target": "topic_186",
+      "target": "topic_197",
       "type": "discusses",
       "confidence": 0.7,
       "color": "#4444ff",
@@ -12640,7 +12159,7 @@
     },
     {
       "source": "document_chronicle_7",
-      "target": "method_66",
+      "target": "method_20",
       "type": "uses_method",
       "confidence": 0.8,
       "color": "#cc44cc",
@@ -12811,15 +12330,6 @@
     },
     {
       "source": "document_chronicle_7",
-      "target": "topic_198",
-      "type": "discovered",
-      "confidence": 0.9,
-      "color": "#44ffaa",
-      "width": 2,
-      "style": "solid"
-    },
-    {
-      "source": "document_chronicle_7",
       "target": "topic_199",
       "type": "discovered",
       "confidence": 0.9,
@@ -12982,7 +12492,7 @@
     },
     {
       "source": "document_academic_1",
-      "target": "topic_217",
+      "target": "topic_633",
       "type": "discusses",
       "confidence": 0.9,
       "color": "#4444ff",
@@ -13334,15 +12844,6 @@
     {
       "source": "document_academic_1",
       "target": "person_23",
-      "type": "mentions",
-      "confidence": 0.5,
-      "color": "#cccccc",
-      "width": 1,
-      "style": "dotted"
-    },
-    {
-      "source": "document_academic_1",
-      "target": "person_24",
       "type": "mentions",
       "confidence": 0.5,
       "color": "#cccccc",
@@ -13738,7 +13239,7 @@
     },
     {
       "source": "document_academic_1",
-      "target": "topic_254",
+      "target": "topic_662",
       "type": "relates_to",
       "confidence": 1.0,
       "color": "#999999",
@@ -15412,7 +14913,7 @@
     },
     {
       "source": "document_academic_3",
-      "target": "topic_368",
+      "target": "topic_367",
       "type": "innovates",
       "confidence": 1.0,
       "color": "#999999",
@@ -15457,7 +14958,7 @@
     },
     {
       "source": "document_academic_4",
-      "target": "topic_373",
+      "target": "topic_584",
       "type": "discusses",
       "confidence": 0.9,
       "color": "#4444ff",
@@ -15511,7 +15012,7 @@
     },
     {
       "source": "document_academic_4",
-      "target": "topic_379",
+      "target": "topic_583",
       "type": "discusses",
       "confidence": 0.9,
       "color": "#4444ff",
@@ -15529,7 +15030,7 @@
     },
     {
       "source": "document_academic_4",
-      "target": "topic_381",
+      "target": "topic_424",
       "type": "discusses",
       "confidence": 0.9,
       "color": "#4444ff",
@@ -15547,7 +15048,7 @@
     },
     {
       "source": "document_academic_4",
-      "target": "topic_383",
+      "target": "topic_323",
       "type": "discusses",
       "confidence": 0.9,
       "color": "#4444ff",
@@ -16150,7 +15651,7 @@
     },
     {
       "source": "document_academic_5",
-      "target": "topic_425",
+      "target": "topic_583",
       "type": "discusses",
       "confidence": 0.9,
       "color": "#4444ff",
@@ -16375,7 +15876,7 @@
     },
     {
       "source": "document_academic_5",
-      "target": "person_113",
+      "target": "person_96",
       "type": "mentions",
       "confidence": 0.5,
       "color": "#cccccc",
@@ -16924,7 +16425,7 @@
     },
     {
       "source": "document_academic_6",
-      "target": "topic_479",
+      "target": "topic_579",
       "type": "discusses",
       "confidence": 0.9,
       "color": "#4444ff",
@@ -19570,7 +19071,7 @@
     },
     {
       "source": "document_academic_9",
-      "target": "topic_660",
+      "target": "topic_248",
       "type": "relates_to",
       "confidence": 1.0,
       "color": "#999999",
@@ -19579,7 +19080,7 @@
     },
     {
       "source": "document_academic_9",
-      "target": "topic_661",
+      "target": "topic_475",
       "type": "relates_to",
       "confidence": 1.0,
       "color": "#999999",
@@ -19615,7 +19116,7 @@
     },
     {
       "source": "document_academic_9",
-      "target": "topic_665",
+      "target": "topic_252",
       "type": "relates_to",
       "confidence": 1.0,
       "color": "#999999",
@@ -19750,7 +19251,7 @@
     },
     {
       "source": "document_academic_10",
-      "target": "topic_680",
+      "target": "topic_323",
       "type": "discusses",
       "confidence": 0.9,
       "color": "#4444ff",
@@ -20650,7 +20151,7 @@
     },
     {
       "source": "document_academic_11",
-      "target": "topic_745",
+      "target": "topic_280",
       "type": "relates_to",
       "confidence": 1.0,
       "color": "#999999",
@@ -20839,7 +20340,7 @@
     },
     {
       "source": "document_academic_12",
-      "target": "topic_766",
+      "target": "topic_323",
       "type": "discusses",
       "confidence": 0.9,
       "color": "#4444ff",
@@ -21443,28 +20944,28 @@
   ],
   "metadata": {
     "version": "blueprint-v1.0",
-    "total_nodes": 1135,
-    "total_edges": 1249,
+    "total_nodes": 1081,
+    "total_edges": 1247,
     "node_types": {
       "paper": 12,
       "personal_note": 7,
-      "general_topic": 41,
-      "personal_achievement": 71,
-      "research_insight": 93,
-      "personal_learning": 14,
+      "general_topic": 40,
+      "personal_achievement": 68,
+      "research_insight": 87,
+      "personal_learning": 11,
       "challenge": 4,
-      "future_direction": 79,
-      "math_foundation": 203,
+      "future_direction": 76,
+      "math_foundation": 194,
       "research_area": 47,
       "assumption": 48,
       "limitation": 36,
-      "general_concept": 70,
-      "innovation": 39,
-      "person": 181,
-      "project": 13,
+      "general_concept": 65,
+      "innovation": 38,
+      "person": 179,
+      "project": 9,
       "institution": 24,
-      "general_method": 28,
-      "tool": 32,
+      "general_method": 20,
+      "tool": 23,
       "theoretical_method": 25,
       "analytical_method": 22,
       "algorithmic_method": 23,
@@ -21474,10 +20975,10 @@
     "relationship_types": {
       "discusses": 278,
       "part_of": 18,
-      "mentions": 198,
+      "mentions": 197,
       "uses_method": 146,
       "accomplished": 71,
-      "discovered": 34,
+      "discovered": 33,
       "learned": 19,
       "faced_challenge": 4,
       "plans": 27,

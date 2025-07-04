@@ -56,7 +56,20 @@ class BlueprintLoader:
     """Loads and parses blueprint configurations from YAML files"""
     
     def __init__(self, blueprints_dir: Union[str, Path] = "blueprints"):
-        self.blueprints_dir = Path(blueprints_dir)
+        # Resolve blueprints_dir relative to the project root
+        if isinstance(blueprints_dir, str) and blueprints_dir == "blueprints":
+            # Find project root by looking for blueprint directory
+            current = Path(__file__).parent
+            while current != current.parent:
+                if (current / "blueprints").exists():
+                    self.blueprints_dir = current / "blueprints"
+                    break
+                current = current.parent
+            else:
+                # Fallback: assume we're in blueprints/core/
+                self.blueprints_dir = Path(__file__).parent.parent
+        else:
+            self.blueprints_dir = Path(blueprints_dir)
         self._cache = {}
         
     def _load_yaml(self, file_path: Path) -> Dict[str, Any]:

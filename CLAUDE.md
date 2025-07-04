@@ -120,17 +120,20 @@ We use a **normalized SQLite database** with clean entity-relationship structure
 ├── personal_notes/         # Daily/weekly notes
 ├── DB/                     # Database and processing system
 │   ├── build_database.py              # Complete builder using blueprints
+│   ├── update_database.py             # Incremental updater (NEW!)
 │   ├── populator.py                   # Generic metadata importer
 │   ├── embeddings.py                  # Vector embedding generation
 │   ├── chunker.py                     # Smart document chunking
 │   ├── populate_graph_tables.py       # Graph table populator
 │   ├── metadata.db                    # SQLite database (not in git)
-│   ├── query_comprehensive.py         # Database exploration tool
-│   ├── verify_entities.py             # Entity verification and stats
-│   └── README.md                      # Comprehensive DB architecture docs
+│   ├── README.md                      # Comprehensive DB architecture docs
+│   └── utils/                         # Database utilities
+│       ├── query_comprehensive.py     # Database exploration tool
+│       └── verify_entities.py         # Entity verification and stats
 ├── KG/                     # Knowledge Graph system
-│   ├── graph_builder.py               # Rich graph generator with 24+ node types
-│   └── graph_enhanced_query.py        # Graph-aware query system
+│   └── graph_builder.py               # Rich graph generator with 24+ node types
+├── RAG/                    # Retrieval-Augmented Generation system
+│   └── graph_enhanced_query.py        # Graph-aware query system for RAG
 ├── agents/                 # LLM analyzers and extractors
 │   ├── extractor.py                   # Generic extractor for any document type
 │   ├── academic_analyzer.py           # Academic paper analyzer
@@ -148,13 +151,13 @@ We use a **normalized SQLite database** with clean entity-relationship structure
 └── CLAUDE.md              # This file (detailed documentation)
 ```
 
-## Current Status
+## Current Status (2025-01-04 - Content Loading Fixes)
 
 ### Configuration-Driven Architecture Status
 - **Architecture**: Complete configuration-driven system with domain-code separation
 - **Database**: Rich entity types with 24+ distinct node categories
-- **Academic Papers**: 12 papers successfully processed with configuration extractors
-- **Chronicle Notes**: 7 notes processed with configuration-driven personal extractors
+- **Academic Papers**: 12 papers successfully processed with full content (20-29k chars each)
+- **Chronicle Notes**: 7 notes processed with full content (1.6-5.4k chars each)
 - **Entities with Rich Categories**:
   - 745 topics: Categorized by domain (math_foundation: 203, research_area: 47, etc.)
   - 181 people: Authors, researchers, and collaborators  
@@ -162,15 +165,23 @@ We use a **normalized SQLite database** with clean entity-relationship structure
   - 24 institutions: Universities and research centers
   - 21 applications: Real-world use cases
   - 13 projects: Research and development projects
-- **Document Processing**:
-  - Configuration-driven chunking system
-  - Rich type preservation during extraction
-  - 1,249 relationships established with proper categorization
+- **Document Processing** (FIXED):
+  - ✅ Full content loading from analysis files (not just summaries)
+  - ✅ 38 chunks created from academic documents (800-token chunks)
+  - ✅ 285 entity-chunk mappings for precise entity location
+  - ⚠️ Personal notes not chunked (shorter than minimum chunk threshold)
 - **Knowledge Graph**: 1,135 nodes with 24+ rich types and 1,249 relationships
   - **Rich Node Types**: math_foundation, research_insight, personal_achievement, etc.
   - **Configurable Visualization**: 28 colors, 7 layout groups
   - **Configuration-driven generation**: No hardcoded mappings
-- **Pipeline Status**: ✅ Configuration architecture complete, ✅ Rich types preserved, ✅ Configurable extraction, ✅ Domain-agnostic code
+- **Pipeline Status**: 
+  - ✅ Configuration architecture complete
+  - ✅ Rich types preserved
+  - ✅ Configurable extraction
+  - ✅ Domain-agnostic code
+  - ✅ Full content loading (fixed)
+  - ✅ Academic document chunking working
+  - ⏳ Personal notes chunking optimization needed
 
 ## Usage
 
@@ -204,6 +215,25 @@ python DB/build_database.py --skip-embeddings      # Skip embedding generation
 python DB/build_database.py --no-deduplication     # Skip automatic deduplication
 python DB/build_database.py --skip-graph           # Skip graph population
 python DB/build_database.py --db custom.db         # Use custom database name
+```
+
+#### 1b. Update Existing Database (Incremental)
+```bash
+# Incremental update - only process new documents
+python DB/update_database.py
+
+# The update process intelligently:
+# - Detects new metadata files not yet in database
+# - Only processes new documents (no duplicates)
+# - Checks embedding model version and upgrades if needed
+# - Creates chunks only for new documents
+# - Runs deduplication only on new entities
+# - Updates knowledge graph incrementally
+
+# Options:
+python DB/update_database.py --skip-embeddings     # Skip embedding generation
+python DB/update_database.py --skip-graph          # Skip graph update
+python DB/update_database.py --no-deduplication    # Skip deduplication
 ```
 
 #### 2. Extract Metadata Using Blueprints
@@ -378,11 +408,13 @@ These documents are automatically generated from the database and can be exporte
 
 ### Database & Processing
 - **Configuration-driven builds only**: Use `DB/build_database.py` for all database operations
+- **Incremental updates**: Use `DB/update_database.py` to add new documents without rebuilding
 - **Rich entity categorization**: 24+ node types automatically generated from blueprints
 - **Content hashing**: Sync system detects changes efficiently
 - **LLM extraction**: Automatic configuration-driven extraction for chronicle files
 - **Entity deduplication**: Integrated into all build processes (20 parallel workers)
 - **Embedding model**: Using text-embedding-3-large (3072 dimensions) for quality
+- **Organized structure**: Core scripts in DB/, utilities in DB/utils/ subfolder
 
 ### Knowledge Graph
 - **Complete configuration control**: All visualization rules in blueprints/core/visualization.yaml
@@ -418,6 +450,65 @@ Instead of generic "topics", we now have 24+ specialized categories:
 - **Domain Expertise**: Mathematical concepts, research insights, personal achievements
 - **Easy Extensions**: Add new types by editing YAML files
 
+## 🔧 Technical Troubleshooting & Recent Fixes
+
+### Recent Fixes (2025-01-04)
+
+#### 1. Empty document_chunks Table Fix
+**Problem**: Documents were only loading core_contribution field (summary) instead of full content
+**Root Cause**: The populator was using the configured content_source field which pointed to summaries
+**Solution**: Modified `DB/populator.py` to:
+- For academic documents: Load full analysis from `raw_data/academic/generated_analyses/{name}.md`
+- For personal notes: Load content from file_path with proper path resolution
+**Result**: 
+- Academic papers now load 20-29k chars of content
+- Personal notes load 1.6-5.4k chars of content
+- Created 38 chunks and 285 entity mappings
+
+#### 2. Blueprint Path Resolution Fix
+**Problem**: `FileNotFoundError: blueprints/core/database_schema.yaml`
+**Root Cause**: Relative path issues when running from DB directory
+**Solution**: Updated `blueprint_loader.py` to use intelligent path resolution:
+```python
+# Find project root by looking for blueprint directory
+current = Path(__file__).parent
+while current != current.parent:
+    if (current / "blueprints").exists():
+        self.blueprints_dir = current / "blueprints"
+        break
+```
+
+#### 3. Chunk Schema Mismatch Fix
+**Problem**: `sqlite3.OperationalError: table chunk_entities has no column named relevance_score`
+**Root Cause**: Code was using old column name not in blueprint schema
+**Solution**: Changed `relevance_score` to `entity_mentions` in `chunker.py`
+
+#### 4. Document Type Mapping Fix
+**Problem**: Personal notes not being chunked (doc_type mismatch)
+**Root Cause**: Blueprint returns "personal" but database uses "chronicle"
+**Solution**: Added mapping in `build_database.py`:
+```python
+db_doc_type = 'chronicle' if doc_type == 'personal' else doc_type
+```
+
+### Common Issues & Solutions
+
+1. **Personal Notes Not Chunked**
+   - **Cause**: Notes are shorter than min_chunk_size (300 tokens)
+   - **Solution**: Reduce chunk parameters in `build_database.py`:
+     ```python
+     chunker = DocumentChunker(chunk_size=400, chunk_overlap=100, min_chunk_size=150)
+     ```
+
+2. **Deduplication Performance**
+   - **Issue**: Checking too many false positive pairs
+   - **Current Behavior**: Uses embeddings + LLM verification with 20 workers
+   - **Optimization**: Increase similarity threshold or use `--no-deduplication`
+
+3. **Memory Usage During Embedding Generation**
+   - **Issue**: Loading all documents at once
+   - **Solution**: Process in batches using `--batch-size` parameter
+
 ## 🎯 Configuration System: The Future of Knowledge Extraction
 
 ### What Makes This Revolutionary:
@@ -443,6 +534,8 @@ Instead of generic "topics", we now have 24+ specialized categories:
 - **28 visualization colors** vs basic color scheme
 - **100% configurable** system vs hardcoded logic
 - **Zero code changes** needed for new domains
+- **38 document chunks** created with proper content loading
+- **285 entity-chunk mappings** for precise entity location
 
 This configuration-driven architecture transforms the Interactive CV from a clever academic tool into a **universal knowledge extraction platform** that can adapt to any domain while maintaining the sophistication and intelligence that makes it powerful.
 

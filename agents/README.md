@@ -226,6 +226,47 @@ For entity deduplication also requires:
 - **Chronicle**: `raw_data/chronicle/extraction_config_simple.yaml`
 - **Academic**: `raw_data/academic/extraction_schema.json`
 
+## Generic Extractor (`extractor.py`)
+
+Configuration-driven metadata extractor that works with any document type using blueprint configurations.
+
+**Features:**
+- Domain-agnostic extraction using YAML blueprints
+- Supports both academic and personal document types
+- Configurable field mapping and validation
+- Uses blueprint-driven schema loading
+- Model selection support (Flash/Pro)
+
+**Usage:**
+```bash
+# Extract academic papers (uses blueprints/academic/ configurations)
+python agents/extractor.py academic \
+  --input academic/ --output raw_data/academic/extracted_metadata/
+
+# Extract personal notes (uses blueprints/personal/ configurations)  
+python agents/extractor.py personal \
+  --input personal_notes/ --output raw_data/personal_notes/extracted_metadata/
+
+# Options:
+# --model google/gemini-2.5-flash    # LLM model to use
+# --pattern "*.md"                   # File pattern to process
+```
+
+## System Evolution History
+
+### Major Refactoring Changes
+1. **Renamed Folder**: `data_extractors/` → `agents/` with updated imports
+2. **Created Academic Analyzer**: New agent following `How_to_analyze.md` methodology
+3. **Updated Academic Extractor**: Now works on analyses (not raw papers)
+4. **Added Model Selection**: Support for `google/gemini-2.5-pro` and `google/gemini-2.5-flash`
+5. **Blueprint Architecture**: Configuration-driven system with domain-code separation
+6. **Cleaned Up Legacy Code**: Removed redundant extractors and config files
+
+### Workflow Evolution
+- **Academic**: Two-step process (Analyzer → Extractor)
+- **Chronicle**: Direct extraction with type detection
+- **Configuration-Driven**: All extraction rules in YAML blueprints
+
 ## Integration Points
 
 These agents integrate with:
@@ -234,3 +275,4 @@ These agents integrate with:
 - RAG pipeline for queries
 - Sync scripts for automation
 - Entity embeddings for deduplication
+- Blueprint configuration system
