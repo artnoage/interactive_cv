@@ -235,7 +235,7 @@ class BlueprintLoader:
         
         return errors
     
-    def create_pydantic_model(self, document_type: str, model_name: str = None) -> type:
+    def create_pydantic_model(self, document_type: str, model_name: Optional[str] = None) -> type:
         """Dynamically create a Pydantic model from extraction schema"""
         from pydantic import BaseModel, Field, create_model
         
@@ -243,38 +243,36 @@ class BlueprintLoader:
         model_fields = {}
         
         # Flatten all field sections into a single model
-        for section_name, fields in schema.items():
+        for _, fields in schema.items():
             for field in fields:
-                field_args = {
-                    'description': field.description
-                }
-                
-                if field.default is not None:
-                    field_args['default'] = field.default
-                elif not field.required:
-                    field_args['default'] = None
-                
-                # Map blueprint types to Python types
+                # Map blueprint types to Python types first
                 if field.field_type == 'string':
                     field_type = str
+                    default_value = field.default if field.default is not None else (None if not field.required else ...)
                 elif field.field_type == 'list_of_strings':
                     field_type = List[str]
-                    if field.default is None:
-                        field_args['default'] = []
+                    default_value = field.default if field.default is not None else ([] if not field.required else ...)
                 elif field.field_type == 'list_of_objects':
                     field_type = List[Dict[str, Any]]
-                    if field.default is None:
-                        field_args['default'] = []
+                    default_value = field.default if field.default is not None else ([] if not field.required else ...)
                 elif field.field_type == 'object':
-                    field_type = Optional[Dict[str, Any]]
+                    field_type = Dict[str, Any]
+                    default_value = field.default if field.default is not None else (None if not field.required else ...)
                 else:
                     field_type = Any
+                    default_value = field.default if field.default is not None else (None if not field.required else ...)
                 
                 # Handle optional fields
                 if not field.required:
                     field_type = Optional[field_type]
                 
-                model_fields[field.name] = (field_type, Field(**field_args))
+                # Create the field with proper default
+                if default_value is ...:
+                    # Required field
+                    model_fields[field.name] = (field_type, Field(description=field.description))
+                else:
+                    # Optional field with default
+                    model_fields[field.name] = (field_type, Field(default=default_value, description=field.description))
         
         # Create the model
         if model_name is None:

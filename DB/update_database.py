@@ -8,7 +8,6 @@ import sqlite3
 import sys
 from pathlib import Path
 import argparse
-from datetime import datetime
 import json
 
 # Add parent and blueprints to path for imports
@@ -193,19 +192,20 @@ def update_database(db_path: str, skip_embeddings: bool = False, skip_graph: boo
                 
                 # New document embeddings
                 for doc_type, doc_id in new_doc_ids:
-                    entity_type = doc_type
                     entity_id = f"{doc_type}_{doc_id}"
                     
                     cursor.execute("""
                         SELECT COUNT(*) FROM embeddings 
-                        WHERE entity_type = ? AND entity_id = ?
-                    """, (entity_type, entity_id))
+                        WHERE entity_type = 'document' AND entity_id = ?
+                    """, (entity_id,))
                     
                     if cursor.fetchone()[0] == 0:
-                        # Generate embedding
-                        table = 'academic_documents' if doc_type == 'academic' else 'chronicle_documents'
-                        embedder.generate_embeddings_for_table(table, entity_type)
-                        new_embeddings += 1
+                        # Generate embedding for this document
+                        text = embedder.prepare_document_text(doc_id, doc_type)
+                        if text:
+                            embedding = embedder.generate_embedding(text)
+                            embedder.store_embedding('document', entity_id, embedding)
+                            new_embeddings += 1
                 
                 # Generate chunk embeddings for new documents
                 chunk_count = embedder.generate_chunk_embeddings()
@@ -230,19 +230,37 @@ def update_database(db_path: str, skip_embeddings: bool = False, skip_graph: boo
             import subprocess
             result = subprocess.run([
                 sys.executable, "../agents/entity_deduplicator.py", 
+                "--db", "metadata.db",  # Specify correct path when running from DB dir
                 "--parallel-workers", "20", "--merge"
             ], cwd="DB", capture_output=True, text=True)
             
             if result.returncode == 0:
                 print("✓ Entity deduplication completed")
-                # Show summary from output
-                lines = result.stdout.strip().split('\n')
-                for line in lines[-10:]:  # Show last 10 lines
-                    if 'Total:' in line or 'removed' in line or 'merged' in line:
-                        print(f"  {line}")
+                # Show summary from stdout
+                if result.stdout:
+                    lines = result.stdout.strip().split('\n')
+                    for line in lines[-10:]:
+                        if line.strip() and ('Total:' in line or 'removed' in line or 'merged' in line):
+                            print(f"  {line}")
             else:
                 print("⚠️  Deduplication encountered issues")
-                print(result.stderr[:500])  # Show first part of error
+                print(f"  Return code: {result.returncode}")
+                
+                # Show detailed error information
+                if result.stderr:
+                    print("\n  Error details:")
+                    print("-" * 40)
+                    for line in result.stderr.strip().split('\n')[:10]:
+                        print(f"  {line}")
+                    print("-" * 40)
+                
+                # Also show any stdout that might contain error info
+                if result.stdout:
+                    print("\n  Output before error:")
+                    print("-" * 40)
+                    for line in result.stdout.strip().split('\n')[-5:]:
+                        print(f"  {line}")
+                    print("-" * 40)
         except Exception as e:
             print(f"⚠️  Could not run deduplication: {e}")
     

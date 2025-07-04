@@ -6,7 +6,7 @@ Finds and merges duplicate entities in the knowledge graph.
 
 import sqlite3
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Set
+from typing import Dict, List, Tuple, Optional
 import numpy as np
 import difflib
 from datetime import datetime
@@ -16,12 +16,9 @@ from collections import defaultdict
 from langchain_openai import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import PydanticOutputParser
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr
 from dotenv import load_dotenv
 import os
-import asyncio
-from typing import AsyncIterator
-import aiohttp
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 
@@ -47,9 +44,13 @@ class EntityDeduplicator:
         self.similarity_threshold = similarity_threshold
         
         # Initialize Gemini 2.5 Flash
+        api_key = os.getenv("OPENROUTER_API_KEY")
+        if not api_key:
+            raise ValueError("OPENROUTER_API_KEY not found in environment")
+            
         self.llm = ChatOpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key=os.getenv("OPENROUTER_API_KEY"),
+            api_key=SecretStr(api_key),
             model="google/gemini-2.5-flash",
             default_headers={
                 "HTTP-Referer": "http://localhost:3000",
@@ -147,7 +148,7 @@ class EntityDeduplicator:
         for entity_id, name in entities:
             name_to_ids[name.lower()].append((entity_id, name))
         
-        for lower_name, items in name_to_ids.items():
+        for _, items in name_to_ids.items():
             if len(items) > 1:
                 # Add all pairs of exact matches
                 for i in range(len(items)):
@@ -690,7 +691,7 @@ Brief explanation (1 line).""")
         
         # Merge each duplicate into keeper
         actions = []
-        for i, dup_id in enumerate(duplicate_ids):
+        for dup_id in duplicate_ids:
             result = self.merge_entities(entity_type, keeper_id, dup_id, dry_run=dry_run)
             actions.extend(result['actions'])
         
