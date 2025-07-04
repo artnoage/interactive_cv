@@ -58,12 +58,18 @@ class DatabasePopulator:
             content = ""
             content_source = document_mapping.get('content_source')
             if content_source and content_source in metadata:
-                source_path = Path(metadata[content_source])
-                if source_path.exists():
-                    content = source_path.read_text()
+                content_value = metadata[content_source]
+                # Check if it's a file path or direct content
+                if content_source == 'file_path' and isinstance(content_value, str):
+                    source_path = Path(content_value)
+                    if source_path.exists():
+                        content = source_path.read_text()
+                    else:
+                        # Fallback content sources
+                        content = metadata.get('core_contribution', metadata.get('summary', ''))
                 else:
-                    # Fallback content sources
-                    content = metadata.get('core_contribution', metadata.get('summary', ''))
+                    # Use the field value directly as content
+                    content = str(content_value) if content_value else ""
             
             # Check if document already exists
             cursor.execute(f"SELECT id FROM {doc_table} WHERE file_path = ?", (file_path,))
@@ -232,7 +238,7 @@ class DatabasePopulator:
             
             if entity_id:
                 # Create relationship with confidence from blueprint
-                confidence = confidence_scores.get(mapping.relationship_type, mapping.confidence)
+                confidence = confidence_scores.get(mapping.relationship_type, mapping.confidence) or 1.0
                 self._create_relationship(cursor, doc_id, mapping.entity_type, entity_id, 
                                         mapping.relationship_type, confidence)
                 count += 1
@@ -265,7 +271,7 @@ class DatabasePopulator:
             
             if entity_id:
                 # Create relationship with confidence from blueprint
-                confidence = confidence_scores.get(mapping.relationship_type, mapping.confidence)
+                confidence = confidence_scores.get(mapping.relationship_type, mapping.confidence) or 1.0
                 self._create_relationship(cursor, doc_id, mapping.entity_type, entity_id, 
                                         mapping.relationship_type, confidence)
                 count += 1

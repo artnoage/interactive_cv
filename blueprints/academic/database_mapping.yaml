@@ -11,7 +11,7 @@ metadata:
 document_mapping:
   table: "academic_documents"
   id_prefix: "academic"
-  content_source: "file_path"  # Read content from this path
+  content_source: "core_contribution"  # Use core_contribution as content
   fields:
     title: "title"
     date: "year"  # Use year as date
