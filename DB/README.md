@@ -30,16 +30,15 @@ graph TB
     end
     
     subgraph "Extraction Layer"
-        AME[Academic Metadata Extractor<br/>agents/academic_metadata_extractor.py]
-        CME[Chronicle Metadata Extractor<br/>agents/chronicle_metadata_extractor.py]
-        GA --> AME
-        PN --> CME
-        AME --> AJ[Academic JSON Metadata<br/>raw_data/academic/extracted_metadata/]
-        CME --> CJ[Chronicle JSON Metadata<br/>raw_data/personal_notes/extracted_metadata/]
+        EXT[Generic Extractor<br/>agents/extractor.py]
+        GA --> EXT
+        PN --> EXT
+        EXT --> AJ[Academic JSON Metadata<br/>raw_data/academic/extracted_metadata/]
+        EXT --> CJ[Chronicle JSON Metadata<br/>raw_data/personal_notes/extracted_metadata/]
     end
     
     subgraph "Database Layer"
-        UP[Unified Metadata Populator<br/>DB/unified_metadata_populator.py]
+        UP[Generic Metadata Populator<br/>DB/populator.py]
         AJ --> UP
         CJ --> UP
         UP --> DB[(SQLite Database<br/>metadata.db)]
@@ -66,8 +65,7 @@ graph TB
     
     style DB fill:#f9f,stroke:#333,stroke-width:4px
     style AA fill:#bbf,stroke:#333,stroke-width:2px
-    style AME fill:#bbf,stroke:#333,stroke-width:2px
-    style CME fill:#bbf,stroke:#333,stroke-width:2px
+    style EXT fill:#bbf,stroke:#333,stroke-width:2px
 ```
 
 ## Core Components
@@ -363,8 +361,7 @@ python agents/extractor.py academic --input academic/ --output raw_data/academic
 python agents/extractor.py personal --input personal_notes/ --output raw_data/personal_notes/extracted_metadata/
 
 # 2. Build database from scratch with blueprint validation
-cd DB
-python build_database.py --backup --validate-blueprints
+python DB/build_database.py --backup --validate-blueprints
 
 # The configuration-driven build process includes:
 # - Validate all YAML blueprint configurations
@@ -382,8 +379,7 @@ datasette metadata.db
 ### Smart Incremental Updates
 ```bash
 # Add new documents with configuration-driven processing
-cd DB
-python update_database.py
+python DB/update_database.py
 
 # The smart update process includes:
 # - Detect new documents using database content tracking
@@ -394,16 +390,16 @@ python update_database.py
 # - Maintain database consistency throughout
 
 # Update specific components if needed
-python populate_graph_tables.py --validate-blueprints
+python DB/populate_graph_tables.py --validate-blueprints
 ```
 
 ### Database Analysis & Exploration
 ```bash
 # Comprehensive database exploration
-python utils/query_comprehensive.py
+python DB/utils/query_comprehensive.py
 
 # Entity quality verification
-python utils/verify_entities.py
+python DB/utils/verify_entities.py
 
 # Rich entity queries with 24+ categories
 sqlite3 metadata.db "SELECT * FROM topics WHERE category='math_foundation'"
@@ -417,21 +413,19 @@ sqlite3 metadata.db "SELECT node_type, COUNT(*) FROM graph_nodes GROUP BY node_t
 ### Entity Deduplication Workflow
 ```bash
 # 1. Verify current database state
-python utils/verify_entities.py
+python DB/utils/verify_entities.py
 
 # 2. Generate entity embeddings with verification
-python embeddings.py --entities-only --verify
+python DB/embeddings.py --entities-only --verify
 
 # 3. Find duplicates (dry run)
-cd ../agents
-python entity_deduplicator.py --dry-run
+python agents/entity_deduplicator.py --dry-run
 
 # 4. Create backup and merge duplicates with parallel processing
-python entity_deduplicator.py --parallel-workers 20 --merge --backup
+python agents/entity_deduplicator.py --parallel-workers 20 --merge --backup
 
 # 5. Rebuild graph tables after deduplication
-cd ../DB
-python populate_graph_tables.py
+python DB/populate_graph_tables.py
 ```
 
 **Enhanced Deduplication Features**:
@@ -493,7 +487,7 @@ blueprints/
 - **Zero Code Changes**: New document types added via YAML files only
 
 ### Database Statistics (Latest)
-- **Total Entities**: 1,135 nodes with rich categorization
+- **Total Entities**: 1,135 with 24+ distinct types
 - **Rich Entity Types**: 24+ categories including:
   - `math_foundation` (203): Core mathematical concepts
   - `research_insight` (93): Key discoveries and insights
@@ -521,6 +515,13 @@ blueprints/
 - **From 6 to 24+ entity types**: 400% increase in categorization sophistication
 - **From hardcoded to configurable**: 100% configuration-driven architecture
 - **From domain-specific to universal**: Works with any research field
+
+## 📚 Related Documentation
+
+- **[Main Project README](../README.md)**: Overall system architecture and quick start guide
+- **[AI Agents](../agents/README.md)**: How documents are analyzed and metadata extracted
+- **[Knowledge Graph](../KG/README.md)**: How database entities become interactive visualizations
+- **[Web UI](../web_ui/README.md)**: How to explore the database interactively
 
 ## Dependencies
 

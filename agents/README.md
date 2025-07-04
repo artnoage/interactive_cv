@@ -213,9 +213,16 @@ For entity deduplication also requires:
 ## Integration Points
 
 These agents integrate with:
-- Metadata database system
-- Knowledge graph generation
+- Metadata database system (see [Database System](../DB/README.md))
+- Knowledge graph generation (see [Knowledge Graph](../KG/README.md))
 - RAG pipeline for queries
 - Sync scripts for automation
 - Entity embeddings for deduplication
 - Blueprint configuration system
+
+## 📚 Related Documentation
+
+- **[Main Project README](../README.md)**: Overall system architecture and quick start
+- **[Database System](../DB/README.md)**: How extracted metadata is stored and processed
+- **[Knowledge Graph](../KG/README.md)**: How entities become interactive visualizations
+- **[Web UI](../web_ui/README.md)**: How to explore the results interactively

@@ -106,7 +106,7 @@ interactive_cv/
 ## 🔍 Rich Entity Types & Knowledge Graph
 
 ### Knowledge Graph Statistics (Latest)
-- **Total Nodes**: 1,135 with 24 distinct types
+- **Total Nodes**: 1,135 with 24+ distinct types
 - **Total Edges**: 1,249 relationships
 - **Rich Node Types**:
   - `math_foundation` (203): Core mathematical concepts
@@ -362,6 +362,14 @@ Edit YAML files in `blueprints/` to modify:
 4. **Deduplication taking too long**
    - **Cause**: Too many false positive pairs to check
    - **Fix**: Increase similarity threshold or use `--no-deduplication` flag
+
+## 📚 Documentation
+
+For detailed information on specific components:
+- **[Database System](DB/README.md)**: Complete database architecture and management
+- **[Knowledge Graph](KG/README.md)**: Graph generation and visualization system
+- **[AI Agents](agents/README.md)**: Extraction and analysis agents
+- **[Web UI](web_ui/README.md)**: Interactive visualization interface
 
 ## 🤝 Contributing
 
