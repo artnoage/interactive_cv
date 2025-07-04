@@ -6,10 +6,10 @@ This directory contains specialized AI agents for the Interactive CV project.
 
 ### Academic Workflow
 1. **Academic Analyzer** (`academic_analyzer.py`) - Analyzes raw papers → produces structured analyses
-2. **Academic Metadata Extractor** (`academic_metadata_extractor.py`) - Extracts metadata to JSON
+2. **Generic Extractor** (`extractor.py`) - Configuration-driven metadata extraction for any document type
 
-### Chronicle Workflow
-- **Chronicle Metadata Extractor** (`chronicle_metadata_extractor.py`) - Extracts metadata to JSON
+### Personal Notes Workflow
+- **Generic Extractor** (`extractor.py`) - Direct metadata extraction using blueprint configurations
 
 ### Data Quality
 - **Entity Deduplicator** (`entity_deduplicator.py`) - Finds and merges duplicate entities
@@ -43,85 +43,53 @@ output_path = analyzer_flash.save_analysis(analysis)
 
 **Output:** Creates a comprehensive analysis following the three-phase structure, ready for entity extraction.
 
-## Academic Metadata Extractor (`academic_metadata_extractor.py`)
+## Generic Extractor (`extractor.py`)
 
-Extracts entities and relationships from paper analyses (not raw papers) to JSON files.
+Configuration-driven metadata extractor that works with any document type using blueprint configurations.
 
 **Features:**
+- Domain-agnostic extraction using YAML blueprints
+- Supports both academic and personal document types
+- Configurable field mapping and validation
+- Uses blueprint-driven schema loading
+- Model selection support (Flash/Pro)
 - Works on analyses produced by the Academic Analyzer
-- Phase-aware extraction
-- Domain-specific entity extraction
-- Critical analysis elements (assumptions, limitations)
-- Future work and insights extraction
+- Direct extraction from personal notes
 
 **Usage:**
-```python
-from agents import AcademicExtractor
+```bash
+# Extract academic papers (uses blueprints/academic/ configurations)
+python agents/extractor.py academic \
+  --input academic/ --output raw_data/academic/extracted_metadata/
 
-# Use the default (flash) model
-extractor_flash = AcademicExtractor()
-# Or use the pro model
-extractor_pro = AcademicExtractor(use_pro_model=True)
+# Extract personal notes (uses blueprints/personal/ configurations)  
+python agents/extractor.py personal \
+  --input personal_notes/ --output raw_data/personal_notes/extracted_metadata/
 
-metadata = extractor_flash.process_file(Path("paper_analysis.md"))
-```
-
-## Chronicle Metadata Extractor (`chronicle_metadata_extractor.py`)
-
-Extracts metadata from daily, weekly, and monthly notes to JSON files.
-
-**Features:**
-- Multi-type support (daily, weekly, monthly)
-- Template-aligned extraction
-- Automatic note type detection
-- Common fields + type-specific fields
-- Outputs JSON files for modular workflow
-
-**Usage:**
-```python
-from agents import ChronicleMetadataExtractor
-
-# Use the default (flash) model
-extractor = ChronicleMetadataExtractor()
-
-# Process a file and save to JSON
-output_path = extractor.process_file(
-    Path("daily_note.md"), 
-    Path("output_dir")
-)
+# Options:
+# --model google/gemini-2.5-flash    # LLM model to use
+# --pattern "*.md"                   # File pattern to process
 ```
 
 ## Workflow Examples
 
 ### Academic Paper Processing
-```python
+```bash
 # Step 1: Analyze the paper
-analyzer_flash = AcademicAnalyzer()
-analysis = analyzer_flash.analyze_file(Path("raw_paper.md"))
-analysis_path = analyzer_flash.save_analysis(analysis)
+python agents/academic_analyzer.py --input academic/ --output raw_data/academic/generated_analyses/
 
-# Step 2: Extract entities from the analysis
-extractor_flash = AcademicExtractor()
-entities = extractor_flash.process_file(analysis_path)
-
-# Example with pro model
-analyzer_pro = AcademicAnalyzer(use_pro_model=True)
-analysis_pro = analyzer_pro.analyze_file(Path("raw_paper.md"))
-extractor_pro = AcademicExtractor(use_pro_model=True)
-entities_pro = extractor_pro.process_file(analysis_path)
+# Step 2: Extract entities from the analysis using configuration-driven extractor
+python agents/extractor.py academic \
+  --input raw_data/academic/generated_analyses/ \
+  --output raw_data/academic/extracted_metadata/
 ```
 
-### Chronicle Note Processing
-```python
-# Direct extraction from notes to JSON
-extractor = ChronicleMetadataExtractor()
-output_path = extractor.process_file(
-    Path("2025-01-15.md"),
-    Path("output_metadata")
-)
-
-# Batch processing
-python scripts/extract_personal_notes_metadata.py
+### Personal Notes Processing
+```bash
+# Direct extraction from notes to JSON using blueprint configurations
+python agents/extractor.py personal \
+  --input personal_notes/ \
+  --output raw_data/personal_notes/extracted_metadata/
 ```
 
 ## Entity Deduplicator (`entity_deduplicator.py`)
@@ -221,50 +189,25 @@ For entity deduplication also requires:
 - `OPENAI_API_KEY` (for embeddings)
 - numpy, difflib (for similarity calculations)
 
-## Schema Files
+## Blueprint Configuration Files
 
-- **Chronicle**: `raw_data/chronicle/extraction_config_simple.yaml`
-- **Academic**: `raw_data/academic/extraction_schema.json`
-
-## Generic Extractor (`extractor.py`)
-
-Configuration-driven metadata extractor that works with any document type using blueprint configurations.
-
-**Features:**
-- Domain-agnostic extraction using YAML blueprints
-- Supports both academic and personal document types
-- Configurable field mapping and validation
-- Uses blueprint-driven schema loading
-- Model selection support (Flash/Pro)
-
-**Usage:**
-```bash
-# Extract academic papers (uses blueprints/academic/ configurations)
-python agents/extractor.py academic \
-  --input academic/ --output raw_data/academic/extracted_metadata/
-
-# Extract personal notes (uses blueprints/personal/ configurations)  
-python agents/extractor.py personal \
-  --input personal_notes/ --output raw_data/personal_notes/extracted_metadata/
-
-# Options:
-# --model google/gemini-2.5-flash    # LLM model to use
-# --pattern "*.md"                   # File pattern to process
-```
+- **Academic**: `blueprints/academic/extraction_schema.yaml` & `blueprints/academic/database_mapping.yaml`
+- **Personal**: `blueprints/personal/extraction_schema.yaml` & `blueprints/personal/database_mapping.yaml`
+- **Core**: `blueprints/core/database_schema.yaml` & `blueprints/core/visualization.yaml`
 
 ## System Evolution History
 
 ### Major Refactoring Changes
 1. **Renamed Folder**: `data_extractors/` → `agents/` with updated imports
 2. **Created Academic Analyzer**: New agent following `How_to_analyze.md` methodology
-3. **Updated Academic Extractor**: Now works on analyses (not raw papers)
+3. **Unified Extractor**: Single `extractor.py` replacing separate academic/chronicle extractors
 4. **Added Model Selection**: Support for `google/gemini-2.5-pro` and `google/gemini-2.5-flash`
 5. **Blueprint Architecture**: Configuration-driven system with domain-code separation
 6. **Cleaned Up Legacy Code**: Removed redundant extractors and config files
 
 ### Workflow Evolution
-- **Academic**: Two-step process (Analyzer → Extractor)
-- **Chronicle**: Direct extraction with type detection
+- **Academic**: Two-step process (Analyzer → Generic Extractor)
+- **Personal Notes**: Direct extraction using Generic Extractor with blueprint configurations
 - **Configuration-Driven**: All extraction rules in YAML blueprints
 
 ## Integration Points
