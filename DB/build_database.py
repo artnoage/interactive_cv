@@ -262,7 +262,7 @@ def create_database_schema(db_path: str):
 
 
 def build_database(db_path: str, academic_dir: Path, personal_dir: Path, 
-                  skip_embeddings: bool = False, skip_graph: bool = False):
+                  skip_embeddings: bool = False, skip_graph: bool = False, skip_deduplication: bool = False):
     """Build complete database from metadata files"""
     
     # Initialize components
@@ -348,9 +348,39 @@ def build_database(db_path: str, academic_dir: Path, personal_dir: Path,
             print(f"⚠️  Warning: Could not generate embeddings: {e}")
             print("   Make sure OPENAI_API_KEY is set in your .env file")
     
-    # Step 4: Update graph tables
+    # Step 4: Deduplicate entities
+    if not skip_deduplication:
+        print("\nStep 4: Deduplicating entities")
+        print("-" * 40)
+        
+        try:
+            # Import here to avoid circular dependencies
+            sys.path.append(str(Path(__file__).parent.parent))
+            from agents.entity_deduplicator import EntityDeduplicator
+            
+            deduplicator = EntityDeduplicator(db_path)
+            
+            # First generate entity embeddings if not skipped
+            if not skip_embeddings:
+                print("  Ensuring entity embeddings are generated...")
+                embedder = EmbeddingGenerator(db_path)
+                entity_count = embedder.generate_entity_embeddings()
+                if entity_count > 0:
+                    print(f"  ✓ Generated {entity_count} entity embeddings")
+            
+            # Run deduplication with parallel processing
+            print("  Running deduplication with 20 parallel workers...")
+            deduplicator.deduplicate_all(dry_run=False, use_clustering=True, parallel_workers=20)
+            print("✓ Entity deduplication complete")
+            
+        except Exception as e:
+            print(f"⚠️  Warning: Could not deduplicate entities: {e}")
+            print("   This is optional - you can run deduplication later with:")
+            print("   python agents/entity_deduplicator.py --parallel-workers 20 --merge")
+    
+    # Step 5: Update graph tables
     if not skip_graph:
-        print("\nStep 4: Building knowledge graph")
+        print("\nStep 5: Building knowledge graph")
         print("-" * 40)
         
         try:
@@ -419,6 +449,8 @@ def main():
                        help='Skip embedding generation')
     parser.add_argument('--skip-graph', action='store_true',
                        help='Skip graph table population')
+    parser.add_argument('--no-deduplication', action='store_true',
+                       help='Skip entity deduplication (default: runs deduplication)')
     
     args = parser.parse_args()
     
@@ -442,7 +474,7 @@ def main():
     
     # Build database
     build_database(str(db_path), args.academic_dir, args.personal_dir,
-                  args.skip_embeddings, args.skip_graph)
+                  args.skip_embeddings, args.skip_graph, args.no_deduplication)
     
     print("\nNext steps:")
     print("1. Generate knowledge graph: python ../KG/knowledge_graph.py metadata.db")

@@ -35,9 +35,9 @@ class EmbeddingGenerator:
             
         self.embeddings = OpenAIEmbeddings(
             api_key=SecretStr(api_key),
-            model="text-embedding-3-small"  # Good balance of performance/cost
+            model="text-embedding-3-large"  # Higher quality embeddings
         )
-        self.model_name = "text-embedding-3-small"
+        self.model_name = "text-embedding-3-large"
     
     def get_connection(self) -> sqlite3.Connection:
         """Get database connection."""
