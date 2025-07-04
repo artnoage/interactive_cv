@@ -200,8 +200,16 @@ class GraphBuilder:
             """)
             
             for row in cursor.fetchall():
-                source_id = f"{row['source_type']}_{row['source_id']}"
-                target_id = f"{row['target_type']}_{row['target_id']}"
+                # Fix document ID mapping - remove duplicate prefixes
+                if row['source_type'] == 'document':
+                    source_id = row['source_id']  # Use academic_1, chronicle_2 directly
+                else:
+                    source_id = f"{row['source_type']}_{row['source_id']}"
+                    
+                if row['target_type'] == 'document':
+                    target_id = row['target_id']  # Use academic_1, chronicle_2 directly
+                else:
+                    target_id = f"{row['target_type']}_{row['target_id']}"
                 
                 # Get edge attributes from blueprint
                 edge_attrs = self._get_edge_attributes(row['relationship_type'])

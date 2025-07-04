@@ -100,7 +100,11 @@ interactive_cv/
 │   └── graph_enhanced_query.py        # Intelligent RAG queries
 ├── .sync/                # Chronicle sync system
 ├── interactive_agent.py  # Conversational AI interface
+├── serve_ui.py          # Unified Flask server (NEW!)
+├── start_ui.sh          # Smart UI launcher (NEW!)
 └── web_ui/              # Visualization interface
+    ├── index.html       # Main UI with 3-panel layout
+    └── knowledge_graph.json  # Pruned graph for performance
 ```
 
 ## 🔍 Rich Entity Types & Knowledge Graph
@@ -123,7 +127,24 @@ interactive_cv/
 - **Methods**: `numerical` → `computational_method`, `proof` → `theoretical_method`
 - **Personal Work**: `accomplishment` → `personal_achievement`, `learning` → `personal_learning`
 
-## 📊 Current Status (2025-01-04 - Blueprint Update & Fixes)
+## 📊 Current Status (2025-01-04 - Unified UI Server & Recent Fixes)
+
+### Unified UI Server (NEW!)
+✅ **Unified server implementation** - Single `serve_ui.py` replaces multiple scripts
+✅ **Integrated Flask API** - Chat endpoint directly integrated with web UI
+✅ **Pruned graph support** - Web UI prefers optimized graph from `web_ui/` folder
+✅ **Smart launcher script** - `start_ui.sh` handles all prerequisites and services
+✅ **Duplicate edge ID fix** - Resolved graph visualization conflicts
+✅ **Favicon handling** - No more 404 errors in server logs
+⚠️ **Panel sizing** - Currently fixed widths; resizable panels planned
+
+### Interactive Agent Status (RECENT FIXES)
+✅ **Threading issues resolved** - Fixed SQLite connection errors in multi-threaded environment
+✅ **Enhanced content retrieval** - Tools now return 1500+ chars (vs 200 previously)
+✅ **New search capabilities** - Added `get_paper_content` and enhanced `semantic_search_chunks`
+✅ **Improved tool reliability** - All tools execute without errors
+✅ **Comprehensive system prompt** - Enhanced agent with detailed research profile and expertise context
+⚠️ **Search precision** - Using SQL LIKE queries; semantic embedding search recommended
 
 ### Database Statistics
 - **19 documents**: 12 academic papers + 7 personal notes
@@ -269,6 +290,47 @@ node_groups:
   personal: ["personal_achievement", "personal_learning", "challenge"]
 ```
 
+## 🌐 Interactive Web UI
+
+Unified interface with knowledge graph visualization and AI-powered chat assistant.
+
+### Features
+- **3-panel layout**: Graph controls, interactive chat, and knowledge visualization
+- **AI Chat Integration**: Talk directly with the Interactive CV assistant
+- **24+ node types** with calm, soothing dark theme
+- **Advanced filtering** by node and edge types
+- **Real-time search** with automatic node highlighting
+- **Conversation-aware graph**: Nodes highlight based on chat context
+- **Responsive design** that works on mobile and desktop
+
+### Running the Interactive UI
+```bash
+# Start the unified server (NEW!)
+./start_ui.sh
+
+# Or with database viewer (Datasette)
+./start_ui.sh --with-datasette
+
+# Then open: http://localhost:8888
+```
+
+### Unified Server Details
+The new unified server (`serve_ui.py`) replaces previous separate scripts and includes:
+- **Flask-based server** with integrated chat API
+- **API endpoints**:
+  - `/api/chat` - Interactive agent chat endpoint
+  - `/api/stats` - Database statistics
+  - `/knowledge_graph.json` - Graph data (prefers pruned version from `web_ui/`)
+- **Automatic handling**:
+  - Favicon requests (returns 204 to prevent 404s)
+  - CORS for API access
+  - Pruned graph preference for better performance
+- **Smart launcher** (`start_ui.sh`):
+  - Checks for required database and graph files
+  - Generates knowledge graph if missing
+  - Manages optional Datasette integration
+  - Handles graceful shutdown
+
 ## 🚦 Development Workflow
 
 ### Adding New Document Types
@@ -322,10 +384,11 @@ Edit YAML files in `blueprints/` to modify:
 - [x] High-quality embeddings (text-embedding-3-large)
 
 ### In Progress 🚧
-- [ ] Web API (REST/GraphQL) for remote queries
-- [ ] Interactive web UI completion
+- [ ] Resizable UI panels for better customization
+- [ ] Web API (REST/GraphQL) for remote queries  
 - [ ] Real-time RAG pipeline integration
 - [ ] Export to various CV formats (PDF, JSON, etc.)
+- [ ] Semantic embedding search integration
 
 ### Future 🔮
 - [ ] Multi-language blueprint support
@@ -362,6 +425,15 @@ Edit YAML files in `blueprints/` to modify:
 4. **Deduplication taking too long**
    - **Cause**: Too many false positive pairs to check
    - **Fix**: Increase similarity threshold or use `--no-deduplication` flag
+
+5. **Duplicate edge IDs in knowledge graph**
+   - **Cause**: Edge ID generation not ensuring uniqueness
+   - **Fix**: Updated in latest version; regenerate graph with `python KG/graph_builder.py`
+
+6. **Web UI panel sizes**
+   - **Issue**: Fixed panel widths may be too small for knowledge graph
+   - **Workaround**: Zoom out browser or use larger display
+   - **Fix**: Resizable panels planned for next update
 
 ## 📚 Documentation
 

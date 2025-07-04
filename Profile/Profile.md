@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-Vaios Laschos is a distinguished researcher at the nexus of **Optimal Transport Theory**, **Stochastic Control**, **Large Deviation Theory**, and **Geometric Analysis**. His work uniquely bridges abstract mathematical theory with practical applications, particularly in areas involving complex systems, uncertainty, and high-dimensional data. Known for developing novel mathematical frameworks that provide rigorous foundations for understanding and controlling dynamic systems—from particle interactions to decision-making under partial information—his research is characterized by deep mathematical rigor combined with computational innovation. A distinctive feature is his ability to systematically extend classical results to more general and practically relevant settings, creating tools that are both theoretically profound and computationally tractable.
+Vaios Laschos is a  researcher at the nexus of **Optimal Transport Theory**, **Stochastic Control**, **Large Deviation Theory**, and **Geometric Analysis**. His work uniquely bridges abstract mathematical theory with practical applications, particularly in areas involving complex systems, uncertainty, and high-dimensional data. Known for developing novel mathematical frameworks that provide rigorous foundations for understanding and controlling dynamic systems—from particle interactions to decision-making under partial information—his research is characterized by deep mathematical rigor combined with computational innovation. A distinctive feature is his ability to systematically extend classical results to more general and practically relevant settings, creating tools that are both theoretically profound and computationally tractable.
 
 ## Core Competencies
 
@@ -49,6 +49,7 @@ Vaios Laschos is a distinguished researcher at the nexus of **Optimal Transport 
 - **Control Theory**: Risk-sensitive control, multi-agent coordination
 - **Statistical Physics**: Coulomb gases, reaction-diffusion systems, thermodynamic limits
 - **Financial Mathematics**: Risk-sensitive decision making under uncertainty
+- **AI Systems Development**: Knowledge Graphs, RAG architectures, agentic systems
 
 ## Knowledge Graph & Research Evolution
 
@@ -77,6 +78,17 @@ The most recent phase demonstrates the application of optimal transport theory t
 - Training GANs with arbitrary transport costs
 - Neural network implementations of optimal transport
 - Bridging continuous theory with discrete algorithms
+- Building production AI systems (Interactive CV with KG/RAG)
+
+### Phase 5: Applied AI Engineering (Knowledge Systems & RAG)
+The Interactive CV project itself represents a new skillset acquisition:
+- **Knowledge Graph Engineering**: Designed and implemented a 1,135-node graph with 24+ entity types
+- **RAG Architecture**: First hands-on experience building production RAG systems with semantic search
+- **Configuration-Driven Design**: Created YAML-based blueprints for domain-agnostic knowledge extraction
+- **Multi-Agent Systems**: Developed LLM-powered extractors and analyzers working in concert
+- **Database Design**: Normalized SQLite schema with embedding support and efficient indexing
+- **System Integration**: Combined LangChain, vector databases, and custom graph algorithms
+This project demonstrates the practical application of theoretical knowledge to build sophisticated AI systems.
 
 ### Cross-Cutting Themes
 

@@ -145,13 +145,33 @@ We use a **normalized SQLite database** with clean entity-relationship structure
 │   ├── sync-chronicle      # Shell wrapper
 │   └── sync_chronicle_with_metadata.py  # Main sync logic
 ├── interactive_agent.py    # Conversational interface
+├── serve_ui.py            # Flask server for unified UI (NEW!)
+├── start_ui.sh            # Unified UI launcher script (NEW!)
 ├── requirements.txt        # Python dependencies
 ├── view_database.sh        # Launch Datasette viewer
 ├── README.md              # Project overview
 └── CLAUDE.md              # This file (detailed documentation)
 ```
 
-## Current Status (2025-01-04 - Content Loading Fixes)
+## Current Status (2025-01-04 - Content Loading & Interactive Agent Fixes)
+
+### Interactive Agent Fixes (Latest)
+- **Threading Issue**: Fixed "SQLite objects created in a thread can only be used in that same thread" error
+  - **Solution**: Created database connections within each tool function instead of sharing
+- **Content Retrieval**: Enhanced from 200 chars to 1500+ chars per search result
+- **New Tools Added**:
+  - `get_paper_content`: Retrieves full/partial paper content by title
+  - Enhanced `semantic_search_chunks`: Returns complete chunks instead of snippets
+- **Enhanced System Prompt**: 
+  - **Comprehensive Research Profile**: Agent now has detailed context about Vaios's research expertise
+  - **Academic Journey**: From pure mathematics to applied ML/AI, including optimal transport, PDEs, stochastic processes
+  - **Current Focus**: LLMs, agentic AI, reinforcement learning, and practical applications
+  - **Tool Usage Guidance**: Explicit instructions to search before providing general knowledge
+  - **Proactive Analysis**: Encouraged to use multiple tools for comprehensive answers
+- **Current Limitations**:
+  - Search uses SQL LIKE instead of semantic embeddings
+  - Agent sometimes provides general knowledge when specific details aren't found
+  - Could benefit from better tool chaining strategies
 
 ### Configuration-Driven Architecture Status
 - **Architecture**: Complete configuration-driven system with domain-code separation
@@ -331,36 +351,107 @@ Graph Statistics (Configuration-Driven):
 - **Rich Relationships**: discusses, proves, uses_method, innovates, accomplished, etc.
 - **Dynamic Categorization**: Mathematical concepts automatically categorized as math_foundation
 - **No Hardcoded Mappings**: All visualization rules defined in YAML blueprints
+- **Pruned Graph Support**: Web UI uses optimized knowledge graph for performance
 
-## Interactive Agent
+## Interactive Agent & Web UI
 
-An intelligent conversational agent that answers questions about research and professional journey using LangChain.
+An intelligent conversational agent that answers questions about research and professional journey, now integrated with a unified web interface.
+
+### Unified Web Interface (NEW!)
+
+The system now includes a **unified UI server** that combines knowledge graph visualization with the interactive chat assistant in a single, elegant interface.
+
+#### Features
+- **3-Panel Layout**: Graph controls (left), interactive chat (center), knowledge graph visualization (right)
+- **Calm Dark Theme**: Soothing color palette optimized for extended use
+- **Real-time Integration**: Chat responses can highlight relevant nodes in the graph
+- **Flask Server**: Lightweight Python server with API endpoints
+- **Pruned Knowledge Graph**: Uses optimized graph from `web_ui/` folder for better performance
+
+#### Running the Unified UI
+```bash
+# Start the unified server (replaces old serve scripts)
+./start_ui.sh
+
+# Or with database viewer (Datasette)
+./start_ui.sh --with-datasette
+
+# Access at: http://localhost:8888
+```
+
+The server includes:
+- Main UI with chat and graph visualization
+- API endpoints:
+  - `/api/chat` - Interactive agent chat endpoint
+  - `/api/stats` - Database statistics
+  - `/knowledge_graph.json` - Graph data (prefers pruned version)
+- Automatic favicon handling to prevent 404 errors
+- CORS support for API access
+
+### Command-Line Agent
+```bash
+# For terminal-based interaction
+python interactive_agent.py
+```
 
 ### Setup
 ```bash
 # Ensure API keys are in .env:
 # OPENROUTER_API_KEY=your_key_here
 # OPENAI_API_KEY=your_key_here
-
-# Run the agent
-python interactive_agent.py
 ```
 
 ### Features
 - Multi-tool architecture with specialized query tools
 - Memory management for conversation history
-- Semantic search using embeddings
+- Enhanced content retrieval (1500+ chars per result)
 - Knowledge graph integration for deeper insights
 - Real-time streaming responses
+- Thread-safe database connections
+- Comprehensive system prompt with detailed research context
 
 ### Available Tools
-1. **search_academic_papers**: Find papers by topic or keywords
-2. **search_chronicle_notes**: Search daily work notes
-3. **find_research_topics**: Discover research areas
-4. **get_research_evolution**: Track topic evolution over time
-5. **find_project_connections**: Explore project relationships
-6. **semantic_search**: Natural language search
-7. **get_collaborations**: Find collaboration patterns
+1. **search_academic_papers**: Find papers by topic or keywords (returns detailed excerpts)
+2. **get_paper_content**: Retrieve full/partial content of specific papers
+3. **search_chronicle_notes**: Search daily work notes with context
+4. **find_research_topics**: Discover research areas with categories
+5. **get_research_evolution**: Track topic evolution over time
+6. **find_project_connections**: Explore project relationships
+7. **semantic_search_chunks**: Search document chunks (currently using SQL LIKE)
+8. **get_collaborations**: Find collaboration patterns
+
+### Known Limitations
+- Search uses SQL LIKE queries instead of semantic embeddings
+- May provide general knowledge when specific details aren't immediately found
+- Could benefit from better tool chaining for complex comparisons
+- See `agent_improvements.md` for detailed enhancement roadmap
+
+### Enhanced System Prompt Details
+
+The interactive agent now includes a comprehensive system prompt that provides:
+
+1. **Research Background Context**:
+   - PhD in Applied Mathematics from University of Bath
+   - Postdoctoral work in optimal transport, PDEs, stochastic processes
+   - Transition from pure mathematics to applied ML/AI
+   - Experience supervising 30+ master's theses
+
+2. **Expertise Areas**:
+   - **Mathematical Foundations**: Optimal transport, PDEs, stochastic control, large deviation theory
+   - **Machine Learning**: Deep learning, LLMs, fine-tuning, agentic AI systems
+   - **Current Research**: Reinforcement learning, multi-agent systems, AI applications
+
+3. **Tool Usage Strategy**:
+   - Always search the database first before providing general knowledge
+   - Use multiple tools to gather comprehensive information
+   - Compare across different time periods and research areas
+   - Provide specific examples from papers and notes
+
+4. **Response Behavior**:
+   - Acknowledges when specific information isn't in the database
+   - Offers to search related topics when exact matches aren't found
+   - Provides context about research evolution and connections
+   - Uses actual content from papers rather than generalizations
 
 ### Example Questions
 - "What papers has Vaios written about optimal transport?"
@@ -454,7 +545,46 @@ Instead of generic "topics", we now have 24+ specialized categories:
 
 ### Recent Fixes (2025-01-04)
 
-#### 1. Empty document_chunks Table Fix
+#### 5. Unified UI Server & Web Integration
+**New Feature**: Replaced separate serve scripts with unified `start_ui.sh` launcher
+**Components**:
+- `serve_ui.py`: Flask server integrating chat API and graph serving
+- `start_ui.sh`: Smart launcher that checks prerequisites and manages services
+- Pruned knowledge graph support in `web_ui/` folder
+**Benefits**:
+- Single entry point for all UI functionality
+- Integrated chat and visualization
+- Better performance with pruned graph
+- Automatic datasette integration option
+
+#### 6. Duplicate Edge ID Fix
+**Problem**: Knowledge graph had duplicate edge IDs causing visualization issues
+**Solution**: Updated graph generation to ensure unique edge identifiers
+**Result**: Clean graph visualization without rendering conflicts
+
+#### 7. Favicon 404 Fix
+**Problem**: Browser requests for favicon.ico caused 404 errors in logs
+**Solution**: Added explicit favicon handler returning 204 (No Content)
+**Result**: Cleaner server logs and proper HTTP handling
+
+#### 1. Interactive Agent Threading Fix
+**Problem**: "SQLite objects created in a thread can only be used in that same thread"
+**Root Cause**: Database connection created in main thread but used in LangGraph tool execution threads
+**Solution**: Modified `interactive_agent.py` to create connections within each tool:
+```python
+@tool
+def search_academic_papers(query: str):
+    conn = sqlite3.connect(db_path)  # Create connection in tool thread
+    try:
+        # ... tool logic ...
+    finally:
+        conn.close()
+```
+**Result**: 
+- All tools now execute without threading errors
+- Agent can successfully retrieve and process database content
+
+#### 2. Empty document_chunks Table Fix
 **Problem**: Documents were only loading core_contribution field (summary) instead of full content
 **Root Cause**: The populator was using the configured content_source field which pointed to summaries
 **Solution**: Modified `DB/populator.py` to:
@@ -508,6 +638,15 @@ db_doc_type = 'chronicle' if doc_type == 'personal' else doc_type
 3. **Memory Usage During Embedding Generation**
    - **Issue**: Loading all documents at once
    - **Solution**: Process in batches using `--batch-size` parameter
+
+4. **Interactive Agent Insufficient Content Retrieval**
+   - **Issue**: Agent tools returning only 200 character snippets
+   - **Solution**: Enhanced all search tools to return 1500+ characters:
+     ```python
+     # In search tools, increased context_length parameter
+     excerpt = content[start:start+1500]  # Was 200
+     ```
+   - **Result**: Agent now has access to substantial content for accurate answers
 
 ## 🎯 Configuration System: The Future of Knowledge Extraction
 

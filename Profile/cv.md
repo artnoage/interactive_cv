@@ -23,7 +23,7 @@ Applied mathematician with extensive postdoctoral experience, transitioning from
 
 **Current ML Research & Development:** To gain practical experience and facilitate my transition to industry, I'm actively developing hands-on LLM capabilities through direct implementation. I've trained small LLMs with novel architectures, fine-tuned models up to 32B parameters, and applied reinforcement learning techniques (DPO, GRPO) to enhance mathematical and programming reasoning, including participation in the Kaggle AIME 25 competition. My work on the **ARC-2 challenge** involves developing synthetic data generation methods and exploring transformer architectures that separate rule generation from execution - addressing fundamental questions about systematic reasoning in AI systems.
 
-**Technical Implementation & Deployment:** Beyond research, I've built practical ML applications including an agentic system for automatically fetching and processing arXiv papers with OCR and LLM analysis, a foreign language tutoring system with voice capabilities (developed before proprietary LLMs offered voice options), and a podcast generation tool similar to NotebookLM but with a novel feedback mechanism that uses TextGrad to automatically improve prompts based on user responses. These projects are distributed between my website (Metaskepsis.com) and GitHub repositories. I also participate in AI hackathons for agent development, demonstrating the combination of theoretical depth and practical implementation skills essential for both research and application development.
+**Technical Implementation & Deployment:** Beyond research, I've built practical ML applications including an agentic system for automatically fetching and processing arXiv papers with OCR and LLM analysis, a foreign language tutoring system with voice capabilities (developed before proprietary LLMs offered voice options), and a podcast generation tool similar to NotebookLM but with a novel feedback mechanism that uses TextGrad to automatically improve prompts based on user responses. Most recently, I developed this **Interactive CV system** - my first hands-on experience with Knowledge Graphs and RAG architectures, featuring a 1,135-node graph with 24+ entity types, configuration-driven design, and multi-agent LLM extractors. These projects are distributed between my website (Metaskepsis.com) and GitHub repositories. I also participate in AI hackathons for agent development, demonstrating the combination of theoretical depth and practical implementation skills essential for both research and application development.
 
 **Near-Future Learning Projects:** I'm developing agentic systems that enable LLMs to master unseen games - a research direction that serves as my laboratory for understanding the true capabilities and boundaries of modern AI. This work explores how large language models perform on "out-of-distribution" tasks, though I find this terminology somewhat paradoxical: the very notion of defining distributional boundaries presupposes an answer to what constitutes intelligence itself. At the same time, I'm exploring whether the meta-reflection capabilities I've acquired through years of mathematical research - my ability to understand and scaffold learning processes - can help these systems reason systematically about novel domains, revealing both the remarkable adaptability and the fundamental limitations of current architectures.
 
@@ -90,6 +90,9 @@ Focus on Real Analysis
 - Meta-learning & Few-Shot Learning
 - LLM Training for Reasoning
 - Synthetic Data Generation
+- Knowledge Graphs & RAG Systems (NEW)
+- Vector Databases & Semantic Search (NEW)
+- Multi-Agent AI Systems (NEW)
 
 ### Optimization & Control Theory
 - Risk-Sensitive Decision Making

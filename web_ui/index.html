@@ -3,650 +3,1145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive CV</title>
+    <title>Interactive CV - Vaios Laschos</title>
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <style>
-        body, html {
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+        :root {
+            /* Calm, soothing dark palette */
+            --bg-primary: #0a0e14;
+            --bg-secondary: #0d1117;
+            --bg-tertiary: #161b22;
+            --bg-hover: #1c2128;
+            
+            /* Muted text colors */
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --text-dim: #6e7681;
+            
+            /* Soft accent colors */
+            --accent-soft: #58a6ff;
+            --accent-muted: #388bfd;
+            --accent-warm: #d29922;
+            --accent-gentle: #3fb950;
+            
+            /* Borders and dividers */
+            --border-soft: #30363d;
+            --border-light: #21262d;
+            
+            /* Graph specific */
+            --graph-bg: #010409;
+            --node-glow: rgba(88, 166, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
             overflow: hidden;
-            background-color: #2c2c2c;
-            color: #f0f0f0;
-        }
-        .panel {
-            background: rgba(44, 44, 44, 0.9);
-            border-radius: 12px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; /* For content within panels */
         }
 
-        #main-container {
+        /* Main Layout - 3 columns */
+        #app {
             display: grid;
-            grid-template-columns: 0.8fr 1.5fr 1fr; /* Filter, Chatbot, Knowledge Graph */
+            grid-template-columns: 280px minmax(400px, 1fr) 450px;
             height: 100vh;
-            gap: 10px;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-        .panel {
-            background: rgba(44, 44, 44, 0.9);
-            border-radius: 12px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; /* For content within panels */
+            background: var(--bg-primary);
         }
 
-        /* Filter Panel */
-        #filter-panel {
-            overflow-y: auto; /* Allow scrolling for filter options */
-        }
-        #graph-controls {
-            height: auto; /* Let content define height */
-            padding-bottom: 0; /* Remove extra padding */
-        }
-
-        /* Knowledge Graph Panel */
-        #knowledge-graph-panel {
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-soft);
             display: flex;
             flex-direction: column;
-            flex-grow: 1; /* Allow it to grow and fill available space */
+            overflow: hidden;
+            position: relative;
+            min-width: 200px;
+            max-width: 400px;
         }
-        #knowledge-graph-panel h2 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #f0f0f0;
+        
+        /* Resize handle */
+        .resize-handle {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--border-soft);
+            cursor: col-resize;
+            opacity: 0;
+            transition: opacity 0.2s;
         }
-        #mynetwork {
+        
+        .resize-handle:hover,
+        .resize-handle.dragging {
+            opacity: 1;
+            background: var(--accent-soft);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .sidebar-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        /* Sections */
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-dim);
+            margin-bottom: 0.75rem;
+            padding-left: 0.5rem;
+        }
+
+        /* Search */
+        .search-box {
             width: 100%;
-            height: 100%; /* Take full height of its panel */
-            background-color: #2c2c2c;
-            border-radius: 8px;
-            margin-top: 0; /* Remove margin-top */
-        }
-        #graph-controls input[type="text"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            border: 1px solid #555;
+            padding: 0.625rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-soft);
             border-radius: 6px;
-            background-color: #3a3a3a;
-            color: #f0f0f0;
-            font-size: 14px;
-            margin-bottom: 10px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            margin-bottom: 1.5rem;
         }
-        #graph-controls .panel-section {
-            margin-top: 15px;
-            border-top: 1px solid #555;
-            padding-top: 15px;
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--accent-soft);
+            background: var(--bg-hover);
         }
-        #graph-controls .panel-section h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #f0f0f0;
+
+        .search-box::placeholder {
+            color: var(--text-dim);
         }
-        #graph-controls .filter-item {
+
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-soft);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-light);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-primary {
+            background: var(--accent-muted);
+            border-color: var(--accent-muted);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-soft);
+            border-color: var(--accent-soft);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* Filters */
+        .filter-list {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-soft);
+            border-radius: 6px;
+            padding: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .filter-item {
             display: flex;
             align-items: center;
-            margin-bottom: 5px;
-        }
-        #graph-controls .filter-item input[type="checkbox"] {
-            margin-right: 8px;
-        }
-        #graph-controls .color-box {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            margin-right: 10px;
-            border: 2px solid rgba(255,255,255,0.5);
-        }
-        #graph-controls .button-group {
-            margin-top: 5px; /* Moved buttons higher */
-            display: flex;
-            gap: 10px;
-        }
-        #graph-controls .button-group button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            background-color: #3498db;
-            color: white;
+            padding: 0.375rem 0.5rem;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-        #graph-controls .button-group button:hover {
-            background-color: #2980b9;
+            transition: background 0.2s ease;
         }
 
-        /* Chatbot Panel */
-        #chatbot-panel {
+        .filter-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .filter-checkbox {
+            width: 16px;
+            height: 16px;
+            margin-right: 0.75rem;
+            accent-color: var(--accent-soft);
+        }
+
+        .filter-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .filter-count {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* Chat Panel (Middle) */
+        .chat-panel {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-soft);
             display: flex;
             flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            min-width: 350px;
         }
-        #chat-messages {
-            flex-grow: 1;
+
+        .chat-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-soft);
+            text-align: center;
+        }
+
+        .chat-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent-soft);
+            margin-bottom: 0.25rem;
+        }
+
+        .chat-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .chat-messages {
+            flex: 1;
             overflow-y: auto;
-            border: 1px solid #555;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #3a3a3a;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
-        .chat-message {
-            margin-bottom: 8px;
-            padding: 6px 10px;
-            border-radius: 6px;
-            max-width: 80%;
+
+        .message {
+            max-width: 85%;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            line-height: 1.5;
+            font-size: 0.875rem;
         }
-        .user-message {
-            background-color: #3498db;
+
+        .message-user {
+            background: var(--accent-muted);
+            color: white;
             align-self: flex-end;
             margin-left: auto;
         }
-        .bot-message {
-            background-color: #555;
+
+        .message-bot {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             align-self: flex-start;
-            margin-right: auto;
-        }
-        #chat-input-container {
-            display: flex;
-        }
-        #chat-input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #555;
-            border-radius: 6px;
-            background-color: #3a3a3a;
-            color: #f0f0f0;
-            font-size: 14px;
-            margin-right: 10px;
-        }
-        #send-button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 6px;
-            background-color: #2ecc71;
-            color: white;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-        #send-button:hover {
-            background-color: #27ae60;
+            border: 1px solid var(--border-soft);
         }
 
-        /* Right Panel */
-        #right-panel h2 {
-            margin-top: 0;
-            color: #f0f0f0;
+        .message-loading {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            align-self: flex-start;
+            border: 1px solid var(--border-soft);
+            font-style: italic;
         }
-        #right-panel p {
-            color: #ccc;
+
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid var(--border-soft);
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-soft);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            font-family: inherit;
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+            transition: all 0.2s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--accent-soft);
+            background: var(--bg-hover);
+        }
+
+        .chat-send {
+            padding: 0.75rem 1.5rem;
+            align-self: flex-end;
+        }
+
+        /* Graph Panel (Right) */
+        .graph-panel {
+            background: var(--graph-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #mynetwork {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Stats */
+        .stats-bar {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-soft);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+        }
+
+        .stat-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Loading */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-soft);
+            border-top-color: var(--accent-soft);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-soft);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-dim);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            #app {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+
+            .sidebar, .graph-panel {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="main-container">
-        <div id="filter-panel" class="panel">
-            <div id="graph-controls">
-                <input type="text" id="search-box" placeholder="Search for a node...">
-
-                <div class="panel-section">
-                    <h3>Node Types</h3>
-                    <div id="node-filters"></div>
+    <div id="app">
+        <aside class="sidebar" id="sidebar">
+            <div class="resize-handle" id="sidebar-resize"></div>
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Knowledge Explorer</h1>
+                <p class="sidebar-subtitle">Vaios Laschos Research Graph</p>
+            </div>
+            
+            <div class="sidebar-content">
+                <input type="text" class="search-box" placeholder="Search nodes..." id="search-input">
+                
+                <div class="section">
+                    <h2 class="section-title">View Controls</h2>
+                    <div class="btn-group">
+                        <button class="btn" id="fit-view">
+                            <span>↗</span> Fit
+                        </button>
+                        <button class="btn" id="reset-zoom">
+                            <span>⊙</span> Reset
+                        </button>
+                    </div>
                 </div>
 
-                <div class="panel-section">
-                    <h3>Edge Types</h3>
-                    <div id="edge-filters"></div>
+                <div class="section">
+                    <h2 class="section-title">Node Types</h2>
+                    <div class="filter-list" id="node-filters"></div>
                 </div>
 
-                <div class="button-group">
-                    <button id="apply-filters">Apply Filters</button>
-                    <button id="reset-filters">Reset</button>
-                    <button id="load-config">Load Config</button>
-                    <button id="save-config">Save Config</button>
+                <div class="section">
+                    <h2 class="section-title">Relationships</h2>
+                    <div class="filter-list" id="edge-filters"></div>
                 </div>
-                <input type="file" id="config-file-input" accept=".json" style="display: none;">
-            </div>
-        </div>
 
-        <div id="chatbot-panel" class="panel">
-            <h2>Interactive CV Chatbot</h2>
-            <div id="chat-messages">
-                <div class="bot-message chat-message">Hello! Ask me anything about my CV, research, or projects.</div>
+                <div class="section">
+                    <h2 class="section-title">Actions</h2>
+                    <button class="btn btn-primary" id="apply-filters" style="width: 100%; margin-bottom: 0.5rem;">
+                        Apply Filters
+                    </button>
+                    <button class="btn" id="reset-filters" style="width: 100%;">
+                        Reset All
+                    </button>
+                </div>
             </div>
-            <div id="chat-input-container">
-                <input type="text" id="chat-input" placeholder="Type your question...">
-                <button id="send-button">Send</button>
-            </div>
-        </div>
+        </aside>
 
-        <div id="knowledge-graph-panel" class="panel">
-            <h2>Knowledge Graph</h2>
-            <div id="mynetwork"></div>
+        <main class="chat-panel" id="chat-panel">
+            <div class="resize-handle" id="chat-resize"></div>
+            <div class="chat-header">
+                <h1 class="chat-title">Interactive CV Assistant</h1>
+                <p class="chat-subtitle">Ask me about Vaios's research, papers, or expertise</p>
+            </div>
+            
+            <div class="chat-messages" id="chat-messages">
+                <div class="message message-bot">
+                    Welcome! I'm here to help you explore Vaios Laschos's research journey. You can ask me about:
+                    <br><br>
+                    • His papers on optimal transport and mathematical theory
+                    <br>• Recent work in machine learning and AI
+                    <br>• Research evolution from pure math to applied ML
+                    <br>• Specific projects or collaborations
+                    <br><br>
+                    As we chat, I'll highlight relevant nodes in the knowledge graph on the right!
+                </div>
+            </div>
+            
+            <div class="chat-input-container">
+                <textarea class="chat-input" id="chat-input" 
+                    placeholder="Type your question..." 
+                    rows="1"></textarea>
+                <button class="btn btn-primary chat-send" id="send-message">Send</button>
+            </div>
+        </main>
+
+        <div class="graph-panel">
+            <div id="mynetwork">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div>Loading knowledge graph...</div>
+                </div>
+            </div>
+            
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <span class="stat-label">Nodes:</span>
+                    <span class="stat-value" id="node-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Edges:</span>
+                    <span class="stat-value" id="edge-count">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Filtered:</span>
+                    <span class="stat-value" id="filtered-count">0</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script type="text/javascript">
+    <script>
+        // Much more muted, softer color palette
+        const calmColors = {
+            // Soft blues and grays - desaturated
+            'topic': { background: '#2c3e50', border: '#1a252f' },
+            'math_foundation': { background: '#34495e', border: '#2c3e50' },
+            'research_area': { background: '#3a4d5c', border: '#2c3e4a' },
+            'research_insight': { background: '#3d5a6c', border: '#2f4554' },
+            
+            // Warm accents - much softer
+            'person': { background: '#7f6d5f', border: '#5f534a' },
+            'personal_achievement': { background: '#8b7355', border: '#6b5a45' },
+            'innovation': { background: '#8c7a52', border: '#6c5f42' },
+            
+            // Muted purples - very soft
+            'method': { background: '#4f4a5a', border: '#3f3a4a' },
+            'theoretical_method': { background: '#5a5465', border: '#4a4455' },
+            'computational_method': { background: '#625a6a', border: '#524a5a' },
+            
+            // Neutral tones
+            'institution': { background: '#4a5568', border: '#3a4558' },
+            'project': { background: '#546374', border: '#445364' },
+            'application': { background: '#5e6c7e', border: '#4e5c6e' },
+            
+            // Documents - softer blues
+            'paper': { background: '#3a5f7d', border: '#2a4f6d' },
+            'personal_note': { background: '#5a5a7f', border: '#4a4a6f' },
+            
+            // Default
+            'default': { background: '#4a5568', border: '#3a4558' }
+        };
+
         let network;
         let allNodes;
         let allEdges;
         let graphData;
+        let validLinks;
         let config = {
             activeNodeTypes: [],
-            activeEdgeTypes: [],
-            colorMap: {}
+            activeEdgeTypes: []
         };
+        let threadId = 'web-session-' + Date.now();
 
-        const defaultColorPalette = [
-            '#e74c3c', '#3498db', '#2ecc71', '#9b59b6', '#f1c40f', '#1abc9c',
-            '#e67e22', '#34495e', '#7f8c8d', '#c0392b', '#2980b9', '#27ae60',
-            '#8e44ad', '#f39c12', '#16a085', '#d35400', '#2c3e50', '#95a5a6'
-        ];
-        let colorIndex = 0;
-
-        function getNextColor() {
-            const color = defaultColorPalette[colorIndex % defaultColorPalette.length];
-            colorIndex++;
-            return { background: color, border: darkenColor(color, 20) };
-        }
-
-        function darkenColor(hex, percent) {
-            const f = parseInt(hex.slice(1), 16);
-            const t = percent < 0 ? 0 : 255;
-            const p = percent < 0 ? percent * -1 : percent;
-            const R = f >> 16;
-            const G = (f >> 8) & 0x00ff;
-            const B = f & 0x0000ff;
-            return "#" + (
-                0x1000000 +
-                (Math.round((t - R) * p) + R) * 0x10000 +
-                (Math.round((t - G) * p) + G) * 0x100 +
-                (Math.round((t - B) * p) + B)
-            ).toString(16).slice(1);
-        }
-
-        async function loadConfig() {
+        // Initialize the application
+        async function init() {
             try {
-                const response = await fetch('graph_config.json');
-                if (response.ok) {
-                    config = await response.json();
-                    console.log('Loaded config:', config);
-                    config.activeNodeTypes = config.activeNodeTypes || [];
-                    config.activeEdgeTypes = config.activeEdgeTypes || [];
-                } else if (response.status === 404) {
-                    console.log('graph_config.json not found, using default empty config.');
-                    config.activeNodeTypes = [];
-                    config.activeEdgeTypes = [];
-                } else {
-                    console.error('Error loading config:', response.statusText);
-                    config.activeNodeTypes = [];
-                    config.activeEdgeTypes = [];
-                }
+                await loadGraphData();
+                setupEventListeners();
+                populateFilters();
+                applyFilters();
+                setupChat();
             } catch (error) {
-                console.error('Error loading config:', error);
-                config.activeNodeTypes = [];
-                config.activeEdgeTypes = [];
+                console.error('Error initializing application:', error);
+                const loadingElement = document.querySelector('.loading');
+                if (loadingElement) {
+                    loadingElement.innerHTML = `
+                        <div style="color: var(--accent-warm);">Error loading graph</div>
+                        <div style="font-size: 0.875rem; margin-top: 0.5rem;">${error.message}</div>
+                    `;
+                }
             }
         }
 
-        function loadConfigFromFile(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        async function loadGraphData() {
+            const response = await fetch('/knowledge_graph.json');
+            if (!response.ok) {
+                throw new Error(`Failed to load graph data: ${response.status}`);
+            }
+            
+            graphData = await response.json();
+            
+            // Create valid node IDs set
+            const validNodeIds = new Set(graphData.nodes.map(node => node.id));
+            
+            // Filter out orphaned edges
+            validLinks = graphData.links.filter(link => 
+                validNodeIds.has(link.source) && validNodeIds.has(link.target)
+            );
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const loadedConfig = JSON.parse(e.target.result);
-                    config = loadedConfig;
-                    console.log('Loaded config from file:', config);
-                    populateFilters();
-                    applyFilters();
-                    alert('Configuration loaded successfully!');
-                } catch (error) {
-                    console.error('Error parsing config file:', error);
-                    alert('Error loading configuration: Invalid JSON file.');
+            // Process nodes
+            allNodes = new vis.DataSet(graphData.nodes.map(node => {
+                const nodeType = node.type || node.group || 'default';
+                const nodeColor = calmColors[nodeType] || calmColors.default;
+                const cleanLabel = (node.label || node.id).replace(/_/g, ' ');
+                const edgeCount = validLinks.filter(l => 
+                    l.source === node.id || l.target === node.id
+                ).length;
+                
+                // Create detailed tooltip
+                let tooltip = `<div style="padding: 8px; max-width: 300px;">`;
+                tooltip += `<strong style="color: #c9d1d9; font-size: 14px;">${cleanLabel}</strong><br/>`;
+                tooltip += `<span style="color: #8b949e; font-size: 12px;">Type: ${nodeType.replace(/_/g, ' ')}</span><br/>`;
+                if (node.description) {
+                    tooltip += `<span style="color: #8b949e; font-size: 12px; line-height: 1.4;">${node.description}</span><br/>`;
                 }
-            };
-            reader.readAsText(file);
-        }
+                tooltip += `<span style="color: #6e7681; font-size: 11px;">Connections: ${edgeCount}</span>`;
+                tooltip += `</div>`;
+                
+                return {
+                    id: node.id,
+                    label: cleanLabel,
+                    title: tooltip,
+                    group: nodeType,
+                    color: nodeColor,
+                    size: 14 + Math.sqrt(edgeCount) * 3,
+                    font: {
+                        color: '#f0f0f0',
+                        size: 13,
+                        face: 'IBM Plex Sans',
+                        strokeWidth: 3,
+                        strokeColor: nodeColor.background
+                    },
+                    borderWidth: 2,
+                    chosen: {
+                        node: function(values) {
+                            values.borderWidth = 3;
+                            values.shadowSize = 15;
+                            values.shadowColor = 'rgba(88, 166, 255, 0.4)';
+                        }
+                    }
+                };
+            }));
 
-        async function saveConfig() {
-            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'graph_config.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(a.href);
-            alert('Configuration saved to graph_config.json');
+            // Process edges - ensure unique IDs
+            const edgeMap = new Map();
+            validLinks.forEach((link, index) => {
+                const edgeId = `${link.source}-${link.target}-${link.type || index}`;
+                if (!edgeMap.has(edgeId)) {
+                    // Get node labels for better tooltips
+                    const sourceNode = graphData.nodes.find(n => n.id === link.source);
+                    const targetNode = graphData.nodes.find(n => n.id === link.target);
+                    const sourceLabel = sourceNode ? (sourceNode.label || sourceNode.id).replace(/_/g, ' ') : link.source;
+                    const targetLabel = targetNode ? (targetNode.label || targetNode.id).replace(/_/g, ' ') : link.target;
+                    const edgeType = (link.type || 'related').replace(/_/g, ' ');
+                    
+                    // Create tooltip
+                    let tooltip = `<div style="padding: 8px;">`;
+                    tooltip += `<strong style="color: #c9d1d9;">${sourceLabel}</strong><br/>`;
+                    tooltip += `<span style="color: #8b949e;">↓ ${edgeType} ↓</span><br/>`;
+                    tooltip += `<strong style="color: #c9d1d9;">${targetLabel}</strong>`;
+                    if (link.description) {
+                        tooltip += `<br/><span style="color: #6e7681; font-size: 11px;">${link.description}</span>`;
+                    }
+                    tooltip += `</div>`;
+                    
+                    edgeMap.set(edgeId, {
+                        id: edgeId,
+                        from: link.source,
+                        to: link.target,
+                        type: link.type,
+                        label: edgeType,
+                        title: tooltip,
+                        arrows: { to: { enabled: true, scaleFactor: 0.6 } },
+                        color: {
+                            color: '#3a4558',
+                            highlight: '#58a6ff',
+                            hover: '#58a6ff'
+                        },
+                        width: 1.5,
+                        smooth: {
+                            type: 'cubicBezier',
+                            forceDirection: 'none',
+                            roundness: 0.5
+                        },
+                        font: {
+                            color: '#8b949e',
+                            size: 11,
+                            align: 'middle',
+                            background: '#0d1117',
+                            strokeWidth: 4,
+                            strokeColor: '#0d1117'
+                        }
+                    });
+                }
+            });
+            allEdges = new vis.DataSet(Array.from(edgeMap.values()));
+
+            // Initialize config with all types
+            config.activeNodeTypes = Array.from(new Set(graphData.nodes.map(n => n.type || n.group)));
+            config.activeEdgeTypes = Array.from(new Set(validLinks.map(l => l.type)));
         }
 
         function populateFilters() {
             const nodeFilterContainer = document.getElementById('node-filters');
             const edgeFilterContainer = document.getElementById('edge-filters');
+            
+            // Clear existing filters
             nodeFilterContainer.innerHTML = '';
             edgeFilterContainer.innerHTML = '';
 
+            // Node type filters
             const nodeTypes = new Set(graphData.nodes.map(n => n.type || n.group));
-            const edgeTypes = new Set(graphData.links.map(l => l.relationship));
-
             nodeTypes.forEach(type => {
                 const count = graphData.nodes.filter(n => (n.type || n.group) === type).length;
-                const item = document.createElement('div');
-                item.className = 'filter-item';
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `node-filter-${type}`;
-                checkbox.value = type;
-                checkbox.checked = config.activeNodeTypes.includes(type);
-                item.appendChild(checkbox);
-
-                const colorBox = document.createElement('div');
-            colorBox.className = 'color-box';
-            const typeColor = config.colorMap[type] || getNextColor();
-            colorBox.style.backgroundColor = typeColor.background;
-            colorBox.style.borderColor = typeColor.border;
-            config.colorMap[type] = typeColor; // Store assigned color
-            item.appendChild(colorBox);
-
-                const label = document.createElement('label');
-                label.htmlFor = `node-filter-${type}`;
-                label.textContent = `${type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} (${count})`;
-                item.appendChild(label);
+                const item = createFilterItem(type, count, 'node', calmColors[type] || calmColors.default);
                 nodeFilterContainer.appendChild(item);
             });
 
+            // Edge type filters
+            const edgeTypes = new Set(validLinks.map(l => l.type));
             edgeTypes.forEach(type => {
-                const count = graphData.links.filter(l => l.relationship === type).length;
-                const item = document.createElement('div');
-                item.className = 'filter-item';
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `edge-filter-${type}`;
-                checkbox.value = type;
-                checkbox.checked = config.activeEdgeTypes.includes(type);
-                item.appendChild(checkbox);
-
-                const label = document.createElement('label');
-                label.htmlFor = `edge-filter-${type}`;
-                label.textContent = `${type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} (${count})`;
-                item.appendChild(label);
+                const count = validLinks.filter(l => l.type === type).length;
+                const item = createFilterItem(type, count, 'edge');
                 edgeFilterContainer.appendChild(item);
             });
         }
 
+        function createFilterItem(type, count, filterType, color) {
+            const item = document.createElement('div');
+            item.className = 'filter-item';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'filter-checkbox';
+            checkbox.id = `${filterType}-filter-${type}`;
+            checkbox.value = type;
+            checkbox.checked = filterType === 'node' 
+                ? config.activeNodeTypes.includes(type)
+                : config.activeEdgeTypes.includes(type);
+            
+            if (color) {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'filter-color';
+                colorBox.style.backgroundColor = color.background;
+                colorBox.style.border = `1px solid ${color.border}`;
+                item.appendChild(checkbox);
+                item.appendChild(colorBox);
+            } else {
+                item.appendChild(checkbox);
+            }
+            
+            const label = document.createElement('label');
+            label.htmlFor = checkbox.id;
+            label.className = 'filter-label';
+            label.textContent = type.replace(/_/g, ' ');
+            
+            const countSpan = document.createElement('span');
+            countSpan.className = 'filter-count';
+            countSpan.textContent = count;
+            
+            item.appendChild(label);
+            item.appendChild(countSpan);
+            
+            // Make entire item clickable
+            item.addEventListener('click', (e) => {
+                if (e.target !== checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                }
+            });
+            
+            return item;
+        }
+
         function applyFilters() {
-            config.activeNodeTypes = Array.from(document.querySelectorAll('#node-filters input[type="checkbox"]:checked')).map(cb => cb.value);
-            config.activeEdgeTypes = Array.from(document.querySelectorAll('#edge-filters input[type="checkbox"]:checked')).map(cb => cb.value);
+            // Get selected filters
+            config.activeNodeTypes = Array.from(
+                document.querySelectorAll('#node-filters input:checked')
+            ).map(cb => cb.value);
+            
+            config.activeEdgeTypes = Array.from(
+                document.querySelectorAll('#edge-filters input:checked')
+            ).map(cb => cb.value);
 
-            const filteredNodes = allNodes.get({ filter: node => config.activeNodeTypes.includes(node.type || node.group) });
+            // Filter nodes
+            const filteredNodes = allNodes.get({
+                filter: node => config.activeNodeTypes.includes(node.group)
+            });
+            const filteredNodeIds = new Set(filteredNodes.map(node => node.id));
 
-            const filteredEdgesArray = [];
-            graphData.links.forEach(link => {
-                const sourceNodeExists = filteredNodes.some(node => node.id === link.source);
-                const targetNodeExists = filteredNodes.some(node => node.id === link.target);
-                const edgeTypeIncluded = config.activeEdgeTypes.includes(link.relationship);
-
-                if (sourceNodeExists && targetNodeExists && edgeTypeIncluded) {
-                    filteredEdgesArray.push(link);
-                }
+            // Filter edges
+            const filteredEdges = allEdges.get({
+                filter: edge => 
+                    filteredNodeIds.has(edge.from) && 
+                    filteredNodeIds.has(edge.to) && 
+                    config.activeEdgeTypes.includes(edge.type)
             });
 
-            const nodesDataSet = new vis.DataSet(filteredNodes.map(node => {
-                const nodeType = node.type || node.group;
-                const nodeColor = config.colorMap[nodeType] ? config.colorMap[nodeType].background : '#999999'; // Fallback color
-                return {
-                    id: node.id,
-                    label: node.label || node.id.replace(/_/g, ' '),
-                    title: `<b>${node.label || node.id.replace(/_/g, ' ')}</b><br><hr>${node.description || 'Type: ' + nodeType}`,
-                    group: nodeType,
-                    color: nodeColor, // Explicitly set color from colorMap
-                    size: 15 + Math.sqrt(graphData.links.filter(l => l.source === node.id || l.target === node.id).length) * 2
-                };
-            }));
-
-            const edgesDataSet = new vis.DataSet(filteredEdgesArray.map(link => ({
-                from: link.source,
-                to: link.target,
-                label: link.relationship.replace(/_/g, ' '),
-                arrows: { to: { enabled: true, scaleFactor: 0.7 } },
-                font: { align: 'middle', size: 10, color: '#a9a9a9', strokeWidth: 3, strokeColor: '#2c2c2c' },
-                title: link.description || '',
-                type: link.relationship
-            })));
-
-            network.setData({ nodes: nodesDataSet, edges: edgesDataSet });
-            network.fit();
-        }
-
-        function resetFilters() {
-            const nodeCheckboxes = document.querySelectorAll('#node-filters input[type="checkbox"]');
-            nodeCheckboxes.forEach(cb => cb.checked = true);
-            const edgeCheckboxes = document.querySelectorAll('#edge-filters input[type="checkbox"]');
-            edgeCheckboxes.forEach(cb => cb.checked = true);
-            applyFilters();
-        }
-
-        async function drawGraph() {
-            // Fetch graph data first, as it's needed for default config population
-            const graphResponse = await fetch('../KG/knowledge_graph.json?t=' + new Date().getTime());
-            graphData = await graphResponse.json();
-
-            allNodes = new vis.DataSet(graphData.nodes.map(node => {
-                const nodeType = node.type || node.group;
-                const nodeColor = config.colorMap[nodeType] ? config.colorMap[nodeType].background : '#999999'; // Fallback color
-                return {
-                    id: node.id,
-                    label: node.label || node.id.replace(/_/g, ' '),
-                    title: `<b>${node.label || node.id.replace(/_/g, ' ')}</b><br><hr>${node.description || 'Type: ' + nodeType}`,
-                    group: nodeType,
-                    color: nodeColor, // Explicitly set color from colorMap
-                    size: 15 + Math.sqrt(graphData.links.filter(l => l.source === node.id || l.target === node.id).length) * 2
-                };
-            }));
-
-            allEdges = new vis.DataSet(graphData.links.map(link => ({
-                from: link.source,
-                to: link.target,
-                label: link.relationship.replace(/_/g, ' '),
-                arrows: { to: { enabled: true, scaleFactor: 0.7 } },
-                font: { align: 'middle', size: 10, color: '#a9a9a9', strokeWidth: 3, strokeColor: '#2c2c2c' },
-                title: link.description || '',
-                relationship: link.relationship
-            })));
-
-            // Pre-populate colorMap with all possible node types from graphData
-            const allNodeTypes = new Set(graphData.nodes.map(n => n.type || n.group));
-            allNodeTypes.forEach(type => {
-                if (!config.colorMap[type]) {
-                    config.colorMap[type] = getNextColor();
-                }
-            });
-
-            // Load config after graphData is available
-            await loadConfig();
-
-            // If config is empty (i.e., no saved config or error loading), set defaults
-            if (config.activeNodeTypes.length === 0 && config.activeEdgeTypes.length === 0) {
-                config.activeNodeTypes = Array.from(new Set(graphData.nodes.map(n => n.type || n.group)));
-                config.activeEdgeTypes = Array.from(new Set(graphData.links.map(l => l.relationship)));
-            }
-
-            populateFilters();
-
-            const container = document.getElementById('mynetwork');
-            const options = {
-                nodes: {
-                    shape: 'dot',
-                    font: { size: 14, color: '#ffffff' },
-                    borderWidth: 2,
-                    shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10, x: 5, y: 5 }
-                },
-                edges: {
-                    width: 3,
-                    color: { color: '#FF00FF', highlight: '#3498db', hover: '#3498db', inherit: false }, // Bright magenta for visibility
-                    smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.4 },
-                    arrows: 'to'
-                },
-                groups: config.colorMap, // Use dynamic color map
-                physics: {
-                    solver: 'forceAtlas2Based',
-                    forceAtlas2Based: {
-                        gravitationalConstant: -70,
-                        centralGravity: 0.015,
-                        springLength: 120,
-                        springConstant: 0.08,
-                        avoidOverlap: 0.5
+            // Create network if not exists
+            if (!network) {
+                const container = document.getElementById('mynetwork');
+                const options = {
+                    nodes: {
+                        shape: 'dot',
+                        borderWidth: 2,
+                        shadow: {
+                            enabled: true,
+                            color: 'rgba(0,0,0,0.5)',
+                            size: 10,
+                            x: 3,
+                            y: 3
+                        }
+                    },
+                    edges: {
+                        shadow: {
+                            enabled: true,
+                            color: 'rgba(0,0,0,0.3)',
+                            size: 5,
+                            x: 2,
+                            y: 2
+                        }
+                    },
+                    physics: {
+                        enabled: true,
+                        solver: 'forceAtlas2Based',
+                        forceAtlas2Based: {
+                            gravitationalConstant: -80,
+                            centralGravity: 0.01,
+                            springLength: 150,
+                            springConstant: 0.08,
+                            damping: 0.4,
+                            avoidOverlap: 0.5
+                        },
+                        stabilization: {
+                            enabled: true,
+                            iterations: 200,
+                            updateInterval: 25
+                        }
+                    },
+                    interaction: {
+                        hover: true,
+                        tooltipDelay: 50,
+                        hideEdgesOnDrag: true,
+                        hideEdgesOnZoom: true,
+                        navigationButtons: false,
+                        keyboard: false
                     }
-                },
-                layout: {
-                    improvedLayout: false
-                },
-                interaction: {
-                    hover: true,
-                    tooltipDelay: 200,
-                    navigationButtons: true,
-                    keyboard: true,
-                    dragNodes: true
-                }
-            };
-
-            network = new vis.Network(container, { nodes: new vis.DataSet(), edges: new vis.DataSet() }, options);
-            console.log('DEBUG: Vis.js Network Options:', options);
-            applyFilters(); // Apply initial filters based on config
-
-            // Search functionality
-            document.getElementById('search-box').addEventListener('keyup', function(e) {
-                const searchText = e.target.value.toLowerCase();
-                if (searchText === '') {
-                    network.fit();
-                    return;
-                }
-                const currentNodes = network.body.data.nodes; // Get currently displayed nodes
-                const matchedNodes = currentNodes.get({ filter: node => node.label.toLowerCase().includes(searchText) });
-                if (matchedNodes.length > 0) {
-                    network.focus(matchedNodes[0].id, { scale: 1.5, animation: { duration: 1000, easingFunction: 'easeInOutQuad' } });
-                    network.selectNodes([matchedNodes[0].id]);
-                }
-            });
-
-            // Event Listeners for buttons
-            document.getElementById('apply-filters').addEventListener('click', applyFilters);
-            document.getElementById('reset-filters').addEventListener('click', resetFilters);
-            document.getElementById('save-config').addEventListener('click', saveConfig);
-            document.getElementById('load-config').addEventListener('click', function() {
-                document.getElementById('config-file-input').click();
-            });
-            document.getElementById('config-file-input').addEventListener('change', loadConfigFromFile);
-
-            // --- Highlighting on Click --- 
-            network.on("click", function (params) {
-                if (params.nodes.length > 0) {
-                    highlightConnectedNodes(params.nodes[0]);
-                } else {
-                    unhighlightAll();
-                }
-            });
-
-            function highlightConnectedNodes(nodeId) {
-                const currentNodes = network.body.data.nodes;
-                const currentEdges = network.body.data.edges;
-
-                // Dim all nodes and edges
-                const nodeUpdates = currentNodes.map(node => ({
-                    id: node.id,
-                    color: 'rgba(150, 150, 150, 0.25)'
-                }));
-                const edgeUpdates = currentEdges.map(edge => ({
-                    id: edge.id,
-                    color: 'rgba(150, 150, 150, 0.1)'
-                }));
-
-                // Highlight the selected node and its direct connections
-                const connectedNodes = network.getConnectedNodes(nodeId);
-                const connectedEdges = network.getConnectedEdges(nodeId);
-
-                // Mark selected node
-                const selectedNode = currentNodes.get(nodeId);
-                const selectedNodeColor = config.colorMap[selectedNode.group] ? config.colorMap[selectedNode.group].background : '#ffffff';
-                nodeUpdates.find(n => n.id === nodeId).color = selectedNodeColor;
-
-                // Mark connected nodes
-                connectedNodes.forEach(id => {
-                    const connectedNode = currentNodes.get(id);
-                    const connectedNodeColor = config.colorMap[connectedNode.group] ? config.colorMap[connectedNode.group].background : '#ffffff';
-                    nodeUpdates.find(n => n.id === id).color = connectedNodeColor;
-                });
-
-                // Mark connected edges
-                connectedEdges.forEach(id => {
-                    edgeUpdates.find(e => e.id === id).color = undefined; // Revert to default color
-                });
-
-                currentNodes.update(nodeUpdates);
-                currentEdges.update(edgeUpdates);
+                };
+                
+                network = new vis.Network(container, {}, options);
+                setupNetworkEvents();
             }
 
-            function unhighlightAll() {
-                const currentNodes = network.body.data.nodes;
-                const currentEdges = network.body.data.edges;
+            // Update network data
+            network.setData({
+                nodes: new vis.DataSet(filteredNodes),
+                edges: new vis.DataSet(filteredEdges)
+            });
 
-                const nodeUpdates = currentNodes.map(node => {
-                    const originalColor = config.colorMap[node.group] ? config.colorMap[node.group].background : '#ffffff';
-                    return { id: node.id, color: originalColor };
-                });
-                const edgeUpdates = currentEdges.map(edge => ({ id: edge.id, color: undefined }));
-
-                currentNodes.update(nodeUpdates);
-                currentEdges.update(edgeUpdates);
+            // Update stats
+            updateStats(filteredNodes.length, filteredEdges.length);
+            
+            // Hide loading
+            const loadingElement = document.querySelector('.loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
             }
         }
 
-        drawGraph();
+        function updateStats(nodeCount, edgeCount) {
+            document.getElementById('node-count').textContent = nodeCount;
+            document.getElementById('edge-count').textContent = edgeCount;
+            document.getElementById('filtered-count').textContent = 
+                `${nodeCount}/${allNodes.length}`;
+        }
 
-        // Chatbot functionality
-        const chatInput = document.getElementById('chat-input');
-        const sendButton = document.getElementById('send-button');
-        const chatMessages = document.getElementById('chat-messages');
+        function setupEventListeners() {
+            // Filter buttons
+            document.getElementById('apply-filters').addEventListener('click', applyFilters);
+            document.getElementById('reset-filters').addEventListener('click', () => {
+                document.querySelectorAll('.filter-checkbox').forEach(cb => cb.checked = true);
+                applyFilters();
+            });
 
-        sendButton.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+            // View controls
+            document.getElementById('fit-view').addEventListener('click', () => {
+                network.fit({ animation: { duration: 1000, easingFunction: 'easeInOutQuad' } });
+            });
 
-        function sendMessage() {
+            document.getElementById('reset-zoom').addEventListener('click', () => {
+                network.moveTo({ scale: 1, animation: { duration: 1000, easingFunction: 'easeInOutQuad' } });
+            });
+
+            // Search
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                if (query) {
+                    const matchingNodes = allNodes.get({
+                        filter: node => node.label.toLowerCase().includes(query)
+                    });
+                    if (matchingNodes.length > 0) {
+                        network.selectNodes(matchingNodes.map(n => n.id));
+                        if (matchingNodes.length === 1) {
+                            network.focus(matchingNodes[0].id, {
+                                scale: 1.5,
+                                animation: { duration: 500, easingFunction: 'easeInOutQuad' }
+                            });
+                        }
+                    }
+                } else {
+                    network.unselectAll();
+                }
+            });
+        }
+
+        function setupNetworkEvents() {
+            network.on('click', function(params) {
+                if (params.nodes.length > 0) {
+                    highlightNode(params.nodes[0]);
+                }
+            });
+
+            network.on('hoverNode', function() {
+                document.body.style.cursor = 'pointer';
+            });
+
+            network.on('blurNode', function() {
+                document.body.style.cursor = 'default';
+            });
+        }
+
+        function highlightNode(nodeId) {
+            network.selectNodes([nodeId]);
+            network.focus(nodeId, {
+                scale: 1.5,
+                animation: { duration: 500, easingFunction: 'easeInOutQuad' }
+            });
+        }
+
+        // Chat functionality
+        function setupChat() {
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-message');
+            const chatMessages = document.getElementById('chat-messages');
+
+            // Auto-resize textarea
+            chatInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            });
+
+            // Send message on Enter (Shift+Enter for new line)
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            sendButton.addEventListener('click', sendMessage);
+        }
+
+        async function sendMessage() {
+            const chatInput = document.getElementById('chat-input');
+            const chatMessages = document.getElementById('chat-messages');
             const message = chatInput.value.trim();
-            if (message === '') return;
+
+            if (!message) return;
 
             // Add user message
-            const userMessageDiv = document.createElement('div');
-            userMessageDiv.className = 'user-message chat-message';
-            userMessageDiv.textContent = message;
-            chatMessages.appendChild(userMessageDiv);
+            addMessage(message, 'user');
 
-            // Simulate bot response (echo for now)
-            const botMessageDiv = document.createElement('div');
-            botMessageDiv.className = 'bot-message chat-message';
-            botMessageDiv.textContent = `Echo: ${message}`; // Simple echo for now
-            chatMessages.appendChild(botMessageDiv);
-
+            // Clear input and reset height
             chatInput.value = '';
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
-        }
-    </script>
+            chatInput.style.height = 'auto';
 
-    <!-- Cache busting comment: 2025-07-02-6 -->
+            // Add loading message
+            const loadingId = 'loading-' + Date.now();
+            addMessage('Thinking...', 'loading', loadingId);
+
+            try {
+                console.log('Sending message to chat API:', message);
+                
+                // Send to backend
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        thread_id: threadId
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                // Remove loading message
+                const loadingMsg = document.getElementById(loadingId);
+                if (loadingMsg) loadingMsg.remove();
+
+                if (response.ok) {
+                    addMessage(data.response, 'bot');
+                    
+                    // Try to highlight relevant nodes based on response
+                    highlightRelevantNodes(data.response);
+                } else {
+                    console.error('Chat API error:', data.error);
+                    addMessage('Sorry, I encountered an error: ' + (data.error || 'Unknown error'), 'bot');
+                }
+            } catch (error) {
+                // Remove loading message
+                const loadingMsg = document.getElementById(loadingId);
+                if (loadingMsg) loadingMsg.remove();
+                
+                addMessage('Sorry, I couldn\'t connect to the server. Please make sure the server is running.', 'bot');
+                console.error('Chat error:', error);
+            }
+        }
+
+        function addMessage(text, type, id) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            if (id) messageDiv.id = id;
+            
+            // Convert markdown-style formatting to HTML
+            const formattedText = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+            
+            messageDiv.innerHTML = formattedText;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function highlightRelevantNodes(text) {
+            // Simple keyword extraction - look for capitalized words or known terms
+            const keywords = text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*/g) || [];
+            const terms = ['optimal transport', 'gradient flow', 'machine learning', 'neural', 'risk', 'control'];
+            
+            const searchTerms = [...new Set([...keywords, ...terms])];
+            
+            searchTerms.forEach(term => {
+                const matchingNodes = allNodes.get({
+                    filter: node => node.label.toLowerCase().includes(term.toLowerCase())
+                });
+                
+                if (matchingNodes.length > 0 && matchingNodes.length < 10) {
+                    network.selectNodes(matchingNodes.map(n => n.id));
+                }
+            });
+        }
+
+        // Panel resize functionality
+        function setupPanelResize() {
+            const app = document.getElementById('app');
+            const sidebar = document.getElementById('sidebar');
+            const chatPanel = document.getElementById('chat-panel');
+            const sidebarResize = document.getElementById('sidebar-resize');
+            const chatResize = document.getElementById('chat-resize');
+            
+            let isResizingSidebar = false;
+            let isResizingChat = false;
+            
+            // Sidebar resize
+            sidebarResize.addEventListener('mousedown', (e) => {
+                isResizingSidebar = true;
+                sidebarResize.classList.add('dragging');
+                document.body.style.cursor = 'col-resize';
+                e.preventDefault();
+            });
+            
+            // Chat panel resize
+            chatResize.addEventListener('mousedown', (e) => {
+                isResizingChat = true;
+                chatResize.classList.add('dragging');
+                document.body.style.cursor = 'col-resize';
+                e.preventDefault();
+            });
+            
+            document.addEventListener('mousemove', (e) => {
+                if (!isResizingSidebar && !isResizingChat) return;
+                
+                if (isResizingSidebar) {
+                    const newWidth = Math.min(Math.max(200, e.clientX), 400);
+                    sidebar.style.width = newWidth + 'px';
+                    
+                    // Update grid template
+                    const chatWidth = chatPanel.offsetWidth;
+                    app.style.gridTemplateColumns = `${newWidth}px ${chatWidth}px 1fr`;
+                } else if (isResizingChat) {
+                    const sidebarWidth = sidebar.offsetWidth;
+                    const chatStart = sidebarWidth;
+                    const newWidth = Math.min(Math.max(350, e.clientX - chatStart), window.innerWidth - sidebarWidth - 300);
+                    chatPanel.style.width = newWidth + 'px';
+                    
+                    // Update grid template
+                    app.style.gridTemplateColumns = `${sidebarWidth}px ${newWidth}px 1fr`;
+                }
+            });
+            
+            document.addEventListener('mouseup', () => {
+                isResizingSidebar = false;
+                isResizingChat = false;
+                sidebarResize.classList.remove('dragging');
+                chatResize.classList.remove('dragging');
+                document.body.style.cursor = 'default';
+            });
+        }
+
+        // Initialize on load
+        init();
+        setupPanelResize();
+    </script>
 </body>
 </html>

@@ -1,0 +1,84 @@
+# Config-Style Knowledge Graph Pruning Parameters
+# Used to create web_ui/knowledge_graph.json from KG/knowledge_graph.json
+# Date: 2025-01-04
+
+## Command Used:
+python KG/prune_knowledge_graph.py KG/knowledge_graph.json web_ui/knowledge_graph.json \
+--exclude-entities person personal_achievement personal_learning personal_note challenge future_direction assumption limitation general_concept general_topic theoretical_method analytical_method algorithmic_method computational_method general_method tool project math_foundation \
+--exclude-relationships accomplished learned plans faced_challenge mentions relates_to suggests_future_work makes_assumption has_limitation discovered discovers affiliated_with authored_by proves \
+--remove-isolated
+
+## Rationale:
+
+### Entity Types Excluded (18 types):
+- person                    # Remove individual people (not in config.json style)
+- personal_achievement      # Remove personal elements
+- personal_learning         # Remove personal elements  
+- personal_note            # Remove personal elements
+- challenge                # Remove personal elements
+- future_direction         # Remove planning/process details
+- assumption               # Remove research process metadata
+- limitation               # Remove research process metadata
+- general_concept          # Remove vague/general categorizations
+- general_topic            # Remove vague/general categorizations
+- theoretical_method       # Remove detailed method categorizations
+- analytical_method        # Remove detailed method categorizations
+- algorithmic_method       # Remove detailed method categorizations
+- computational_method     # Remove detailed method categorizations
+- general_method           # Remove detailed method categorizations
+- tool                     # Remove implementation details
+- project                  # Remove project-specific elements
+- math_foundation          # Remove detailed mathematical concepts (too technical for config-style)
+
+### Entity Types Kept (6 types):
+- paper                    # Core academic content (matches config.json)
+- research_insight         # Key research concepts (≈ ml_concept in config.json)
+- research_area            # Research domains (≈ ml_concept in config.json)
+- innovation               # Key innovations (≈ ml_concept in config.json)
+- application              # Real-world uses (matches config.json)
+- institution              # Academic institutions (matches config.json)
+
+### Relationship Types Excluded (14 types):
+- accomplished             # Personal achievement process
+- learned                  # Personal learning process
+- plans                    # Future planning process
+- faced_challenge          # Personal challenge process
+- mentions                 # Vague/weak connections
+- relates_to               # Vague/weak connections
+- suggests_future_work     # Research process metadata
+- makes_assumption         # Research process metadata
+- has_limitation           # Research process metadata
+- discovered               # Research process details
+- discovers                # Research process details
+- affiliated_with          # Person-institution connections (removed people)
+- authored_by              # Person-paper connections (removed people)
+- proves                   # Theoretical proof relationships (too formal for config-style)
+
+### Relationship Types Kept (3 types):
+- discusses                # Core research activity (≈ investigates in config.json)
+- innovates                # Innovation relationships (≈ develops in config.json)
+- has_application          # Application connections (exact match with config.json)
+
+## Results:
+- Original: 1,081 entities, 1,247 relationships
+- Pruned:   119 entities, 139 relationships  
+- Retention: 11.0% entities, 11.1% relationships
+- Isolated nodes removed: 110 (48% of intermediate result)
+
+## Bug Fix Applied:
+- Fixed phantom document references in graph_builder.py
+- Issue: Edges referenced 'document_academic_1' but nodes were 'academic_1'
+- Solution: Corrected ID mapping for document type relationships
+- Result: 139 valid edges (was 0 before fix)
+
+## Isolated Node Removal:
+- Added --remove-isolated flag to pruning script
+- Removes nodes with no connections (isolated nodes)
+- Cleaned up 110 isolated nodes (48% of intermediate graph)
+- Result: 100% connected graph with no orphaned entities
+
+## Philosophy Achieved:
+- Structural focus (like config.json) vs process focus (original KG)
+- Core academic concepts only
+- Clean, minimal relationship types
+- Foundation-oriented rather than workflow-oriented
