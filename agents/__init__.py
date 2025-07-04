@@ -7,15 +7,20 @@ This package contains specialized agents for analyzing and extracting informatio
 - chronicle_metadata_extractor: Extracts metadata from personal notes to JSON
 """
 
-from .chronicle_metadata_extractor import ChronicleMetadata, ChronicleMetadataExtractor
-from .academic_metadata_extractor import AcademicMetadata, AcademicExtractor
-from .academic_analyzer import PaperAnalysis, AcademicAnalyzer
+# Import only available modules
+try:
+    from .academic_analyzer import PaperAnalysis, AcademicAnalyzer
+    __all__ = ['PaperAnalysis', 'AcademicAnalyzer']
+except ImportError:
+    __all__ = []
 
-__all__ = [
-    'ChronicleMetadata',
-    'ChronicleMetadataExtractor', 
-    'AcademicMetadata',
-    'AcademicExtractor',
-    'PaperAnalysis',
-    'AcademicAnalyzer'
-]
+# Add other imports as available
+try:
+    from .extractor import *
+except ImportError:
+    pass
+
+try:
+    from .entity_deduplicator import *
+except ImportError:
+    pass

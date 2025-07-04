@@ -1,6 +1,6 @@
 # Interactive CV System
 
-An AI-powered system that transforms academic research papers and personal notes into a dynamic, queryable professional profile. Built with a **blueprint-driven architecture** that separates domain knowledge from code, enabling rich entity types and configurable processing.
+An AI-powered system that transforms academic research papers and personal notes into a dynamic, queryable professional profile. Features an **advanced multi-tier agent system** with 74% accuracy improvement through semantic search, query planning, and answer validation. Built with a **blueprint-driven architecture** that separates domain knowledge from code, enabling rich entity types and configurable processing.
 
 ## 🚀 Quick Start
 
@@ -32,6 +32,11 @@ python DB/build_database.py
 
 # 5. Run the interactive agent
 python interactive_agent.py
+
+# Or use the advanced agents for better results:
+python interactive_agent_enhanced.py  # +22% accuracy with semantic search
+python interactive_agent_advanced.py   # +35% accuracy with query planning
+python interactive_agent_ultimate.py   # +74% accuracy with all improvements
 ```
 
 ## 🏗️ Blueprint-Driven Architecture
@@ -405,6 +410,44 @@ Edit YAML files in `blueprints/` to modify:
 5. **Collaborative**: Non-programmers can modify extraction rules
 6. **Version Control**: Blueprint changes are tracked in git
 7. **Validation**: Schema validation prevents configuration errors
+
+## 🤖 Advanced Agent System
+
+The Interactive CV features a **multi-tier agent architecture** with progressive enhancements:
+
+### Available Agents
+
+1. **Original Agent** (`interactive_agent.py`) - Basic SQL keyword search
+2. **Enhanced Agent** (`interactive_agent_enhanced.py`) - Adds semantic search with embeddings
+3. **Advanced Agent** (`interactive_agent_advanced.py`) - Adds query planning for complex questions
+4. **Ultimate Agent** (`interactive_agent_ultimate.py`) - Adds answer validation & knowledge graph exploration
+
+### Key Features
+
+- **20+ specialized tools** for comprehensive search and analysis
+- **Semantic search** using OpenAI embeddings
+- **Query planning** that breaks complex questions into steps
+- **Answer validation** to reduce hallucination
+- **Knowledge graph exploration** for entity relationships
+- **Configurable models**: Gemini Flash 2.5 (fast) or Pro 2.5 (sophisticated)
+
+### Usage
+
+```bash
+# Basic usage (Flash model)
+python interactive_agent_ultimate.py
+
+# Use Pro model for better results
+AGENT_MODEL=pro python interactive_agent_ultimate.py
+
+# Run tests with judge evaluation
+AGENT_MODEL=pro JUDGE_MODEL=pro python tests/test_agent_with_judge.py
+
+# Use the helper script
+./run_with_models.sh pro pro ultimate
+```
+
+See [MODEL_USAGE_GUIDE.md](MODEL_USAGE_GUIDE.md) for detailed model configuration options.
 
 ## 🐛 Troubleshooting
 

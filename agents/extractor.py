@@ -22,7 +22,7 @@ if str(blueprint_core_path) not in sys.path:
     sys.path.insert(0, str(blueprint_core_path))
 
 try:
-    from blueprint_loader import get_blueprint_loader, create_extraction_model
+    from blueprint_loader import get_blueprint_loader, create_extraction_model  # type: ignore
 except ImportError as e:
     print(f"Error importing blueprint_loader: {e}")
     print(f"Blueprint path: {blueprint_core_path}")

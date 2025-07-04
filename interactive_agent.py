@@ -6,18 +6,14 @@ Uses LangGraph for agent orchestration and OpenRouter for LLM access.
 
 import os
 import sqlite3
-import json
-import numpy as np
-from typing import List, Dict, Any, Tuple, Optional, Annotated
 from datetime import datetime
-from pathlib import Path
 from dotenv import load_dotenv
 
 # LangChain and LangGraph imports
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import tool
-from langchain_core.runnables import RunnableConfig
+from typing import Any, Dict
 from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import InMemorySaver
@@ -43,21 +39,33 @@ class InteractiveCVAgent:
         self.db_path = DB_PATH
         self.graph_query = GraphEnhancedQuery(DB_PATH, GRAPH_PATH)
         
-        # Initialize OpenRouter LLM with gemini-flash-2.5
+        # Initialize OpenRouter LLM with configurable model
         api_key = os.getenv("OPENROUTER_API_KEY")
         if not api_key:
             raise ValueError("OPENROUTER_API_KEY not found in .env file")
-            
+        
+        # Get model configuration
+        model_key = os.getenv("AGENT_MODEL", "flash")
+        models = {
+            "flash": "google/gemini-2.5-flash",
+            "pro": "google/gemini-2.5-pro"
+        }
+        model_name = models.get(model_key, models["flash"])
+        
         self.llm = ChatOpenAI(
             base_url="https://openrouter.ai/api/v1",
             api_key=SecretStr(api_key),
-            model="google/gemini-2.5-flash",
+            model=model_name,
             temperature=0.7,
+            max_tokens=8192 if "pro" in model_name else 4096,
             default_headers={
                 "HTTP-Referer": "http://localhost:3000",
                 "X-Title": "Interactive CV Agent",
             }
         )
+        
+        # Print model being used
+        print(f"🤖 Agent using model: {model_name}")
         
         # Create tools
         self.tools = self._create_tools()
@@ -78,6 +86,7 @@ class InteractiveCVAgent:
         @tool
         def search_academic_papers(query: str, context_length: int = 1500) -> str:
             """Search for academic papers by topic or keywords. Returns detailed content."""
+            conn = None
             try:
                 # Create connection in the tool to avoid threading issues
                 conn = sqlite3.connect(db_path)
@@ -130,12 +139,13 @@ class InteractiveCVAgent:
             except Exception as e:
                 return f"Error searching academic papers: {str(e)}"
             finally:
-                if 'conn' in locals():
+                if conn is not None:
                     conn.close()
         
         @tool
         def search_chronicle_notes(query: str, context_length: int = 1000) -> str:
             """Search daily work notes and progress updates."""
+            conn = None
             try:
                 conn = sqlite3.connect(db_path)
                 cursor = conn.cursor()
@@ -181,12 +191,13 @@ class InteractiveCVAgent:
             except Exception as e:
                 return f"Error searching chronicle notes: {str(e)}"
             finally:
-                if 'conn' in locals():
+                if conn is not None:
                     conn.close()
         
         @tool
         def find_research_topics(area: str) -> str:
             """Find research topics and expertise areas."""
+            conn = None
             try:
                 conn = sqlite3.connect(db_path)
                 cursor = conn.cursor()
@@ -221,7 +232,7 @@ class InteractiveCVAgent:
             except Exception as e:
                 return f"Error finding research topics: {str(e)}"
             finally:
-                if 'conn' in locals():
+                if conn is not None:
                     conn.close()
         
         @tool
@@ -265,6 +276,7 @@ class InteractiveCVAgent:
         @tool
         def semantic_search_chunks(query: str, top_k: int = 5) -> str:
             """Search through document chunks for detailed content matching the query."""
+            conn = None
             try:
                 conn = sqlite3.connect(db_path)
                 cursor = conn.cursor()
@@ -287,7 +299,7 @@ class InteractiveCVAgent:
                 
                 results = []
                 for row in cursor.fetchall():
-                    chunk_id, content, doc_id, doc_type, title = row
+                    chunk_id, content, _, doc_type, title = row
                     results.append({
                         'chunk_id': chunk_id,
                         'content': content if content else '',
@@ -309,7 +321,7 @@ class InteractiveCVAgent:
             except Exception as e:
                 return f"Error in semantic search: {str(e)}"
             finally:
-                if 'conn' in locals():
+                if conn is not None:
                     conn.close()
         
         @tool
@@ -334,8 +346,9 @@ class InteractiveCVAgent:
             return response
         
         @tool
-        def get_paper_content(paper_title: str, section_query: str = None) -> str:
+        def get_paper_content(paper_title: str, section_query: str = "") -> str:
             """Get full or partial content of a specific paper by title."""
+            conn = None
             try:
                 conn = sqlite3.connect(db_path)
                 cursor = conn.cursor()
@@ -352,11 +365,10 @@ class InteractiveCVAgent:
                 
                 content = result[0]
                 
-                if section_query:
+                if section_query and section_query.strip():
                     # Find section containing the query
                     lines = content.split('\n')
                     relevant_lines = []
-                    capture = False
                     
                     for i, line in enumerate(lines):
                         if section_query.lower() in line.lower():
@@ -377,7 +389,7 @@ class InteractiveCVAgent:
             except Exception as e:
                 return f"Error getting paper content: {str(e)}"
             finally:
-                if 'conn' in locals():
+                if conn is not None:
                     conn.close()
         
         return [
@@ -423,7 +435,7 @@ class InteractiveCVAgent:
     
     def chat(self, user_input: str, thread_id: str = "default"):
         """Process a user message and return response."""
-        config = {"configurable": {"thread_id": thread_id}}
+        config: Dict[str, Any] = {"configurable": {"thread_id": thread_id}, "recursion_limit": 32}
         
         # Create system message for context
         system_msg = SystemMessage(content="""You are an Interactive CV system representing Vaios Laschos, an applied mathematician (PhD, University of Bath) who has evolved from pure mathematics to machine learning and AI. Born January 3, 1983, I've spent over a decade in postdoctoral research across four countries (Greece, UK, USA, Germany), building bridges between abstract mathematical theory and practical AI applications.
@@ -471,7 +483,7 @@ IMPORTANT: I will ALWAYS search my database first before answering - my response
         
         # Stream the response
         response_content = ""
-        for event in self.agent.stream({"messages": messages}, config):
+        for event in self.agent.stream({"messages": messages}, config):  # type: ignore
             if "agent" in event:
                 last_message = event["agent"]["messages"][-1]
                 if hasattr(last_message, 'content') and last_message.content:

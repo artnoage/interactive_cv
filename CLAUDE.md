@@ -1,5 +1,34 @@
 # Interactive CV Project - CLAUDE.md
 
+## 🤖 Advanced AI Agent System
+
+The Interactive CV features a sophisticated multi-tier agent system with progressively enhanced capabilities:
+
+**Available Agents:**
+1. **Original Agent** (`interactive_agent.py`) - Basic SQL keyword search with 8 tools
+2. **Enhanced Agent** (`interactive_agent_enhanced.py`) - Adds semantic search using OpenAI embeddings
+3. **Advanced Agent** (`interactive_agent_advanced.py`) - Adds query planning for complex questions
+4. **Ultimate Agent** (`interactive_agent_ultimate.py`) - Adds answer validation & knowledge graph exploration
+
+**Key Features:**
+- **20+ Specialized Tools**: Semantic search, query planning, answer validation, graph exploration
+- **Configurable Models**: Switch between Gemini Flash 2.5 (fast) and Pro 2.5 (sophisticated)
+- **Multi-Step Reasoning**: Automatically breaks complex questions into sub-queries
+- **Knowledge Graph Navigation**: Explores entity relationships and connections
+- **Evidence-Based Answers**: Validates responses against database content
+
+**Usage:**
+```bash
+# Basic usage with Flash model (default)
+python interactive_agent_ultimate.py
+
+# Use Pro model for better results
+AGENT_MODEL=pro python interactive_agent_ultimate.py
+
+# Run tests with judge evaluation
+AGENT_MODEL=pro JUDGE_MODEL=pro python tests/test_agent_with_judge.py
+```
+
 ## 🎯 Configuration-Driven Architecture
 
 ### Revolutionary Design: Complete Domain-Code Separation
