@@ -1,6 +1,6 @@
 # Interactive CV Project - CLAUDE.md
 
-## Recent Major Refactoring (2025-01-03)
+## Recent Major Refactoring (2025-01-04)
 
 ### Database System Overhaul
 We completely redesigned the database structure for cleaner, more efficient data management:
@@ -158,21 +158,24 @@ llm = ChatOpenAI(
 12. **Query Tools**: Created comprehensive database query scripts
 13. **Embeddings System**: Added OpenAI embeddings for all documents and chunks
 14. **Remote Sync**: Automatic sync of files and database to portfolio-ts54
-15. **Knowledge Graph**: Interactive visualization with 209 nodes and 264 relationships
+15. **Knowledge Graph**: Interactive visualization with 965 nodes and 2232 edges
 16. **Database Cleanup**: Fixed person name extraction issues
 17. **Visualization Tools**: Datasette for DB exploration, vis.js for graph visualization
 18. **Graph-Enhanced Queries**: Combined SQL + graph traversal for intelligent queries
 19. **Database Restructuring**: Split documents table into chronicle_documents and academic_documents
 20. **Knowledge Graph Refactoring**: Made completely database-agnostic and consolidated into single file
 21. **Institution Support**: Added institutions as first-class entities with proper relationships
-22. **Database Schema Documentation**: Created comprehensive DATABASE_SCHEMA.md file
-23. **Academic Pipeline**: Complete process_paper_pipeline.py for end-to-end paper processing
+22. **Academic Pipeline**: Complete extraction and population workflow
+23. **Profile Documentation**: Academic profile and CV generation in Profile/ directory
+24. **Database Organization**: Moved populate_graph_tables.py to DB folder for better organization
+25. **Complete Pipeline**: DB/build_database.py and DB/update_database.py handle everything
 
 ### 📋 TODO
-1. **Query API**: REST/GraphQL interface for searching and retrieving information
-2. **RAG Pipeline**: Connect embeddings to LLM for intelligent responses
-3. **Web Interface**: Frontend for interactive CV queries
-4. **Production Deployment**: Set up on remote server
+1. **Embeddings Regeneration**: Generate embeddings for all entities and chunks (DB structure ready)
+2. **Query API**: REST/GraphQL interface for searching and retrieving information
+3. **RAG Pipeline**: Complete integration with conversational interface
+4. **Web Interface**: Complete interactive frontend for CV queries
+5. **Production Deployment**: Set up on remote server
 
 ## Key Design Decisions
 
@@ -249,67 +252,88 @@ The system combines:
 ├── personal_notes/         # Daily/weekly notes
 ├── DB/                     # Database and extraction system
 │   ├── extractors/         # Base and specialized extractors
+│   ├── build_database.py   # Build database from scratch
+│   ├── update_database.py  # Update database incrementally
 │   ├── embeddings.py       # Vector embedding generation
+│   ├── chunker.py          # Smart document chunking
+│   ├── unified_metadata_populator.py  # Import JSON to DB
+│   ├── populate_graph_tables.py  # Graph table populator
 │   ├── metadata.db         # SQLite database (not in git)
-│   └── query_comprehensive.py  # Database exploration tool
+│   ├── query_comprehensive.py  # Database exploration tool
+│   └── README.md           # Comprehensive DB architecture docs
 ├── KG/                     # Knowledge Graph system
 │   ├── knowledge_graph.py  # Graph builder from database
 │   └── graph_enhanced_query.py  # Graph-aware query system
+├── agents/                 # LLM analyzers and extractors
+│   ├── academic_analyzer.py  # Academic paper analyzer
+│   ├── academic_metadata_extractor.py  # Extract to JSON
+│   └── chronicle_metadata_extractor.py  # Chronicle extractor
+├── scripts/                # Utility scripts
+│   ├── extract_academic_metadata.py  # Batch academic extraction
+│   └── extract_personal_notes_metadata.py  # Batch chronicle extraction
+├── Profile/                # Academic profile documents
+│   ├── Profile.md          # Detailed academic profile
+│   └── cv.md              # Generated CV
 ├── .sync/                  # Sync scripts
 │   ├── sync-chronicle      # Shell wrapper
 │   └── sync_chronicle_with_metadata.py  # Main sync logic
-├── metadata_extractor.py   # LLM metadata extraction
+├── interactive_agent.py    # Conversational interface
 ├── requirements.txt        # Python dependencies
-├── note.md                 # Core ideas and decisions
-├── CLAUDE.md              # This file
-├── cleanup_people.py       # Database cleanup utilities
 ├── view_database.sh        # Launch Datasette viewer
-└── VISUALIZATION.md        # Visualization tools guide
+├── README.md              # Project overview
+└── CLAUDE.md              # This file (detailed documentation)
 ```
 
 ## Current Status
 
-### Database Status (Updated 2025-01-03)
-- **Database**: Fully populated with all 12 academic papers
+### Database Status (Updated 2025-01-04)
+- **Database**: Fully populated with academic papers and personal notes
 - **Academic Papers**: 12 papers successfully processed
-- **Chronicle Notes**: 0 (sync system ready but not populated)
+- **Chronicle Notes**: 7 notes (6 daily, 1 weekly)
 - **Entities Extracted**:
-  - 192 topics (mathematical concepts, research areas)
-  - 18 people (authors and researchers)
-  - 57 methods (analytical and computational techniques)
-  - 0 institutions (extraction needs enhancement)
+  - 577 topics (mathematical concepts, research areas, technical topics)
+  - 175 people (authors, researchers, and collaborators)
+  - 132 methods (analytical and computational techniques)
+  - 24 institutions (universities and research centers)
+  - 25 applications (real-world use cases)
+  - 13 projects (research and development projects)
 - **Document Processing**:
-  - 186 semantic chunks created
-  - 447 embeddings generated
-  - 315 relationships established
-- **Pipeline Status**: ✅ Complete and operational
+  - 65 semantic chunks created
+  - 0 embeddings generated (needs generation)
+  - 1038 relationships established
+- **Knowledge Graph**: 965 nodes and 2232 edges (fully populated)
+- **Pipeline Status**: ✅ Extraction complete, ✅ Graph populated, ⏳ Embeddings needed
 
 ### Processing Results
-- All 12 papers analyzed and stored
+- All 12 papers + 7 personal notes analyzed and stored
 - Comprehensive metadata extracted using LLMs
-- Semantic search capabilities enabled
-- Knowledge graph data structure ready (graph_nodes/edges tables need population)
+- Database fully populated with entities and relationships
+- Knowledge graph fully populated with 965 nodes and 2232 edges
+- Embeddings need generation for semantic search (run `python DB/build_database.py`)
 
 ### Key Files
 - `DB/metadata.db`: SQLite database with all metadata (✅ created and populated)
-- `DB/DATABASE_SCHEMA.md`: Complete database schema documentation
 - `DB/build_database.py`: Build database from scratch with complete pipeline
 - `DB/update_database.py`: Update database with new documents incrementally
+- `DB/unified_metadata_populator.py`: Import JSON metadata to database
+- `DB/chunker.py`: Smart semantic document chunking
 - `agents/academic_analyzer.py`: Analyzes papers following How_to_analyze.md
-- `agents/academic_extractor.py`: Extracts entities from analyses
+- `agents/academic_metadata_extractor.py`: Extracts entities from analyses to JSON
+- `agents/chronicle_metadata_extractor.py`: Extracts chronicle metadata to JSON
 - `.sync/sync_chronicle_with_metadata.py`: Main sync script with metadata extraction
 - `.sync/sync-chronicle`: Shell wrapper for easy execution
 - `DB/query_comprehensive.py`: Query tool to explore database
 - `DB/embeddings.py`: Vector embedding generation
 - `KG/knowledge_graph.py`: Database-agnostic graph generator
 - `KG/graph_enhanced_query.py`: Graph-aware query system
-- `KG/knowledge_graph.json`: Generated graph data
+- `KG/knowledge_graph.json`: Generated graph data (✅ populated with 965 nodes)
 - `web_ui/index.html`: Interactive visualization (vis.js)
-- `DB/extractors/base.py`: Base extractor for normalized schema
+- `interactive_agent.py`: Conversational AI interface
+- `DB/populate_graph_tables.py`: Populates graph_nodes and graph_edges tables
 
 ## Usage
 
-### Database Management (Updated 2025-01-03)
+### Database Management (Updated 2025-01-04)
 
 We now have two dedicated database management scripts in the DB folder:
 
@@ -372,11 +396,13 @@ python scripts/extract_personal_notes_metadata.py
 #### Key Components
 - `agents/academic_metadata_extractor.py` - Extracts academic metadata → JSON
 - `agents/chronicle_metadata_extractor.py` - Extracts personal notes metadata → JSON
-- `scripts/extract_personal_notes_metadata.py` - Batch extraction script for personal notes
+- `scripts/extract_academic_metadata.py` - Batch extraction for academic papers
+- `scripts/extract_personal_notes_metadata.py` - Batch extraction for personal notes
 - `DB/unified_metadata_populator.py` - Populates DB from JSON files
 - `DB/chunker.py` - Smart document chunking with section preservation
 - `DB/build_database.py` - Build database from scratch with complete pipeline
 - `DB/update_database.py` - Update database with new documents incrementally
+- `DB/populate_graph_tables.py` - Populate graph tables from existing data
 
 ### Chunking Strategy
 
@@ -430,21 +456,33 @@ Features:
 
 ### Knowledge Graph
 ```bash
-python3 KG/knowledge_graph.py  # Generate/update graph
+# Generate/update graph (provide database path)
+python3 KG/knowledge_graph.py DB/metadata.db
 # Creates KG/knowledge_graph.json (required for queries)
 ```
 
 Graph Statistics:
-- 257 nodes (documents, topics, people, projects, semantic concepts, institutions)
-- 326 edges showing relationships
+- **Current**: 965 nodes, 2232 edges (✅ fully populated)
+- **Node Types**:
+  - 12 academic documents
+  - 7 chronicle documents
+  - 577 topics
+  - 175 people
+  - 132 methods
+  - 24 institutions
+  - 25 applications
+  - 13 projects
 - Interactive visualization with color-coded node types:
-  - 🔴 Documents (red) - now split into academic_document and chronicle_document
+  - 🔴 Documents (red) - split into academic_document and chronicle_document
   - 🔵 Topics (blue)
   - 🟢 People (green)
   - 🟠 Projects (orange)
-  - 🟣 Semantic concepts (purple)
+  - 🟣 Methods (purple)
   - 🏛️ Institutions (teal)
-- PageRank identifies most connected/important nodes
+- PageRank identifies most connected nodes:
+  - Vaios Laschos (top person node)
+  - Calculus of Variations (top topic)
+  - Optimal Transport (key research area)
 - Configurable via schema-driven extraction approach
 
 ### Alternative Desktop Tools
@@ -489,12 +527,33 @@ python interactive_agent.py
 - "Find papers related to GANs or neural networks"
 - "What did he work on in June 2025?"
 
+## Profile Directory
+
+The `Profile/` directory contains generated academic profile documents:
+
+- **Profile.md**: Comprehensive academic profile including:
+  - Executive summary of research expertise
+  - Core competencies in theoretical and applied areas
+  - Methodological toolkit and computational approaches
+  - Key publications and contributions
+  - Research impact and future directions
+
+- **cv.md**: Traditional CV format with:
+  - Educational background
+  - Research experience
+  - Publications list
+  - Teaching and supervision
+  - Skills and expertise
+
+These documents are automatically generated from the database and can be exported for various uses.
+
 ## Next Steps
 
-1. **Query API Development**: Build REST/GraphQL API using graph-enhanced queries
-2. **RAG Pipeline**: Complete integration with conversational interface
-3. **Web Interface**: Create interactive frontend for CV queries
-4. **Production Deployment**: Deploy on remote server
+1. **Embeddings Generation**: Generate embeddings for all entities and chunks
+2. **Query API**: REST/GraphQL interface for searching and retrieving information
+3. **RAG Pipeline**: Complete integration with conversational interface
+4. **Web Interface**: Complete interactive frontend for CV queries
+5. **Production Deployment**: Deploy on remote server
 
 ## Development Notes
 
@@ -515,6 +574,34 @@ python interactive_agent.py
 - Knowledge graph system is now completely database-agnostic (single file: knowledge_graph.py)
 - Backward compatibility maintained through documents_view for queries
 - No hardcoded SQL - works with any database following the naming conventions
+- Graph table population script moved to DB folder for better organization
+- All database operations centralized in DB folder with comprehensive README
+
+## Architecture Insights
+
+### Why Database-First Design?
+
+The system evolved from file-based to database-centric for several reasons:
+
+1. **Relationship Management**: Files can't efficiently represent many-to-many relationships
+2. **Query Performance**: SQL indexes beat file searching for complex queries
+3. **Data Integrity**: Transactions ensure consistent state
+4. **Scalability**: Can grow to thousands of documents without degrading
+
+### The Power of Pre-computed Graph Tables
+
+Instead of building the graph on-the-fly, we pre-compute nodes and edges:
+- **Fast Visualization**: Sub-second rendering of 965 nodes
+- **Efficient Traversal**: Graph algorithms work on optimized structures
+- **Flexible Weights**: Edge weights based on co-occurrence and confidence
+- **Easy Updates**: Incremental changes without full rebuild
+
+### Modular Pipeline Benefits
+
+1. **Inspect Before Import**: JSON files allow reviewing extracted data
+2. **Rerun Without Re-extraction**: Database rebuild doesn't need LLM calls
+3. **Mix Sources**: Academic and personal notes follow same flow
+4. **Debug Easily**: Each stage produces visible output
 
 ## Integration Points
 

@@ -18,15 +18,12 @@ cp .env.example .env
 # OPENROUTER_API_KEY=your_key_here
 # OPENAI_API_KEY=your_key_here
 
-# 4. Extract and populate metadata (modular workflow)
-# Extract personal notes metadata to JSON
-python scripts/extract_personal_notes_metadata.py
+# 4. Build database from scratch (complete pipeline)
+cd DB
+python build_database.py
 
-# Populate database from JSON metadata
-python DB/unified_metadata_populator.py
-
-# Update knowledge graph
-python populate_graph_tables.py
+# Or for incremental updates:
+# python update_database.py
 
 # 5. Run the interactive agent
 python interactive_agent.py
@@ -68,8 +65,12 @@ interactive_cv/
 ├── agents/                # LLM-based analyzers and extractors
 ├── DB/                    # Database and processing system
 │   ├── extractors/        # Base extraction logic
-│   ├── process_paper_pipeline.py  # End-to-end pipeline
+│   ├── build_database.py  # Complete database builder
+│   ├── update_database.py # Incremental updater
+│   ├── unified_metadata_populator.py # JSON importer
+│   ├── chunker.py         # Document chunking
 │   ├── embeddings.py      # Vector embedding generation
+│   ├── populate_graph_tables.py # Graph table population
 │   └── query_comprehensive.py # Database exploration
 ├── KG/                    # Knowledge Graph system
 │   ├── knowledge_graph.py # Graph generation
@@ -105,10 +106,10 @@ Raw Paper → Full Analysis → Entity Extraction → Database → Chunking → 
 
 ### 2. Knowledge Graph
 - Database-agnostic design
-- 790 nodes and 546 edges from academic papers and personal notes
-- Entity types: documents, topics, people, projects, methods, institutions
+- 965 nodes and 2232 edges from academic papers and personal notes
+- Entity types: documents, topics, people, projects, methods, institutions, applications
 - Pre-computed graph tables for performance
-- PageRank identifies key research areas and connections
+- PageRank identifies key research areas and connections (Vaios Laschos as top node)
 
 ### 3. Semantic Search & RAG
 
@@ -121,8 +122,8 @@ Raw Paper → Full Analysis → Entity Extraction → Database → Chunking → 
 6. **Response Generation**: LLM uses rich context to answer
 
 **Key Components**:
-- OpenAI embeddings for all content (447 total)
-- 186 document chunks for granular retrieval
+- OpenAI embeddings for all content
+- 65 document chunks for granular retrieval  
 - Chunk-entity mappings with relevance scores
 - Combined SQL + vector search for best results
 
@@ -154,27 +155,30 @@ The system now supports a modular approach that separates extraction from storag
 - Conversation memory
 - Real-time streaming responses
 
-## 📊 Current Status (2025-01-03)
+## 📊 Current Status (2025-01-04)
 
 ### Database Statistics
 - **12 academic papers**: All successfully processed
 - **7 personal notes**: Extracted and ready
-- **192 topics**: Mathematical concepts and research areas
-- **18 people**: Authors and researchers
-- **57 methods**: Analytical and computational techniques
-- **25 institutions**: Universities and organizations
-- **186 document chunks**: For semantic search
-- **447 embeddings**: For RAG capabilities
-- **315 relationships**: Between entities
+- **577 topics**: Mathematical concepts and research areas
+- **175 people**: Authors and researchers
+- **132 methods**: Analytical and computational techniques
+- **24 institutions**: Universities and organizations
+- **25 applications**: Real-world use cases
+- **13 projects**: Research and development projects
+- **65 document chunks**: For semantic search
+- **1038 relationships**: Between entities
+- **965 graph nodes**: In knowledge graph
+- **2232 graph edges**: Connections with weights
 
 ### Processing Pipeline Status
 ✅ Academic paper analysis and extraction
 ✅ Direct database population
 ✅ Semantic chunking with entity mapping
-✅ Embedding generation
+✅ Embedding generation (needs regeneration)
 ✅ Chronicle sync system
-⏳ Knowledge graph visualization (tables need population)
-⏳ Interactive web UI
+✅ Knowledge graph visualization (965 nodes, 2232 edges)
+⏳ Interactive web UI completion
 
 ## 🗄️ Complete Database Schema
 
@@ -415,14 +419,25 @@ CREATE TABLE IF NOT EXISTS chunk_entities (
 
 ## 🛠️ Usage Examples
 
-### Process Academic Papers
+### Extract Metadata from Documents
 
 ```bash
-# Test with single paper
-python scripts/test_pipeline.py
+# Extract academic metadata to JSON
+python scripts/extract_academic_metadata.py
 
-# Process all papers
-python scripts/process_all_papers.py
+# Extract personal notes metadata to JSON
+python scripts/extract_personal_notes_metadata.py
+```
+
+### Build or Update Database
+
+```bash
+# Build database from scratch (includes all processing)
+cd DB
+python build_database.py
+
+# Or update with new documents only
+python update_database.py
 ```
 
 ### Chronicle Sync
@@ -451,7 +466,7 @@ python DB/query_comprehensive.py
 ### Knowledge Graph
 
 ```bash
-# Generate/update the knowledge graph
+# Generate/update the knowledge graph JSON
 python KG/knowledge_graph.py DB/metadata.db
 
 # View in web UI
@@ -485,15 +500,17 @@ Edit `.sync/sync_chronicle_with_metadata.py`:
 
 ## 🚦 Development Workflow
 
-1. **Add academic papers**: Place in `academic/` → Run `python scripts/process_all_papers.py`
+1. **Add academic papers**: Place in `academic/` → Run extraction scripts
 2. **Add chronicle notes**: Write in Obsidian → Run `chronicle` → Automatic extraction
-3. **Update knowledge graph**: Run `python KG/knowledge_graph.py DB/metadata.db`
-4. **Query the system**: Use `interactive_agent.py` or direct SQL queries
+3. **Update database**: Run `python DB/update_database.py` for incremental updates
+4. **Update knowledge graph**: Run `python KG/knowledge_graph.py DB/metadata.db`
+5. **Query the system**: Use `interactive_agent.py` or direct SQL queries
 
 ## 📈 Future Enhancements
 
-- [ ] Populate pre-computed graph tables for visualization
-- [ ] Extract institutions from papers
+- [x] Populate pre-computed graph tables for visualization
+- [x] Extract institutions from papers
+- [ ] Regenerate embeddings for all content
 - [ ] Web API (REST/GraphQL) for remote queries
 - [ ] Interactive web UI completion
 - [ ] Real-time RAG pipeline integration

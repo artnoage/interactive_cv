@@ -4,11 +4,10 @@ Populate the graph_nodes and graph_edges tables from existing data
 """
 
 import sqlite3
-from typing import Dict, Set, Tuple
 import json
 
 
-def populate_graph_tables(db_path: str = "DB/metadata.db"):
+def populate_graph_tables(db_path: str = "metadata.db"):
     """Populate graph tables from existing entities and relationships"""
     
     conn = sqlite3.connect(db_path)
@@ -152,5 +151,5 @@ def populate_graph_tables(db_path: str = "DB/metadata.db"):
 
 if __name__ == "__main__":
     import sys
-    db_path = sys.argv[1] if len(sys.argv) > 1 else "DB/metadata.db"
+    db_path = sys.argv[1] if len(sys.argv) > 1 else "metadata.db"
     populate_graph_tables(db_path)
