@@ -215,10 +215,13 @@ class EmbeddingGenerator:
             
             # Get entity details
             cursor.execute(f"SELECT * FROM {table} WHERE id = ?", (entity_id,))
-            entity = cursor.fetchone()
+            entity_row = cursor.fetchone()
             
-            if not entity:
+            if not entity_row:
                 return None
+            
+            # Convert Row to dict
+            entity = dict(entity_row)
             
             # Build text representation
             text_parts = [f"{entity_type.title()}: {entity['name']}"]
@@ -452,5 +455,185 @@ class EmbeddingGenerator:
         except Exception as e:
             logger.error(f"Error finding similar entities: {e}")
             raise
+    
+    def generate_entity_embeddings_with_verification(self) -> int:
+        """Generate embeddings for all entities with verification steps."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        print("\n" + "="*60)
+        print("ENTITY EMBEDDING GENERATION WITH VERIFICATION")
+        print("="*60)
+        
+        entity_types = [
+            ('topic', 'topics'),
+            ('person', 'people'),
+            ('project', 'projects'),
+            ('institution', 'institutions'),
+            ('method', 'methods'),
+            ('application', 'applications')
+        ]
+        
+        total_count = 0
+        
+        try:
+            for entity_type, table in entity_types:
+                print(f"\n\n--- Processing {entity_type.upper()} entities ---")
+                
+                # Get count of entities
+                cursor.execute(f"SELECT COUNT(*) FROM {table}")
+                total_entities = cursor.fetchone()[0]
+                
+                # Check existing embeddings
+                cursor.execute("""
+                    SELECT COUNT(*) FROM embeddings 
+                    WHERE entity_type = ?
+                """, (entity_type,))
+                existing_embeddings = cursor.fetchone()[0]
+                
+                print(f"Total {entity_type}s: {total_entities}")
+                print(f"Existing embeddings: {existing_embeddings}")
+                print(f"Need to generate: {total_entities - existing_embeddings}")
+                
+                # Show sample entities
+                cursor.execute(f"""
+                    SELECT id, name FROM {table} 
+                    ORDER BY RANDOM() 
+                    LIMIT 5
+                """)
+                samples = cursor.fetchall()
+                
+                print(f"\nSample {entity_type}s:")
+                for sample in samples:
+                    print(f"  - {sample['name']}")
+                
+                # Ask for confirmation
+                if total_entities - existing_embeddings > 0:
+                    response = input(f"\nGenerate embeddings for {total_entities - existing_embeddings} {entity_type}s? (y/n): ")
+                    if response.lower() != 'y':
+                        print(f"Skipping {entity_type} embeddings")
+                        continue
+                    
+                    # Generate embeddings
+                    count = 0
+                    cursor.execute(f"SELECT id FROM {table}")
+                    entity_ids = [row['id'] for row in cursor.fetchall()]
+                    
+                    for entity_id in entity_ids:
+                        entity_str_id = f"{entity_type}_{entity_id}"
+                        
+                        # Check if embedding already exists
+                        cursor.execute("""
+                            SELECT 1 FROM embeddings 
+                            WHERE entity_type = ? AND entity_id = ?
+                        """, (entity_type, entity_str_id))
+                        
+                        if not cursor.fetchone():
+                            text = self.prepare_entity_text(entity_type, entity_id)
+                            if text:
+                                embedding = self.generate_embedding(text)
+                                self.store_embedding(entity_type, entity_str_id, embedding)
+                                count += 1
+                                
+                                if count % 20 == 0:
+                                    print(f"  Generated {count} {entity_type} embeddings...")
+                    
+                    print(f"✓ Generated {count} embeddings for {entity_type}s")
+                    total_count += count
+                else:
+                    print(f"✓ All {entity_type} embeddings already exist")
+            
+            print(f"\n\nTotal embeddings generated: {total_count}")
+            return total_count
+            
+        finally:
+            conn.close()
+    
+    def generate_all_embeddings(self, verify: bool = False) -> Dict[str, int]:
+        """Generate all embeddings with optional verification."""
+        results = {}
+        
+        print("\n" + "="*60)
+        print("GENERATING ALL EMBEDDINGS")
+        print("="*60)
+        
+        # Documents
+        print("\n1. Generating document embeddings...")
+        results['documents'] = self.generate_document_embeddings()
+        
+        # Chunks
+        print("\n2. Generating chunk embeddings...")
+        results['chunks'] = self.generate_chunk_embeddings()
+        
+        # Entities
+        print("\n3. Generating entity embeddings...")
+        if verify:
+            results['entities'] = self.generate_entity_embeddings_with_verification()
+        else:
+            results['entities'] = self.generate_entity_embeddings()
+        
+        print("\n" + "="*60)
+        print("EMBEDDING GENERATION COMPLETE")
+        print("="*60)
+        print(f"Documents: {results['documents']}")
+        print(f"Chunks: {results['chunks']}")
+        print(f"Entities: {results['entities']}")
+        print(f"Total: {sum(results.values())}")
+        
+        return results
 
+
+def main():
+    """Main entry point for embedding generation."""
+    import argparse
+    from pathlib import Path
+    
+    parser = argparse.ArgumentParser(description='Generate embeddings for database entities')
+    parser.add_argument('--db', default="metadata.db", 
+                       help='Database filename (in DB folder)')
+    parser.add_argument('--entities-only', action='store_true',
+                       help='Generate only entity embeddings')
+    parser.add_argument('--verify', action='store_true',
+                       help='Enable verification prompts for entity embeddings')
+    parser.add_argument('--skip-documents', action='store_true',
+                       help='Skip document embeddings')
+    parser.add_argument('--skip-chunks', action='store_true',
+                       help='Skip chunk embeddings')
+    
+    args = parser.parse_args()
+    
+    # Ensure we're working in the DB directory
+    db_path = Path(__file__).parent / args.db
+    
+    if not db_path.exists():
+        print(f"Error: Database not found at {db_path}")
+        return 1
+    
+    try:
+        generator = EmbeddingGenerator(str(db_path))
+        
+        if args.entities_only:
+            # Generate only entity embeddings
+            if args.verify:
+                count = generator.generate_entity_embeddings_with_verification()
+            else:
+                count = generator.generate_entity_embeddings()
+            print(f"\nGenerated {count} entity embeddings")
+        else:
+            # Generate all embeddings
+            results = generator.generate_all_embeddings(verify=args.verify)
+            
+    except KeyboardInterrupt:
+        print("\n\nOperation cancelled by user")
+        return 1
+    except Exception as e:
+        print(f"\nError: {e}")
+        return 1
+    
+    return 0
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())
 

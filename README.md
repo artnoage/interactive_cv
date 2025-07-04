@@ -155,21 +155,31 @@ The system now supports a modular approach that separates extraction from storag
 - Conversation memory
 - Real-time streaming responses
 
+### 6. Entity Deduplication System
+- **Multi-level detection**: String matching + embedding similarity + LLM verification
+- **Transitive clustering**: Handles chains of duplicates (e.g., "V.Laschos" → "V. Laschos" → "V.Laschos" all merge to one)
+- **Parallel LLM verification**: Up to 20 workers for faster processing
+- **Smart canonical selection**: Based on relationship count, proper capitalization, completeness, and metadata
+- **Safe merging**: Preserves relationships and handles conflicts
+- **Audit logging**: Complete history of all deduplication actions
+- **Dry-run mode**: Preview changes before applying them
+
 ## 📊 Current Status (2025-01-04)
 
 ### Database Statistics
 - **12 academic papers**: All successfully processed
 - **7 personal notes**: Extracted and ready
-- **577 topics**: Mathematical concepts and research areas
-- **175 people**: Authors and researchers
-- **132 methods**: Analytical and computational techniques
-- **24 institutions**: Universities and organizations
-- **25 applications**: Real-world use cases
-- **13 projects**: Research and development projects
+- **Entities (after deduplication)**:
+  - **542 topics** (was 577): Mathematical concepts and research areas
+  - **174 people** (was 175): Authors and researchers
+  - **114 methods** (was 132): Analytical and computational techniques
+  - **24 institutions**: Universities and organizations
+  - **24 applications** (was 25): Real-world use cases
+  - **8 projects** (was 13): Research and development projects
 - **65 document chunks**: For semantic search
 - **1038 relationships**: Between entities
-- **965 graph nodes**: In knowledge graph
-- **2232 graph edges**: Connections with weights
+- **905 graph nodes** (was 965): 60 duplicates removed (6.2% reduction)
+- **2594 graph edges** (was 2232): Increased due to merged relationships
 
 ### Processing Pipeline Status
 ✅ Academic paper analysis and extraction
@@ -503,13 +513,18 @@ Edit `.sync/sync_chronicle_with_metadata.py`:
 1. **Add academic papers**: Place in `academic/` → Run extraction scripts
 2. **Add chronicle notes**: Write in Obsidian → Run `chronicle` → Automatic extraction
 3. **Update database**: Run `python DB/update_database.py` for incremental updates
-4. **Update knowledge graph**: Run `python KG/knowledge_graph.py DB/metadata.db`
-5. **Query the system**: Use `interactive_agent.py` or direct SQL queries
+4. **Clean duplicate entities** (if needed):
+   - Run `python DB/verify_entities.py` to check for duplicates
+   - Generate embeddings: `python DB/embeddings.py --entities-only --verify`
+   - Deduplicate with clustering: `python agents/entity_deduplicator.py --parallel-workers 20 --merge --backup`
+5. **Update knowledge graph**: Run `python KG/knowledge_graph.py DB/metadata.db`
+6. **Query the system**: Use `interactive_agent.py` or direct SQL queries
 
 ## 📈 Future Enhancements
 
 - [x] Populate pre-computed graph tables for visualization
 - [x] Extract institutions from papers
+- [x] Entity deduplication system with LLM verification
 - [ ] Regenerate embeddings for all content
 - [ ] Web API (REST/GraphQL) for remote queries
 - [ ] Interactive web UI completion

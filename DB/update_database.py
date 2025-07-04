@@ -228,7 +228,7 @@ def update_database(db_path: str, academic_dir: Path, personal_dir: Path,
     if not skip_graph and total_new_docs > 0:
         print("\nUpdating knowledge graph...")
         try:
-            from populate_graph_tables import populate_graph_tables
+            from DB.populate_graph_tables import populate_graph_tables
             populate_graph_tables(db_path)
             print("✓ Graph tables updated")
         except Exception as e:

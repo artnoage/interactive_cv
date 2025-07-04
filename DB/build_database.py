@@ -354,7 +354,7 @@ def build_database(db_path: str, academic_dir: Path, personal_dir: Path,
         print("-" * 40)
         
         try:
-            from populate_graph_tables import populate_graph_tables
+            from DB.populate_graph_tables import populate_graph_tables
             populate_graph_tables(db_path)
             print("✓ Graph tables populated")
         except Exception as e:

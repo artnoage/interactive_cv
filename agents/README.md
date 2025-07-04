@@ -11,6 +11,9 @@ This directory contains specialized AI agents for the Interactive CV project.
 ### Chronicle Workflow
 - **Chronicle Metadata Extractor** (`chronicle_metadata_extractor.py`) - Extracts metadata to JSON
 
+### Data Quality
+- **Entity Deduplicator** (`entity_deduplicator.py`) - Finds and merges duplicate entities
+
 ## Academic Analyzer (`academic_analyzer.py`)
 
 Analyzes research papers following the methodology in `How_to_analyze.md`.
@@ -121,11 +124,102 @@ output_path = extractor.process_file(
 python scripts/extract_personal_notes_metadata.py
 ```
 
+## Entity Deduplicator (`entity_deduplicator.py`)
+
+Identifies and merges duplicate entities in the knowledge graph using string matching, embeddings, and LLM verification.
+
+**Features:**
+- Multi-level duplicate detection (exact match, fuzzy string, embedding similarity)
+- **Transitive clustering**: Groups chains of duplicates (e.g., A→B, B→C means A,B,C are all duplicates)
+- **Parallel LLM verification**: Up to 20 workers for faster processing
+- **Smart canonical selection**: Chooses best entity from cluster based on:
+  - Relationship count (most connected wins)
+  - Proper capitalization
+  - No kebab-case or underscores
+  - Proper spacing after punctuation
+  - Length (more complete names)
+  - Additional metadata
+- LLM verification using Gemini 2.5 Flash
+- Context-aware deduplication (knows about Vaios' research)
+- Safe merge system with dry-run mode
+- Entity-specific similarity thresholds
+- Batch processing to minimize API costs
+- Comprehensive audit logging
+- **Conflict resolution**: Handles duplicate relationships during merge
+
+**Usage:**
+```python
+from agents import EntityDeduplicator
+
+# Initialize deduplicator
+deduplicator = EntityDeduplicator(
+    db_path="DB/metadata.db",
+    similarity_threshold=0.85
+)
+
+# Find duplicates for a specific entity type (dry run)
+deduplicator.deduplicate_entity_type('topic', dry_run=True)
+
+# Deduplicate all entity types with backup
+deduplicator.deduplicate_all(dry_run=False)
+```
+
+**Command Line:**
+```bash
+# Verify database first
+python DB/verify_entities.py
+
+# Generate entity embeddings (required for similarity)
+python DB/embeddings.py --entities-only --verify
+
+# Find duplicates (dry run)
+python agents/entity_deduplicator.py --dry-run
+
+# Merge duplicates with backup and parallel processing
+python agents/entity_deduplicator.py --parallel-workers 20 --merge --backup
+
+# Deduplicate only topics
+python agents/entity_deduplicator.py --entity-type topic --merge
+
+# Advanced options
+python agents/entity_deduplicator.py --parallel-workers 10 --no-clustering --merge
+```
+
+**New Command Line Options:**
+- `--parallel-workers N`: Number of parallel LLM workers (default 5, up to 20)
+- `--no-clustering`: Disable transitive clustering (not recommended)
+
+**Deduplication Process:**
+1. **String Matching**: Finds exact matches (case-insensitive) and fuzzy matches
+2. **Embedding Similarity**: Uses cosine similarity on entity embeddings
+3. **Transitive Clustering**: Groups all connected duplicates using DFS
+4. **LLM Verification**: Confirms duplicates with context about entities (parallel)
+5. **Canonical Selection**: Chooses best entity from each cluster
+6. **Smart Merging**: Transfers all relationships to canonical entity, handles conflicts
+
+**Thresholds by Entity Type:**
+- **People**: 0.9 (names need high similarity)
+- **Institutions**: 0.9 (organizations need precision)
+- **Topics**: 0.85 (some variation expected)
+- **Methods**: 0.85 (technical terms)
+- **Projects/Applications**: 0.8 (more flexibility)
+
+**Implementation Details:**
+- `find_duplicate_clusters()`: Groups transitively connected duplicates using DFS
+- `choose_canonical_entity()`: Scores entities to pick the best one from a cluster
+- `verify_duplicates_parallel()`: Parallel LLM verification using ThreadPoolExecutor
+- `merge_cluster()`: Merges entire clusters instead of just pairs
+- Relationship conflict handling prevents UNIQUE constraint violations
+
 ## Configuration
 
 All agents require:
 - `OPENROUTER_API_KEY` in your `.env` file
 - Python packages: langchain, openai, pydantic
+
+For entity deduplication also requires:
+- `OPENAI_API_KEY` (for embeddings)
+- numpy, difflib (for similarity calculations)
 
 ## Schema Files
 
@@ -139,3 +233,4 @@ These agents integrate with:
 - Knowledge graph generation
 - RAG pipeline for queries
 - Sync scripts for automation
+- Entity embeddings for deduplication

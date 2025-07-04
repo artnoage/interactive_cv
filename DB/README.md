@@ -133,8 +133,15 @@ Intelligent document segmentation:
 Vector generation using OpenAI:
 - Document-level embeddings
 - Chunk-level embeddings
-- Entity embeddings
+- Entity embeddings with verification
 - Efficient batch processing
+- Interactive verification mode for entities
+- `find_similar()` method for similarity search
+
+**New Features:**
+- `--entities-only` flag to generate only entity embeddings
+- `--verify` flag for interactive verification before generation
+- Shows samples and statistics before processing each entity type
 
 #### `populate_graph_tables.py`
 Graph table population:
@@ -152,6 +159,24 @@ Database exploration tool with:
 - Relationship analysis
 - Full-text search
 - Export capabilities
+
+#### `verify_entities.py`
+Database verification tool for entity quality:
+- Entity statistics by type
+- Exact duplicate detection (case-insensitive)
+- Fuzzy matching for similar entities
+- Detection of suspiciously long entity names
+- Random entity samples for manual review
+- Export duplicate report functionality
+
+**Usage:**
+```bash
+# Interactive verification
+python verify_entities.py
+
+# Export duplicate report
+python verify_entities.py --export
+```
 
 ## Data Flow
 
@@ -242,6 +267,38 @@ python query_comprehensive.py
 sqlite3 metadata.db "SELECT * FROM topics WHERE category='machine-learning'"
 ```
 
+### Entity Deduplication Workflow
+```bash
+# 1. Verify current database state
+python verify_entities.py
+
+# 2. Generate entity embeddings with verification
+python embeddings.py --entities-only --verify
+
+# 3. Find duplicates (dry run)
+cd ../agents
+python entity_deduplicator.py --dry-run
+
+# 4. Create backup and merge duplicates with parallel processing
+python entity_deduplicator.py --parallel-workers 20 --merge --backup
+
+# 5. Rebuild graph tables after deduplication
+cd ../DB
+python populate_graph_tables.py
+```
+
+**Enhanced Deduplication Features**:
+- **Transitive Clustering**: Groups chains of duplicates (e.g., "V.Laschos" → "V. Laschos" → "V.Laschos")
+- **Parallel Processing**: Up to 20 workers for LLM verification
+- **Smart Canonical Selection**: Chooses best entity based on:
+  - Relationship count (most connected entity wins)
+  - Proper capitalization
+  - No kebab-case or underscores
+  - Proper spacing after punctuation
+  - Length (more complete names preferred)
+  - Additional metadata presence
+- **Conflict Resolution**: Handles duplicate relationships during merge
+
 ## File Structure
 ```
 DB/
@@ -254,6 +311,7 @@ DB/
 ├── embeddings.py                # Vector embedding generation
 ├── populate_graph_tables.py     # Graph table population
 ├── query_comprehensive.py       # Database exploration
+├── verify_entities.py           # Entity quality verification
 └── extractors/                  # Base extraction classes
     ├── __init__.py
     └── base_extractor.py        # Shared extraction logic
@@ -291,6 +349,16 @@ DB/
 - Regular backups: `cp metadata.db metadata.db.backup`
 - Vacuum periodically: `sqlite3 metadata.db "VACUUM"`
 - Update statistics: `sqlite3 metadata.db "ANALYZE"`
+- Entity deduplication: Run periodically to clean up extraction artifacts
+
+**Deduplication Results (Latest)**:
+- Total: 965 → 905 nodes (60 duplicates removed, 6.2% reduction)
+- Topics: 577 → 542 (35 removed)
+- Projects: 13 → 8 (5 removed)
+- Methods: 132 → 114 (18 removed)
+- People: 175 → 174 (1 removed)
+- Applications: 25 → 24 (1 removed)
+- Edges increased: 2232 → 2594 (merged entities combine relationships)
 
 ## Future Enhancements
 

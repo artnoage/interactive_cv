@@ -169,6 +169,7 @@ llm = ChatOpenAI(
 23. **Profile Documentation**: Academic profile and CV generation in Profile/ directory
 24. **Database Organization**: Moved populate_graph_tables.py to DB folder for better organization
 25. **Complete Pipeline**: DB/build_database.py and DB/update_database.py handle everything
+26. **Entity Deduplication System**: Implemented multi-level duplicate detection with LLM verification
 
 ### 📋 TODO
 1. **Embeddings Regeneration**: Generate embeddings for all entities and chunks (DB structure ready)
@@ -290,19 +291,21 @@ The system combines:
 - **Database**: Fully populated with academic papers and personal notes
 - **Academic Papers**: 12 papers successfully processed
 - **Chronicle Notes**: 7 notes (6 daily, 1 weekly)
-- **Entities Extracted**:
-  - 577 topics (mathematical concepts, research areas, technical topics)
-  - 175 people (authors, researchers, and collaborators)
-  - 132 methods (analytical and computational techniques)
-  - 24 institutions (universities and research centers)
-  - 25 applications (real-world use cases)
-  - 13 projects (research and development projects)
+- **Entities Extracted (after deduplication)**:
+  - 542 topics (was 577): Mathematical concepts, research areas, technical topics
+  - 174 people (was 175): Authors, researchers, and collaborators
+  - 114 methods (was 132): Analytical and computational techniques
+  - 24 institutions: Universities and research centers
+  - 24 applications (was 25): Real-world use cases
+  - 8 projects (was 13): Research and development projects
 - **Document Processing**:
   - 65 semantic chunks created
   - 0 embeddings generated (needs generation)
   - 1038 relationships established
-- **Knowledge Graph**: 965 nodes and 2232 edges (fully populated)
-- **Pipeline Status**: ✅ Extraction complete, ✅ Graph populated, ⏳ Embeddings needed
+- **Knowledge Graph**: 905 nodes (was 965) and 2594 edges (was 2232)
+  - 60 duplicates removed (6.2% reduction)
+  - Edge count increased due to merged relationships
+- **Pipeline Status**: ✅ Extraction complete, ✅ Graph populated, ✅ Deduplication complete, ⏳ Embeddings needed
 
 ### Processing Results
 - All 12 papers + 7 personal notes analyzed and stored
@@ -462,16 +465,16 @@ python3 KG/knowledge_graph.py DB/metadata.db
 ```
 
 Graph Statistics:
-- **Current**: 965 nodes, 2232 edges (✅ fully populated)
+- **Current**: 905 nodes, 2594 edges (✅ fully populated, deduplicated)
 - **Node Types**:
   - 12 academic documents
   - 7 chronicle documents
-  - 577 topics
-  - 175 people
-  - 132 methods
+  - 542 topics (was 577)
+  - 174 people (was 175)
+  - 114 methods (was 132)
   - 24 institutions
-  - 25 applications
-  - 13 projects
+  - 24 applications (was 25)
+  - 8 projects (was 13)
 - Interactive visualization with color-coded node types:
   - 🔴 Documents (red) - split into academic_document and chronicle_document
   - 🔵 Topics (blue)
@@ -602,6 +605,98 @@ Instead of building the graph on-the-fly, we pre-compute nodes and edges:
 2. **Rerun Without Re-extraction**: Database rebuild doesn't need LLM calls
 3. **Mix Sources**: Academic and personal notes follow same flow
 4. **Debug Easily**: Each stage produces visible output
+
+## Entity Deduplication System
+
+### The Problem
+During extraction, entities can be duplicated due to:
+- **Case variations**: "Machine Learning" vs "machine learning"
+- **Abbreviations**: "V. Laschos" vs "Vaios Laschos"
+- **Naming variations**: "Optimal Transport" vs "Optimal Transport (OT)"
+- **Extraction errors**: Long strings miscategorized as topics
+
+### The Solution
+A sophisticated multi-level deduplication system with transitive clustering:
+
+1. **Database Verification** (`DB/verify_entities.py`)
+   - Shows entity statistics and samples
+   - Detects exact and fuzzy duplicates
+   - Identifies suspicious entities (overly long names)
+   - Exports duplicate reports
+
+2. **Entity Embeddings** (`DB/embeddings.py`)
+   - Generates embeddings for all entities with context
+   - Interactive verification mode (`--verify` flag)
+   - Shows samples before processing
+   - Enables semantic similarity search
+
+3. **Enhanced Deduplication Agent** (`agents/entity_deduplicator.py`)
+   - **String Matching**: Exact and fuzzy string comparison
+   - **Embedding Similarity**: Cosine similarity on entity vectors
+   - **Transitive Clustering**: Groups chains of duplicates (e.g., A→B→C all merge together)
+   - **Parallel LLM Verification**: Up to 20 workers for fast processing
+   - **Smart Canonical Selection**: Chooses best entity based on:
+     - Relationship count (most connected wins)
+     - Proper capitalization preferred
+     - No kebab-case or underscores
+     - Proper spacing after punctuation
+     - Length (more complete names)
+     - Additional metadata presence
+   - **Conflict Resolution**: Handles duplicate relationships during merge
+
+### Deduplication Workflow
+```bash
+# 1. Check current state
+python DB/verify_entities.py
+
+# 2. Generate embeddings with verification
+python DB/embeddings.py --entities-only --verify
+
+# 3. Find duplicates (dry run)
+python agents/entity_deduplicator.py --dry-run
+
+# 4. Full deduplication with clustering and parallel processing
+python agents/entity_deduplicator.py --parallel-workers 20 --merge --backup
+
+# 5. Update graph
+python DB/populate_graph_tables.py
+```
+
+### Updated Workflow with New Options
+```bash
+# Maximum parallel processing (20 workers)
+python agents/entity_deduplicator.py --parallel-workers 20 --merge --backup
+
+# Disable clustering (not recommended - misses transitive duplicates)
+python agents/entity_deduplicator.py --no-clustering --merge --backup
+
+# Process only specific entity type
+python agents/entity_deduplicator.py --entity-type topic --merge
+```
+
+### Design Principles
+- **Safety First**: Dry-run by default, requires explicit --merge
+- **Context Aware**: LLM knows about Vaios' research domain
+- **Cost Efficient**: Batch processing, cheap model (Gemini Flash), parallel verification
+- **Audit Trail**: Complete log of all deduplication actions
+- **Entity-Specific**: Different thresholds for different entity types
+- **Transitive Completeness**: Finds all connected duplicates, not just pairs
+
+### Implementation Details
+- **`find_duplicate_clusters()`**: Groups transitively connected duplicates using DFS
+- **`choose_canonical_entity()`**: Scores entities to pick the best one from a cluster
+- **`verify_duplicates_parallel()`**: Parallel LLM verification using ThreadPoolExecutor
+- **`merge_cluster()`**: Merges entire clusters instead of just pairs
+- **Relationship conflict handling**: Prevents UNIQUE constraint violations during merge
+
+### Deduplication Results
+- **Total**: 965 → 905 nodes (60 duplicates removed, 6.2% reduction)
+- **Topics**: 577 → 542 (35 removed)
+- **Projects**: 13 → 8 (5 removed)
+- **Methods**: 132 → 114 (18 removed)
+- **People**: 175 → 174 (1 removed)
+- **Applications**: 25 → 24 (1 removed)
+- **Edges increased**: 2232 → 2594 (merged entities combine relationships)
 
 ## Integration Points
 
