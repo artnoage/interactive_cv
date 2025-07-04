@@ -1,0 +1,534 @@
+# Core Database Schema Blueprint
+# Defines the generic database structure independent of domain knowledge
+
+metadata:
+  name: "Core Database Schema"
+  version: "1.0"
+  description: "Domain-agnostic database schema for document metadata and knowledge graphs"
+
+# Document tables - one per document type
+document_tables:
+  academic_documents:
+    description: "Academic papers and research documents"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      file_path:
+        type: "TEXT"
+        unique: true
+        not_null: true
+        description: "Path to source document"
+      title:
+        type: "TEXT"
+        not_null: true
+        description: "Document title"
+      date:
+        type: "DATE"
+        description: "Document date"
+      document_type:
+        type: "TEXT"
+        default: "paper"
+        description: "Type of academic document"
+      domain:
+        type: "TEXT"
+        description: "Academic domain"
+      content:
+        type: "TEXT"
+        description: "Full document content"
+      content_hash:
+        type: "TEXT"
+        not_null: true
+        description: "Hash for change detection"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+      modified_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+        
+  chronicle_documents:
+    description: "Personal notes and work logs"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      file_path:
+        type: "TEXT"
+        unique: true
+        not_null: true
+        description: "Path to source note"
+      title:
+        type: "TEXT"
+        not_null: true
+        description: "Note title"
+      date:
+        type: "DATE"
+        description: "Note date"
+      note_type:
+        type: "TEXT"
+        default: "daily"
+        description: "Type of note (daily, weekly, monthly)"
+      content:
+        type: "TEXT"
+        description: "Full note content"
+      content_hash:
+        type: "TEXT"
+        not_null: true
+        description: "Hash for change detection"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+      modified_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+
+# Entity tables - generic containers for different types of entities
+entity_tables:
+  topics:
+    description: "Research topics, concepts, and thematic entities"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      name:
+        type: "TEXT"
+        unique: true
+        not_null: true
+        description: "Topic name"
+      category:
+        type: "TEXT"
+        description: "Topic category for visualization and grouping"
+      description:
+        type: "TEXT"
+        description: "Detailed description of the topic"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+        
+  people:
+    description: "Authors, collaborators, and mentioned individuals"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      name:
+        type: "TEXT"
+        unique: true
+        not_null: true
+        description: "Person's full name"
+      role:
+        type: "TEXT"
+        description: "Role or relationship type"
+      affiliation:
+        type: "TEXT"
+        description: "Institutional affiliation"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+        
+  projects:
+    description: "Research projects and work initiatives"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      name:
+        type: "TEXT"
+        unique: true
+        not_null: true
+        description: "Project name"
+      description:
+        type: "TEXT"
+        description: "Project description"
+      start_date:
+        type: "DATE"
+        description: "Project start date"
+      end_date:
+        type: "DATE"
+        description: "Project end date"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+        
+  institutions:
+    description: "Universities, companies, and organizations"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      name:
+        type: "TEXT"
+        unique: true
+        not_null: true
+        description: "Institution name"
+      type:
+        type: "TEXT"
+        description: "Type of institution"
+      location:
+        type: "TEXT"
+        description: "Geographic location"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+        
+  methods:
+    description: "Methods, techniques, algorithms, and tools"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      name:
+        type: "TEXT"
+        unique: true
+        not_null: true
+        description: "Method name"
+      category:
+        type: "TEXT"
+        description: "Method category (theoretical, computational, etc.)"
+      description:
+        type: "TEXT"
+        description: "Method description"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+        
+  applications:
+    description: "Real-world applications and use cases"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      name:
+        type: "TEXT"
+        unique: true
+        not_null: true
+        description: "Application name"
+      domain:
+        type: "TEXT"
+        description: "Application domain"
+      description:
+        type: "TEXT"
+        description: "Application description"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+
+# Relationship table - connects all entities
+relationship_table:
+  relationships:
+    description: "Generic relationships between any entities"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      source_type:
+        type: "TEXT"
+        not_null: true
+        description: "Type of source entity (document, topic, person, etc.)"
+      source_id:
+        type: "TEXT"
+        not_null: true
+        description: "ID of source entity"
+      target_type:
+        type: "TEXT"
+        not_null: true
+        description: "Type of target entity"
+      target_id:
+        type: "TEXT"
+        not_null: true
+        description: "ID of target entity"
+      relationship_type:
+        type: "TEXT"
+        not_null: true
+        description: "Type of relationship"
+      confidence:
+        type: "REAL"
+        default: 1.0
+        description: "Confidence score for relationship"
+      metadata:
+        type: "JSON"
+        description: "Additional relationship metadata"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+    constraints:
+      unique_relationships:
+        type: "UNIQUE"
+        columns: ["source_type", "source_id", "target_type", "target_id", "relationship_type"]
+
+# Document processing tables
+processing_tables:
+  document_chunks:
+    description: "Semantic chunks of documents for RAG"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      document_type:
+        type: "TEXT"
+        not_null: true
+        description: "Type of source document"
+      document_id:
+        type: "INTEGER"
+        not_null: true
+        description: "ID of source document"
+      chunk_index:
+        type: "INTEGER"
+        not_null: true
+        description: "Order of chunk in document"
+      content:
+        type: "TEXT"
+        not_null: true
+        description: "Chunk content"
+      section_name:
+        type: "TEXT"
+        description: "Section or heading name"
+      chunk_metadata:
+        type: "JSON"
+        description: "Additional chunk metadata"
+      start_char:
+        type: "INTEGER"
+        description: "Start character position in document"
+      end_char:
+        type: "INTEGER"
+        description: "End character position in document"
+      token_count:
+        type: "INTEGER"
+        description: "Number of tokens in chunk"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+    constraints:
+      unique_chunks:
+        type: "UNIQUE"
+        columns: ["document_type", "document_id", "chunk_index"]
+        
+  chunk_entities:
+    description: "Mapping of entities to document chunks"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      chunk_id:
+        type: "INTEGER"
+        not_null: true
+        description: "Reference to document_chunks.id"
+      entity_type:
+        type: "TEXT"
+        not_null: true
+        description: "Type of entity"
+      entity_id:
+        type: "INTEGER"
+        not_null: true
+        description: "ID of entity"
+      entity_mentions:
+        type: "INTEGER"
+        default: 1
+        description: "Number of mentions in chunk"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+    constraints:
+      unique_chunk_entities:
+        type: "UNIQUE"
+        columns: ["chunk_id", "entity_type", "entity_id"]
+
+# Vector storage and graph tables
+vector_tables:
+  embeddings:
+    description: "Vector embeddings for semantic search"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      entity_type:
+        type: "TEXT"
+        not_null: true
+        description: "Type of entity (document, chunk, topic, etc.)"
+      entity_id:
+        type: "TEXT"
+        not_null: true
+        description: "ID of entity"
+      embedding:
+        type: "BLOB"
+        not_null: true
+        description: "Vector embedding data"
+      model_name:
+        type: "TEXT"
+        not_null: true
+        description: "Name of embedding model used"
+      dimensions:
+        type: "INTEGER"
+        not_null: true
+        description: "Number of dimensions in embedding"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+    constraints:
+      unique_embeddings:
+        type: "UNIQUE"
+        columns: ["entity_type", "entity_id", "model_name"]
+        
+  graph_nodes:
+    description: "Pre-computed graph nodes for visualization"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      node_id:
+        type: "TEXT"
+        unique: true
+        not_null: true
+        description: "Unique node identifier"
+      node_type:
+        type: "TEXT"
+        not_null: true
+        description: "Node type for visualization"
+      node_label:
+        type: "TEXT"
+        not_null: true
+        description: "Display label"
+      attributes:
+        type: "JSON"
+        description: "Additional node attributes"
+      pagerank_score:
+        type: "REAL"
+        description: "PageRank centrality score"
+      degree:
+        type: "INTEGER"
+        description: "Node degree (number of connections)"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+        
+  graph_edges:
+    description: "Pre-computed graph edges for visualization"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      source_node_id:
+        type: "TEXT"
+        not_null: true
+        description: "Source node ID"
+      target_node_id:
+        type: "TEXT"
+        not_null: true
+        description: "Target node ID"
+      edge_type:
+        type: "TEXT"
+        not_null: true
+        description: "Type of relationship"
+      weight:
+        type: "REAL"
+        default: 1.0
+        description: "Edge weight"
+      attributes:
+        type: "JSON"
+        description: "Additional edge attributes"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+
+# Metadata and logging tables
+metadata_tables:
+  extraction_log:
+    description: "Log of metadata extraction operations"
+    columns:
+      id:
+        type: "INTEGER"
+        primary_key: true
+        auto_increment: true
+      source_file:
+        type: "TEXT"
+        not_null: true
+        description: "Source file processed"
+      extraction_type:
+        type: "TEXT"
+        not_null: true
+        description: "Type of extraction performed"
+      extractor_version:
+        type: "TEXT"
+        description: "Version of extraction system"
+      entities_extracted:
+        type: "INTEGER"
+        description: "Number of entities extracted"
+      status:
+        type: "TEXT"
+        not_null: true
+        description: "Extraction status (success, error, etc.)"
+      error_message:
+        type: "TEXT"
+        description: "Error message if extraction failed"
+      execution_time:
+        type: "REAL"
+        description: "Execution time in seconds"
+      created_at:
+        type: "TIMESTAMP"
+        default: "CURRENT_TIMESTAMP"
+
+# Indexes for performance
+indexes:
+  # Document indexes
+  idx_academic_file_path:
+    table: "academic_documents"
+    columns: ["file_path"]
+  idx_chronicle_file_path:
+    table: "chronicle_documents"
+    columns: ["file_path"]
+    
+  # Entity indexes
+  idx_topics_name:
+    table: "topics"
+    columns: ["name"]
+  idx_topics_category:
+    table: "topics"
+    columns: ["category"]
+  idx_people_name:
+    table: "people"
+    columns: ["name"]
+  idx_methods_category:
+    table: "methods"
+    columns: ["category"]
+    
+  # Relationship indexes
+  idx_relationships_source:
+    table: "relationships"
+    columns: ["source_type", "source_id"]
+  idx_relationships_target:
+    table: "relationships"
+    columns: ["target_type", "target_id"]
+  idx_relationships_type:
+    table: "relationships"
+    columns: ["relationship_type"]
+    
+  # Embedding indexes
+  idx_embeddings_entity:
+    table: "embeddings"
+    columns: ["entity_type", "entity_id"]
+    
+  # Graph indexes
+  idx_graph_nodes_type:
+    table: "graph_nodes"
+    columns: ["node_type"]
+  idx_graph_edges_source:
+    table: "graph_edges"
+    columns: ["source_node_id"]
+  idx_graph_edges_target:
+    table: "graph_edges"
+    columns: ["target_node_id"]

@@ -1,0 +1,151 @@
+# Personal Notes Database Mapping Blueprint
+# Defines how extracted personal note metadata maps to database entities and relationships
+
+metadata:
+  name: "Personal Notes Database Mapping"
+  version: "1.0"
+  description: "Maps personal note metadata to database schema"
+  document_type: "chronicle"
+
+# Document table mapping
+document_mapping:
+  table: "chronicle_documents"
+  id_prefix: "chronicle"
+  content_source: "file_path"  # Read content from this path
+  fields:
+    title: "title"
+    date: "date"
+    note_type: "note_type"
+
+# Entity mappings - how metadata fields map to database entities
+entity_mappings:
+  # Core entities
+  topics:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "discusses"
+    category_override: "general"  # Generic topics
+    
+  projects:
+    target_table: "projects"
+    entity_type: "project"
+    relationship_type: "part_of"
+    
+  people:
+    target_table: "people"
+    entity_type: "person"
+    relationship_type: "mentions"
+    
+  institutions:
+    target_table: "institutions"
+    entity_type: "institution"
+    relationship_type: "affiliated_with"
+    
+  methods:
+    target_table: "methods"
+    entity_type: "method"
+    relationship_type: "uses_method"
+    
+  # Tools stored as methods with special category
+  tools:
+    target_table: "methods"
+    entity_type: "method"
+    relationship_type: "uses_method"
+    category_override: "tool"
+    
+  # Work activity mappings - all stored as topics with specific categories
+  accomplishments:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "accomplished"
+    category_override: "accomplishment"
+    
+  insights:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "discovered"
+    category_override: "insight"
+    
+  learning:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "learned"
+    category_override: "learning"
+    
+  challenges:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "faced_challenge"
+    category_override: "challenge"
+    
+  future_work:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "plans"
+    category_override: "future_work"
+    
+  # Papers referenced
+  papers:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "references"
+    category_override: "paper"
+
+# Special handling rules
+special_handling:
+  # All fields in personal notes are string lists
+  string_list_fields:
+    - "topics"
+    - "projects"
+    - "people"
+    - "institutions"
+    - "methods"
+    - "tools"
+    - "accomplishments"
+    - "insights"
+    - "learning"
+    - "challenges"
+    - "future_work"
+    - "papers"
+    
+  # Metrics are handled specially (not implemented yet)
+  metrics_handling:
+    target_table: "topics"
+    relationship_type: "measured"
+    category_override: "metric"
+
+# Relationship confidence scores
+relationship_confidence:
+  part_of: 1.0          # Project relationships are certain
+  accomplished: 0.9     # Accomplishments are high confidence
+  discovered: 0.9       # Insights are high confidence
+  learned: 0.8          # Learning is documented
+  uses_method: 0.8      # Method usage is explicit
+  discusses: 0.7        # Topic discussions are generally reliable
+  plans: 0.6            # Future work plans may change
+  faced_challenge: 0.7  # Challenges are documented
+  mentions: 0.5         # People mentions vary in importance
+  references: 0.8       # Paper references are explicit
+  affiliated_with: 0.6  # Institution affiliations
+
+# Category-specific instructions
+category_instructions:
+  accomplishment:
+    description: "Personal achievements and completed work items"
+    focus: "Concrete deliverables and milestones"
+    
+  insight:
+    description: "Key discoveries, breakthroughs, and realizations"
+    focus: "Novel understanding and connections"
+    
+  learning:
+    description: "New knowledge, skills, and concepts acquired"
+    focus: "Educational and skill development progress"
+    
+  challenge:
+    description: "Problems faced, obstacles encountered"
+    focus: "Difficulties and their potential solutions"
+    
+  future_work:
+    description: "Planned tasks and research directions"
+    focus: "Next steps and future goals"

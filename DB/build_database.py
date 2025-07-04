@@ -1,330 +1,314 @@
 #!/usr/bin/env python3
 """
-Build database from scratch
-Creates a fresh database with complete schema and processes all metadata files
+Database builder
+Uses configuration blueprints to build database from scratch
 """
 
 import sqlite3
+import sys
 from pathlib import Path
 import argparse
 import shutil
 from datetime import datetime
-import sys
 
-# Add parent directory to path for imports
+# Add parent and blueprints to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
+sys.path.append(str(Path(__file__).parent.parent / "blueprints" / "core"))
 
-from DB.unified_metadata_populator import UnifiedMetadataPopulator
+from blueprint_loader import get_blueprint_loader
+from DB.populator import DatabasePopulator
 from DB.chunker import DocumentChunker
 from DB.embeddings import EmbeddingGenerator
+from KG.graph_builder import GraphBuilder
 
 
 def create_database_schema(db_path: str):
-    """Create fresh database with complete schema"""
+    """Create database schema from blueprint configuration"""
+    
+    blueprint_loader = get_blueprint_loader()
+    schema_config = blueprint_loader.get_database_schema()
+    
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    # Core document tables
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS chronicle_documents (
-            id INTEGER PRIMARY KEY,
-            file_path TEXT UNIQUE NOT NULL,
-            title TEXT NOT NULL,
-            date DATE,
-            note_type TEXT DEFAULT 'daily',
-            content TEXT,
-            content_hash TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS academic_documents (
-            id INTEGER PRIMARY KEY,
-            file_path TEXT UNIQUE NOT NULL,
-            title TEXT NOT NULL,
-            date DATE,
-            document_type TEXT DEFAULT 'paper',
-            domain TEXT,
-            content TEXT,
-            content_hash TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    # Entity tables
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS topics (
-            id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL,
-            category TEXT,
-            description TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS people (
-            id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL,
-            role TEXT,
-            affiliation TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS projects (
-            id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL,
-            description TEXT,
-            start_date DATE,
-            end_date DATE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS institutions (
-            id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL,
-            type TEXT,
-            location TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS methods (
-            id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL,
-            category TEXT,
-            description TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS applications (
-            id INTEGER PRIMARY KEY,
-            name TEXT UNIQUE NOT NULL,
-            domain TEXT,
-            description TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    # Relationships table
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS relationships (
-            id INTEGER PRIMARY KEY,
-            source_type TEXT NOT NULL,
-            source_id TEXT NOT NULL,
-            target_type TEXT NOT NULL,
-            target_id TEXT NOT NULL,
-            relationship_type TEXT NOT NULL,
-            confidence REAL DEFAULT 1.0,
-            metadata JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(source_type, source_id, target_type, target_id, relationship_type)
-        )
-    """)
-    
-    # Chunking tables
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS document_chunks (
-            id INTEGER PRIMARY KEY,
-            document_type TEXT NOT NULL,
-            document_id INTEGER NOT NULL,
-            chunk_index INTEGER NOT NULL,
-            content TEXT NOT NULL,
-            section_name TEXT,
-            chunk_metadata JSON,
-            start_char INTEGER,
-            end_char INTEGER,
-            token_count INTEGER,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(document_type, document_id, chunk_index)
-        )
-    """)
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS chunk_entities (
-            chunk_id INTEGER REFERENCES document_chunks(id),
-            entity_type TEXT NOT NULL,
-            entity_id INTEGER NOT NULL,
-            relevance_score FLOAT DEFAULT 1.0,
-            PRIMARY KEY (chunk_id, entity_type, entity_id)
-        )
-    """)
-    
-    # Embeddings table
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS embeddings (
-            id INTEGER PRIMARY KEY,
-            entity_type TEXT NOT NULL,
-            entity_id TEXT NOT NULL,
-            embedding BLOB NOT NULL,
-            model_name TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(entity_type, entity_id, model_name)
-        )
-    """)
-    
-    # Graph tables
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS graph_nodes (
-            id INTEGER PRIMARY KEY,
-            node_id TEXT UNIQUE NOT NULL,
-            node_type TEXT NOT NULL,
-            node_label TEXT NOT NULL,
-            attributes JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS graph_edges (
-            id INTEGER PRIMARY KEY,
-            source_node_id TEXT NOT NULL,
-            target_node_id TEXT NOT NULL,
-            edge_type TEXT NOT NULL,
-            weight REAL DEFAULT 1.0,
-            attributes JSON,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(source_node_id, target_node_id, edge_type),
-            FOREIGN KEY (source_node_id) REFERENCES graph_nodes(node_id),
-            FOREIGN KEY (target_node_id) REFERENCES graph_nodes(node_id)
-        )
-    """)
-    
-    # Metadata and logging
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS extraction_log (
-            id INTEGER PRIMARY KEY,
-            source_file TEXT NOT NULL,
-            extraction_type TEXT NOT NULL,
-            extractor_version TEXT,
-            entities_extracted INTEGER,
-            status TEXT,
-            error_message TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-    
-    # Create indexes
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationships_source ON relationships(source_type, source_id)")
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationships_target ON relationships(target_type, target_id)")
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_relationships_type ON relationships(relationship_type)")
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_chunks_document ON document_chunks(document_type, document_id)")
-    cursor.execute("CREATE INDEX IF NOT EXISTS idx_embeddings_entity ON embeddings(entity_type, entity_id)")
-    
-    # Create backward compatibility view
-    cursor.execute("""
-        CREATE VIEW IF NOT EXISTS documents AS
-        SELECT 
-            'chronicle_' || id as unified_id,
-            'chronicle' as doc_type,
-            id,
-            file_path,
-            title,
-            date,
-            note_type,
-            NULL as document_type,
-            NULL as domain,
-            content,
-            content_hash,
-            created_at,
-            modified_at
-        FROM chronicle_documents
-        UNION ALL
-        SELECT 
-            'academic_' || id as unified_id,
-            'academic' as doc_type,
-            id,
-            file_path,
-            title,
-            date,
-            NULL as note_type,
-            document_type,
-            domain,
-            content,
-            content_hash,
-            created_at,
-            modified_at
-        FROM academic_documents
-    """)
-    
-    conn.commit()
-    conn.close()
+    try:
+        print("Creating database schema from blueprints...")
+        
+        # Create document tables
+        document_tables = schema_config.get('document_tables', {})
+        for table_name, table_config in document_tables.items():
+            columns = []
+            for col_name, col_config in table_config['columns'].items():
+                col_def = f"{col_name} {col_config['type']}"
+                
+                if col_config.get('primary_key'):
+                    col_def += " PRIMARY KEY"
+                if col_config.get('auto_increment'):
+                    col_def += " AUTOINCREMENT"
+                if col_config.get('not_null'):
+                    col_def += " NOT NULL"
+                if col_config.get('unique'):
+                    col_def += " UNIQUE"
+                if col_config.get('default'):
+                    default_val = col_config['default']
+                    if default_val == 'CURRENT_TIMESTAMP':
+                        col_def += f" DEFAULT {default_val}"
+                    else:
+                        col_def += f" DEFAULT '{default_val}'"
+                
+                columns.append(col_def)
+            
+            columns_str = ',\n    '.join(columns)
+            create_sql = f"CREATE TABLE IF NOT EXISTS {table_name} (\n    {columns_str}\n)"
+            cursor.execute(create_sql)
+            print(f"  ✓ Created table: {table_name}")
+        
+        # Create entity tables
+        entity_tables = schema_config.get('entity_tables', {})
+        for table_name, table_config in entity_tables.items():
+            columns = []
+            for col_name, col_config in table_config['columns'].items():
+                col_def = f"{col_name} {col_config['type']}"
+                
+                if col_config.get('primary_key'):
+                    col_def += " PRIMARY KEY"
+                if col_config.get('auto_increment'):
+                    col_def += " AUTOINCREMENT"
+                if col_config.get('not_null'):
+                    col_def += " NOT NULL"
+                if col_config.get('unique'):
+                    col_def += " UNIQUE"
+                if col_config.get('default'):
+                    default_val = col_config['default']
+                    if default_val == 'CURRENT_TIMESTAMP':
+                        col_def += f" DEFAULT {default_val}"
+                    else:
+                        col_def += f" DEFAULT '{default_val}'"
+                
+                columns.append(col_def)
+            
+            columns_str = ',\n    '.join(columns)
+            create_sql = f"CREATE TABLE IF NOT EXISTS {table_name} (\n    {columns_str}\n)"
+            cursor.execute(create_sql)
+            print(f"  ✓ Created table: {table_name}")
+        
+        # Create relationship table
+        relationships_config = schema_config.get('relationship_table', {}).get('relationships', {})
+        if relationships_config:
+            columns = []
+            for col_name, col_config in relationships_config['columns'].items():
+                col_def = f"{col_name} {col_config['type']}"
+                
+                if col_config.get('primary_key'):
+                    col_def += " PRIMARY KEY"
+                if col_config.get('auto_increment'):
+                    col_def += " AUTOINCREMENT"
+                if col_config.get('not_null'):
+                    col_def += " NOT NULL"
+                if col_config.get('default') is not None:
+                    default_val = col_config['default']
+                    if default_val == 'CURRENT_TIMESTAMP':
+                        col_def += f" DEFAULT {default_val}"
+                    else:
+                        col_def += f" DEFAULT {default_val}"
+                
+                columns.append(col_def)
+            
+            # Add unique constraint
+            constraints = relationships_config.get('constraints', {})
+            for constraint_name, constraint_config in constraints.items():
+                if constraint_config['type'] == 'UNIQUE':
+                    constraint_cols = ', '.join(constraint_config['columns'])
+                    columns.append(f"UNIQUE({constraint_cols})")
+            
+            columns_str = ',\n    '.join(columns)
+            create_sql = f"CREATE TABLE IF NOT EXISTS relationships (\n    {columns_str}\n)"
+            cursor.execute(create_sql)
+            print(f"  ✓ Created table: relationships")
+        
+        # Create processing tables
+        processing_tables = schema_config.get('processing_tables', {})
+        for table_name, table_config in processing_tables.items():
+            columns = []
+            for col_name, col_config in table_config['columns'].items():
+                col_def = f"{col_name} {col_config['type']}"
+                
+                if col_config.get('primary_key'):
+                    col_def += " PRIMARY KEY"
+                if col_config.get('auto_increment'):
+                    col_def += " AUTOINCREMENT"
+                if col_config.get('not_null'):
+                    col_def += " NOT NULL"
+                if col_config.get('default'):
+                    default_val = col_config['default']
+                    if default_val == 'CURRENT_TIMESTAMP':
+                        col_def += f" DEFAULT {default_val}"
+                    else:
+                        col_def += f" DEFAULT {default_val}"
+                
+                columns.append(col_def)
+            
+            # Add constraints
+            constraints = table_config.get('constraints', {})
+            for constraint_name, constraint_config in constraints.items():
+                if constraint_config['type'] == 'UNIQUE':
+                    constraint_cols = ', '.join(constraint_config['columns'])
+                    columns.append(f"UNIQUE({constraint_cols})")
+            
+            columns_str = ',\n    '.join(columns)
+            create_sql = f"CREATE TABLE IF NOT EXISTS {table_name} (\n    {columns_str}\n)"
+            cursor.execute(create_sql)
+            print(f"  ✓ Created table: {table_name}")
+        
+        # Create vector tables
+        vector_tables = schema_config.get('vector_tables', {})
+        for table_name, table_config in vector_tables.items():
+            columns = []
+            for col_name, col_config in table_config['columns'].items():
+                col_def = f"{col_name} {col_config['type']}"
+                
+                if col_config.get('primary_key'):
+                    col_def += " PRIMARY KEY"
+                if col_config.get('auto_increment'):
+                    col_def += " AUTOINCREMENT"
+                if col_config.get('not_null'):
+                    col_def += " NOT NULL"
+                if col_config.get('unique'):
+                    col_def += " UNIQUE"
+                if col_config.get('default'):
+                    default_val = col_config['default']
+                    if default_val == 'CURRENT_TIMESTAMP':
+                        col_def += f" DEFAULT {default_val}"
+                    else:
+                        col_def += f" DEFAULT {default_val}"
+                
+                columns.append(col_def)
+            
+            # Add constraints
+            constraints = table_config.get('constraints', {})
+            for constraint_name, constraint_config in constraints.items():
+                if constraint_config['type'] == 'UNIQUE':
+                    constraint_cols = ', '.join(constraint_config['columns'])
+                    columns.append(f"UNIQUE({constraint_cols})")
+            
+            columns_str = ',\n    '.join(columns)
+            create_sql = f"CREATE TABLE IF NOT EXISTS {table_name} (\n    {columns_str}\n)"
+            cursor.execute(create_sql)
+            print(f"  ✓ Created table: {table_name}")
+        
+        # Create metadata tables
+        metadata_tables = schema_config.get('metadata_tables', {})
+        for table_name, table_config in metadata_tables.items():
+            columns = []
+            for col_name, col_config in table_config['columns'].items():
+                col_def = f"{col_name} {col_config['type']}"
+                
+                if col_config.get('primary_key'):
+                    col_def += " PRIMARY KEY"
+                if col_config.get('auto_increment'):
+                    col_def += " AUTOINCREMENT"
+                if col_config.get('not_null'):
+                    col_def += " NOT NULL"
+                if col_config.get('default'):
+                    default_val = col_config['default']
+                    if default_val == 'CURRENT_TIMESTAMP':
+                        col_def += f" DEFAULT {default_val}"
+                    else:
+                        col_def += f" DEFAULT '{default_val}'"
+                
+                columns.append(col_def)
+            
+            columns_str = ',\n    '.join(columns)
+            create_sql = f"CREATE TABLE IF NOT EXISTS {table_name} (\n    {columns_str}\n)"
+            cursor.execute(create_sql)
+            print(f"  ✓ Created table: {table_name}")
+        
+        # Create indexes
+        indexes = schema_config.get('indexes', {})
+        for index_name, index_config in indexes.items():
+            table = index_config['table']
+            columns = ', '.join(index_config['columns'])
+            create_index_sql = f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} ({columns})"
+            cursor.execute(create_index_sql)
+            print(f"  ✓ Created index: {index_name}")
+        
+        conn.commit()
+        print("✓ Database schema created successfully")
+        
+    except Exception as e:
+        conn.rollback()
+        print(f"✗ Error creating schema: {e}")
+        raise
+    finally:
+        conn.close()
 
 
-def build_database(db_path: str, academic_dir: Path, personal_dir: Path, 
-                  skip_embeddings: bool = False, skip_graph: bool = False, skip_deduplication: bool = False):
-    """Build complete database from metadata files"""
+def build_database(db_path: str, skip_embeddings: bool = False, skip_graph: bool = False, 
+                  skip_deduplication: bool = False):
+    """Build complete database using blueprint-driven components"""
     
-    # Initialize components
-    populator = UnifiedMetadataPopulator(db_path)
-    chunker = DocumentChunker(chunk_size=1200, chunk_overlap=200)
+    blueprint_loader = get_blueprint_loader()
     
     print("\n" + "="*60)
-    print("BUILDING DATABASE FROM SCRATCH")
+    print("BLUEPRINT-DRIVEN DATABASE BUILD")
     print("="*60)
     
-    # Step 1: Populate from metadata
-    print("\nStep 1: Importing metadata")
-    print("-" * 40)
+    # Step 1: Populate from metadata using blueprints
+    print("\nStep 1: Importing metadata (blueprint-driven)")
+    print("-" * 50)
     
-    if academic_dir.exists():
-        print(f"Processing academic metadata from {academic_dir}")
-        academic_ids = populator.populate_directory(academic_dir, 'academic')
-        print(f"✓ Imported {len(academic_ids)} academic documents")
+    populator = DatabasePopulator(db_path)
     
-    if personal_dir.exists():
-        print(f"Processing personal notes metadata from {personal_dir}")
-        chronicle_ids = populator.populate_directory(personal_dir, 'chronicle')
-        print(f"✓ Imported {len(chronicle_ids)} personal notes")
+    # Process all document types found in blueprints
+    total_docs = 0
+    for doc_type in blueprint_loader.list_document_types():
+        metadata_dir = Path(f"raw_data/{doc_type}/extracted_metadata")
+        if doc_type == 'personal':
+            metadata_dir = Path("raw_data/personal_notes/extracted_metadata")
+        
+        if metadata_dir.exists():
+            print(f"\nProcessing {doc_type} metadata from {metadata_dir}")
+            doc_ids = populator.populate_directory(metadata_dir, doc_type)
+            total_docs += len(doc_ids)
+            print(f"✓ Imported {len(doc_ids)} {doc_type} documents")
     
-    # Step 2: Create chunks
+    print(f"\n✓ Total documents imported: {total_docs}")
+    
+    # Step 2: Create document chunks
     print("\nStep 2: Creating document chunks")
     print("-" * 40)
     
+    chunker = DocumentChunker(chunk_size=1200, chunk_overlap=200)
+    
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
-    
-    # Chunk academic documents
-    cursor.execute("SELECT id, content FROM academic_documents WHERE content IS NOT NULL")
-    academic_docs = cursor.fetchall()
     
     total_chunks = 0
     total_mappings = 0
     
-    for doc_id, content in academic_docs:
-        chunk_ids = chunker.chunk_and_store(db_path, doc_id, 'academic', content)
-        mappings = chunker.map_entities_to_chunks(db_path, doc_id, 'academic')
-        total_chunks += len(chunk_ids)
-        total_mappings += mappings
+    # Chunk all document types
+    for doc_type in blueprint_loader.list_document_types():
+        document_mapping = blueprint_loader.get_document_mapping(doc_type)
+        table = document_mapping.get('table')
+        
+        if table:
+            cursor.execute(f"SELECT id, content FROM {table} WHERE content IS NOT NULL")
+            docs = cursor.fetchall()
+            
+            doc_chunks = 0
+            doc_mappings = 0
+            
+            for doc_id, content in docs:
+                chunk_ids = chunker.chunk_and_store(db_path, doc_id, doc_type, content)
+                mappings = chunker.map_entities_to_chunks(db_path, doc_id, doc_type)
+                doc_chunks += len(chunk_ids)
+                doc_mappings += mappings
+            
+            total_chunks += doc_chunks
+            total_mappings += doc_mappings
+            print(f"✓ {doc_type.title()}: {len(docs)} documents → {doc_chunks} chunks")
     
-    print(f"✓ Academic: {len(academic_docs)} documents → {total_chunks} chunks")
-    
-    # Chunk personal notes
-    cursor.execute("SELECT id, content FROM chronicle_documents WHERE content IS NOT NULL")
-    chronicle_docs = cursor.fetchall()
-    
-    chronicle_chunks = 0
-    chronicle_mappings = 0
-    
-    for doc_id, content in chronicle_docs:
-        chunk_ids = chunker.chunk_and_store(db_path, doc_id, 'chronicle', content)
-        mappings = chunker.map_entities_to_chunks(db_path, doc_id, 'chronicle')
-        chronicle_chunks += len(chunk_ids)
-        chronicle_mappings += mappings
-    
-    print(f"✓ Chronicle: {len(chronicle_docs)} documents → {chronicle_chunks} chunks")
-    print(f"✓ Total entity-chunk mappings: {total_mappings + chronicle_mappings}")
-    
+    print(f"✓ Total entity-chunk mappings: {total_mappings}")
     conn.close()
     
     # Step 3: Generate embeddings
@@ -348,53 +332,45 @@ def build_database(db_path: str, academic_dir: Path, personal_dir: Path,
             print(f"⚠️  Warning: Could not generate embeddings: {e}")
             print("   Make sure OPENAI_API_KEY is set in your .env file")
     
-    # Step 4: Deduplicate entities
+    # Step 4: Entity deduplication
     if not skip_deduplication:
-        print("\nStep 4: Deduplicating entities")
+        print("\nStep 4: Entity deduplication")
         print("-" * 40)
+        print("  Ensuring entity embeddings are generated...")
+        print("  Running deduplication with blueprint-driven entities...")
         
         try:
-            # Import here to avoid circular dependencies
-            sys.path.append(str(Path(__file__).parent.parent))
-            from agents.entity_deduplicator import EntityDeduplicator
+            import subprocess
+            result = subprocess.run([
+                sys.executable, "../agents/entity_deduplicator.py", 
+                "--parallel-workers", "20", "--merge"
+            ], cwd="DB", capture_output=True, text=True)
             
-            deduplicator = EntityDeduplicator(db_path)
-            
-            # First generate entity embeddings if not skipped
-            if not skip_embeddings:
-                print("  Ensuring entity embeddings are generated...")
-                embedder = EmbeddingGenerator(db_path)
-                entity_count = embedder.generate_entity_embeddings()
-                if entity_count > 0:
-                    print(f"  ✓ Generated {entity_count} entity embeddings")
-            
-            # Run deduplication with parallel processing
-            print("  Running deduplication with 20 parallel workers...")
-            deduplicator.deduplicate_all(dry_run=False, use_clustering=True, parallel_workers=20)
-            print("✓ Entity deduplication complete")
-            
+            if result.returncode == 0:
+                print("✓ Entity deduplication completed")
+                print(result.stdout.split('\n')[-5:])  # Show last few lines
+            else:
+                print("⚠️  Deduplication encountered issues")
+                print(result.stderr[:500])  # Show first part of error
         except Exception as e:
-            print(f"⚠️  Warning: Could not deduplicate entities: {e}")
-            print("   This is optional - you can run deduplication later with:")
-            print("   python agents/entity_deduplicator.py --parallel-workers 20 --merge")
+            print(f"⚠️  Could not run deduplication: {e}")
     
-    # Step 5: Update graph tables
+    # Step 5: Generate knowledge graph
     if not skip_graph:
-        print("\nStep 5: Building knowledge graph")
-        print("-" * 40)
+        print("\nStep 5: Generating blueprint-driven knowledge graph")
+        print("-" * 50)
         
         try:
-            from DB.populate_graph_tables import populate_graph_tables
-            populate_graph_tables(db_path)
-            print("✓ Graph tables populated")
+            graph_builder = GraphBuilder(db_path)
+            graph_data = graph_builder.export_graph("KG/knowledge_graph.json")
+            
+            print(f"✓ Generated knowledge graph:")
+            print(f"  - Nodes: {graph_data['metadata']['total_nodes']}")
+            print(f"  - Edges: {graph_data['metadata']['total_edges']}")
+            print(f"  - Node types: {len(graph_data['metadata']['node_types'])}")
+            
         except Exception as e:
-            print(f"⚠️  Warning: Could not update graph tables: {e}")
-    
-    # Print final statistics
-    print("\n" + "="*60)
-    print("DATABASE BUILD COMPLETE")
-    print("="*60)
-    print_database_stats(db_path)
+            print(f"⚠️  Warning: Could not generate knowledge graph: {e}")
 
 
 def print_database_stats(db_path: str):
@@ -402,57 +378,70 @@ def print_database_stats(db_path: str):
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     
-    stats = []
-    tables = [
-        ('academic_documents', 'Academic Documents'),
-        ('chronicle_documents', 'Personal Notes'),
-        ('topics', 'Topics'),
-        ('people', 'People'),
-        ('projects', 'Projects'),
-        ('institutions', 'Institutions'),
-        ('methods', 'Methods'),
-        ('applications', 'Applications'),
-        ('relationships', 'Relationships'),
-        ('document_chunks', 'Document Chunks'),
-        ('chunk_entities', 'Chunk-Entity Mappings'),
-        ('embeddings', 'Embeddings'),
-        ('graph_nodes', 'Graph Nodes'),
-        ('graph_edges', 'Graph Edges')
-    ]
-    
-    for table, name in tables:
-        cursor.execute(f"SELECT COUNT(*) FROM {table}")
-        count = cursor.fetchone()[0]
-        stats.append((name, count))
-    
-    conn.close()
+    # Get blueprint configuration for table list
+    blueprint_loader = get_blueprint_loader()
+    schema_config = blueprint_loader.get_database_schema()
     
     print("\nDatabase Statistics:")
-    for name, count in stats:
-        print(f"{name:.<30} {count:>6}")
+    
+    # Document tables
+    doc_tables = schema_config.get('document_tables', {})
+    for table_name, table_config in doc_tables.items():
+        cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+        count = cursor.fetchone()[0]
+        description = table_config.get('description', table_name)
+        print(f"{description:.<30} {count:>6}")
+    
+    # Entity tables
+    entity_tables = schema_config.get('entity_tables', {})
+    for table_name, table_config in entity_tables.items():
+        cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+        count = cursor.fetchone()[0]
+        description = table_config.get('description', table_name)
+        print(f"{description:.<30} {count:>6}")
+    
+    # Other important tables
+    other_tables = ['relationships', 'document_chunks', 'chunk_entities', 'embeddings']
+    for table in other_tables:
+        try:
+            cursor.execute(f"SELECT COUNT(*) FROM {table}")
+            count = cursor.fetchone()[0]
+            print(f"{table:.<30} {count:>6}")
+        except:
+            pass
+    
+    conn.close()
 
 
 def main():
-    """Main entry point"""
-    parser = argparse.ArgumentParser(description='Build database from scratch')
+    """Main entry point for blueprint-driven database builder"""
+    parser = argparse.ArgumentParser(description='Build database using blueprint system')
     parser.add_argument('--db', default="metadata.db", 
                        help='Database filename (will be created in DB folder)')
     parser.add_argument('--backup', action='store_true', 
                        help='Backup existing database before rebuilding')
-    parser.add_argument('--academic-dir', type=Path, 
-                       default=Path("../raw_data/academic/extracted_metadata"),
-                       help='Directory with academic metadata JSONs')
-    parser.add_argument('--personal-dir', type=Path,
-                       default=Path("../raw_data/personal_notes/extracted_metadata"),
-                       help='Directory with personal notes metadata JSONs')
     parser.add_argument('--skip-embeddings', action='store_true',
                        help='Skip embedding generation')
     parser.add_argument('--skip-graph', action='store_true',
-                       help='Skip graph table population')
+                       help='Skip knowledge graph generation')
     parser.add_argument('--no-deduplication', action='store_true',
-                       help='Skip entity deduplication (default: runs deduplication)')
+                       help='Skip entity deduplication')
+    parser.add_argument('--validate-blueprints', action='store_true',
+                       help='Validate blueprint configurations before building')
     
     args = parser.parse_args()
+    
+    # Validate blueprints if requested
+    if args.validate_blueprints:
+        blueprint_loader = get_blueprint_loader()
+        errors = blueprint_loader.validate_blueprints()
+        if errors:
+            print("Blueprint validation errors:")
+            for blueprint, error_list in errors.items():
+                print(f"  {blueprint}: {error_list}")
+            return 1
+        else:
+            print("✓ All blueprints are valid!")
     
     # Ensure we're working in the DB directory
     db_path = Path(__file__).parent / args.db
@@ -468,18 +457,28 @@ def main():
         db_path.unlink()
         print(f"✓ Removed existing database: {db_path}")
     
-    # Create database with schema
+    # Create database with blueprint-driven schema
     print(f"✓ Creating new database: {db_path}")
     create_database_schema(str(db_path))
     
-    # Build database
-    build_database(str(db_path), args.academic_dir, args.personal_dir,
-                  args.skip_embeddings, args.skip_graph, args.no_deduplication)
+    # Build database using blueprint system
+    build_database(str(db_path), args.skip_embeddings, args.skip_graph, args.no_deduplication)
     
-    print("\nNext steps:")
-    print("1. Generate knowledge graph: python ../KG/knowledge_graph.py metadata.db")
-    print("2. View database: cd .. && ./view_database.sh")
+    # Print statistics
+    print_database_stats(str(db_path))
+    
+    print("\n" + "="*60)
+    print("BLUEPRINT-DRIVEN BUILD COMPLETE")
+    print("="*60)
+    print("Next steps:")
+    print("1. View database: cd .. && ./view_database.sh")
+    print("2. Test graph: open web_ui/index.html")
     print("3. Test queries: python ../interactive_agent.py")
+    print("\nBlueprint system features:")
+    print("- All domain knowledge externalized to YAML blueprints")
+    print("- Database schema generated from core/database_schema.yaml")
+    print("- Entity mappings defined in academic/personal blueprints")
+    print("- Visualization rules in core/visualization.yaml")
 
 
 if __name__ == "__main__":

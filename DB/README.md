@@ -92,23 +92,37 @@ The database uses a normalized design with the following tables:
 ### 2. **Database Management Scripts**
 
 #### `build_database.py`
-Builds the entire database from scratch:
+Builds the entire database from scratch with integrated deduplication:
 ```bash
-python DB/build_database.py [--backup] [--skip-embeddings] [--skip-graph]
+python DB/build_database.py [--backup] [--skip-embeddings] [--skip-graph] [--no-deduplication]
 ```
 - Creates schema with proper indexes
 - Imports all metadata from JSON files
 - Chunks documents semantically
-- Generates embeddings
-- Populates graph tables
+- Generates embeddings with `text-embedding-3-large`
+- **Runs entity deduplication automatically** (NEW!)
+  - Uses 20 parallel workers by default
+  - Applies transitive clustering
+  - Merges duplicate entities
+- Populates graph tables after deduplication
+
+**Integrated Pipeline**:
+1. Import metadata → 2. Create chunks → 3. Generate embeddings → 4. Deduplicate entities → 5. Build graph
 
 #### `update_database.py`
-Incrementally updates the database:
+Incrementally updates the database with smart features:
 ```bash
-python DB/update_database.py [--skip-embeddings] [--skip-graph]
+python DB/update_database.py [--skip-embeddings] [--skip-graph] [--no-deduplication]
 ```
 - Detects new documents
 - Processes only changes
+- **Checks embedding model version** (NEW!)
+  - Automatically detects old `text-embedding-3-small` embeddings
+  - Regenerates ALL embeddings with `text-embedding-3-large`
+- **Runs deduplication on new entities** (NEW!)
+  - Ensures entity embeddings exist first
+  - Uses 20 parallel workers
+- Updates graph after deduplication
 - Maintains consistency
 
 ### 3. **Data Processing Pipeline**
@@ -131,17 +145,21 @@ Intelligent document segmentation:
 
 #### `embeddings.py`
 Vector generation using OpenAI:
+- Uses `text-embedding-3-large` model (3072 dimensions) for higher quality
 - Document-level embeddings
 - Chunk-level embeddings
 - Entity embeddings with verification
 - Efficient batch processing
 - Interactive verification mode for entities
 - `find_similar()` method for similarity search
+- Automatic model version detection and upgrade
 
 **New Features:**
+- Upgraded from `text-embedding-3-small` to `text-embedding-3-large` for better semantic accuracy
 - `--entities-only` flag to generate only entity embeddings
 - `--verify` flag for interactive verification before generation
 - Shows samples and statistics before processing each entity type
+- Automatic regeneration when old model embeddings detected
 
 #### `populate_graph_tables.py`
 Graph table population:
@@ -240,9 +258,16 @@ python verify_entities.py --export
 python scripts/extract_academic_metadata.py
 python scripts/extract_personal_notes_metadata.py
 
-# 2. Build database from scratch
+# 2. Build database from scratch (with automatic deduplication)
 cd DB
 python build_database.py --backup
+
+# The build process now includes:
+# - Import metadata
+# - Create chunks
+# - Generate embeddings (text-embedding-3-large)
+# - Deduplicate entities (20 parallel workers)
+# - Build knowledge graph
 
 # 3. View database
 datasette metadata.db
@@ -250,11 +275,17 @@ datasette metadata.db
 
 ### Incremental Updates
 ```bash
-# Add new documents
+# Add new documents with automatic upgrades
 cd DB
 python update_database.py
 
-# Update graph only
+# The update process now includes:
+# - Check for new documents
+# - Detect and upgrade old embeddings to text-embedding-3-large
+# - Deduplicate new entities
+# - Update graph automatically
+
+# Update graph only (if needed separately)
 python populate_graph_tables.py
 ```
 

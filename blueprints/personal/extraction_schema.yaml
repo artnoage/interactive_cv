@@ -1,0 +1,159 @@
+# Personal Notes Metadata Extraction Schema
+# Defines what fields to extract from daily/weekly personal notes
+
+metadata:
+  name: "Personal Notes Extraction"
+  version: "1.0"
+  description: "Schema for extracting metadata from personal work notes and reflections"
+
+# Core note information
+core_fields:
+  date:
+    type: string
+    description: "Date/period identifier (e.g., 2025-06-26 or 2025-W26)"
+    required: true
+    
+  note_type:
+    type: string
+    description: "Type of note"
+    required: true
+    enum: ["daily", "weekly", "monthly"]
+    default: "daily"
+    
+  title:
+    type: string
+    description: "Title or summary of the note"
+    required: true
+    
+  summary:
+    type: string
+    description: "Brief summary of work and achievements"
+    required: false
+
+# Core entities matching database schema
+entity_fields:
+  topics:
+    type: list_of_strings
+    description: "Research topics, methods, concepts worked on"
+    required: false
+    default: []
+    
+  projects:
+    type: list_of_strings
+    description: "Projects worked on (project names only)"
+    required: false
+    default: []
+    
+  people:
+    type: list_of_strings
+    description: "People mentioned by full name (no usernames or placeholders)"
+    required: false
+    default: []
+    validation:
+      no_placeholders: true
+      full_names_only: true
+    
+  institutions:
+    type: list_of_strings
+    description: "Organizations, universities, companies mentioned"
+    required: false
+    default: []
+    
+  methods:
+    type: list_of_strings
+    description: "Specific methods, techniques, or approaches used"
+    required: false
+    default: []
+    
+  tools:
+    type: list_of_strings
+    description: "Tools, technologies, frameworks, languages used"
+    required: false
+    default: []
+
+# Work activities and outcomes
+activity_fields:
+  accomplishments:
+    type: list_of_strings
+    description: "Key accomplishments and completed work"
+    required: false
+    default: []
+    
+  insights:
+    type: list_of_strings
+    description: "Key insights, breakthroughs, or discoveries"
+    required: false
+    default: []
+    
+  learning:
+    type: list_of_strings
+    description: "What was learned, read, or discovered"
+    required: false
+    default: []
+
+# Challenges and future directions
+challenge_fields:
+  challenges:
+    type: list_of_strings
+    description: "Problems faced and challenges"
+    required: false
+    default: []
+    
+  future_work:
+    type: list_of_strings
+    description: "Tasks or research directions for the future"
+    required: false
+    default: []
+
+# Metrics and references
+metrics_fields:
+  metrics:
+    type: object
+    description: "Quantitative results with numbers and context"
+    required: false
+    default: {}
+    schema:
+      # Flexible schema - any key-value pairs
+      additional_properties: true
+    
+  papers:
+    type: list_of_strings
+    description: "Academic papers referenced or worked on"
+    required: false
+    default: []
+
+# Metadata about the extraction
+extraction_metadata:
+  file_path:
+    type: string
+    description: "Path to the source note file"
+    required: false
+    
+  extraction_date:
+    type: string
+    description: "When the metadata was extracted"
+    required: false
+    
+  extractor_version:
+    type: string
+    description: "Version of the extraction system"
+    required: false
+    default: "blueprint-v1.0"
+
+# Special instructions for extraction
+extraction_instructions:
+  people_validation:
+    description: "Ensure people are real full names, not usernames or placeholders"
+    rules:
+      - "No @usernames or handles"
+      - "No generic terms like 'colleague' or 'collaborator'"
+      - "Full first and last names only"
+      - "Skip if name is uncertain or incomplete"
+      
+  quality_focus:
+    description: "Focus on substantive work rather than routine activities"
+    rules:
+      - "Emphasize research insights and breakthroughs"
+      - "Include specific technical achievements"
+      - "Capture learning and skill development"
+      - "Note meaningful collaborations and discussions"

@@ -1,0 +1,165 @@
+# Academic Paper Database Mapping Blueprint
+# Defines how extracted academic metadata maps to database entities and relationships
+
+metadata:
+  name: "Academic Database Mapping"
+  version: "1.0"
+  description: "Maps academic paper metadata to database schema"
+  document_type: "academic"
+
+# Document table mapping
+document_mapping:
+  table: "academic_documents"
+  id_prefix: "academic"
+  content_source: "file_path"  # Read content from this path
+  fields:
+    title: "title"
+    date: "year"  # Use year as date
+    domain: "domain"
+    document_type: 
+      value: "analysis"  # Static value
+
+# Entity mappings - how metadata fields map to database entities
+entity_mappings:
+  # Mathematical concepts with preserved categories
+  mathematical_concepts:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "discusses"
+    category_handling: "preserve_original"  # Keep the original category from metadata
+    description_field: "description"
+    
+  # Research areas as topics with specific category
+  research_areas:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "discusses"
+    category_override: "research_area"  # Force this category
+    
+  # Methods and algorithms
+  methods:
+    target_table: "methods"
+    entity_type: "method"
+    relationship_type: "uses_method"
+    category_field: "type"  # Map 'type' to 'category' column
+    description_field: "description"
+    
+  algorithms:
+    target_table: "methods"
+    entity_type: "method"
+    relationship_type: "uses_method"
+    category_override: "algorithmic"
+    description_field: "purpose"  # Use purpose as description
+    
+  # People and institutions
+  people:
+    target_table: "people"
+    entity_type: "person"
+    relationship_type: "mentions"
+    
+  authors:
+    target_table: "people"
+    entity_type: "person"
+    relationship_type: "authored_by"
+    role_override: "author"  # Set role to author
+    
+  institutions:
+    target_table: "institutions"
+    entity_type: "institution"
+    relationship_type: "affiliated_with"
+    
+  # Applications
+  applications:
+    target_table: "applications"
+    entity_type: "application"
+    relationship_type: "has_application"
+    domain_field: "domain"
+    description_field: "use_case"  # Use use_case as description
+    
+  # Various topic categories with specific mappings
+  assumptions:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "makes_assumption"
+    category_override: "assumption"
+    
+  limitations:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "has_limitation"
+    category_override: "limitation"
+    
+  future_work:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "suggests_future_work"
+    category_override: "future_work"
+    
+  theoretical_results:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "proves"
+    category_override: "theorem"
+    
+  related_concepts:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "relates_to"
+    category_override: "concept"
+    
+  key_insights:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "discovers"
+    category_override: "insight"
+    
+  innovations:
+    target_table: "topics"
+    entity_type: "topic"
+    relationship_type: "innovates"
+    category_override: "innovation"
+
+# Special handling rules
+special_handling:
+  # For object-type fields, specify how to extract data
+  object_fields:
+    mathematical_concepts:
+      name_field: "name"
+      category_field: "category"
+      description_field: "description"
+      
+    methods:
+      name_field: "name"
+      category_field: "type"
+      description_field: "description"
+      
+    algorithms:
+      name_field: "name"
+      description_field: "purpose"
+      
+    applications:
+      name_field: "domain"  # Use domain as the primary name
+      domain_field: "domain"
+      description_field: "use_case"
+      
+  # String list fields are used as-is
+  string_list_fields:
+    - "research_areas"
+    - "assumptions"
+    - "limitations"
+    - "future_work"
+    - "theoretical_results"
+    - "related_concepts"
+    - "key_insights"
+    - "innovations"
+    - "people"
+    - "institutions"
+
+# Relationship confidence scores
+relationship_confidence:
+  authored_by: 1.0
+  discusses: 0.9
+  uses_method: 0.8
+  has_application: 0.7
+  affiliated_with: 0.6
+  mentions: 0.5

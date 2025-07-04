@@ -1,69 +1,52 @@
 # Scripts Directory
 
-This directory contains utility scripts for metadata extraction.
+This directory previously contained utility scripts for the Interactive CV system. With the implementation of the **configuration-driven architecture**, most functionality has been moved to the main components.
 
-## Active Scripts
+## Migration to Configuration-Driven Architecture
 
-### extract_personal_notes_metadata.py
-Extracts metadata from personal notes using the ChronicleMetadataExtractor.
-- Generates JSON metadata files for chronicle notes
-- Part of the modular extraction workflow
-- Run before database population
+The following scripts have been **replaced by configuration-driven components**:
 
-**Usage:**
+### ❌ Removed (Obsolete)
+- `extract_academic_metadata.py` → Use `agents/extractor.py academic`
+- `extract_personal_notes_metadata.py` → Use `agents/extractor.py personal`
+
+### ✅ New Configuration-Driven Alternatives
+
+**Extract Metadata:**
 ```bash
-python scripts/extract_personal_notes_metadata.py
+# Academic papers (uses blueprints/academic/ configurations)
+python agents/extractor.py academic \
+  --input academic/ --output raw_data/academic/extracted_metadata/
 
-# Options:
---input     # Input directory (default: raw_data/personal_notes)
---output    # Output directory (default: raw_data/personal_notes/extracted_metadata)
---pattern   # File pattern to match (default: *.md)
---dry-run   # Show what would be processed without extracting
+# Personal notes (uses blueprints/personal/ configurations)  
+python agents/extractor.py personal \
+  --input personal_notes/ --output raw_data/personal_notes/extracted_metadata/
 ```
 
-### extract_academic_metadata.py
-Extracts metadata from academic papers using the two-step workflow:
-1. Analyzes papers using AcademicAnalyzer
-2. Extracts metadata from analyses using AcademicExtractor
-
-**Usage:**
+**Build Database:**
 ```bash
-python scripts/extract_academic_metadata.py
-
-# Options:
---input          # Input directory with papers (default: raw_data/academic/Transcript_MDs)
---analyses       # Directory for analyses (default: raw_data/academic/generated_analyses)
---output         # Output directory (default: raw_data/academic/extracted_metadata)
---use-pro        # Use pro model instead of flash
---skip-analysis  # Skip analysis phase (use existing analyses)
---dry-run        # Show what would be processed without extracting
+# Complete configuration-driven build with rich entity types
+python DB/build_database.py --validate-blueprints
 ```
 
-## Workflow
+**Generate Knowledge Graph:**
+```bash
+# Rich graph with 24+ node types using configuration blueprints
+python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
+```
 
-The recommended workflow is:
+## Configuration System Benefits
 
-1. **Extract Metadata** (if needed):
-   ```bash
-   # For personal notes only (academic already extracted)
-   python scripts/extract_personal_notes_metadata.py
-   ```
+The new configuration-driven architecture provides:
 
-2. **Build or Update Database**:
-   ```bash
-   # Fresh build
-   cd DB && python build_database.py
-   
-   # Or incremental update
-   cd DB && python update_database.py
-   ```
+1. **Rich Entity Types**: 24+ distinct node types instead of generic categories
+2. **Zero Code Changes**: Add new document types via YAML configuration
+3. **Domain Agnosticism**: Same code works for any research field
+4. **Configuration Validation**: YAML schema validation prevents errors
+5. **Complete Flexibility**: All extraction and visualization rules in blueprints
 
-## Note
+## Legacy Compatibility
 
-All other processing scripts have been moved to the DB folder:
-- Database building: `DB/build_database.py`
-- Database updates: `DB/update_database.py`
-- Chunking: handled automatically by DB scripts
-- Embeddings: handled automatically by DB scripts
+The configuration system maintains backward compatibility with existing data and workflows while providing significantly enhanced functionality.
 
-See the main CLAUDE.md for complete documentation.
+For detailed usage instructions, see the main README.md and CLAUDE.md files.

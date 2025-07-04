@@ -66,9 +66,9 @@ class EmbeddingGenerator:
             # Insert or update embedding
             cursor.execute("""
                 INSERT OR REPLACE INTO embeddings 
-                (entity_type, entity_id, embedding, model_name)
-                VALUES (?, ?, ?, ?)
-            """, (entity_type, entity_id, embedding_bytes, self.model_name))
+                (entity_type, entity_id, embedding, model_name, dimensions)
+                VALUES (?, ?, ?, ?, ?)
+            """, (entity_type, entity_id, embedding_bytes, self.model_name, len(embedding)))
             
             conn.commit()
             logger.debug(f"Stored embedding for {entity_type}:{entity_id}")

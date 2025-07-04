@@ -1,0 +1,270 @@
+# Academic Paper Metadata Extraction Schema
+# Defines what fields to extract from academic papers and their structure
+
+metadata:
+  name: "Academic Paper Extraction"
+  version: "1.0"
+  description: "Schema for extracting metadata from academic research papers"
+
+# Core paper information fields
+core_fields:
+  title:
+    type: string
+    description: "Paper title"
+    required: true
+    
+  authors:
+    type: list_of_strings
+    description: "Paper authors"
+    required: true
+    default: []
+    
+  year:
+    type: string
+    description: "Publication year"
+    required: false
+    
+  venue:
+    type: string
+    description: "Journal/conference venue"
+    required: false
+    
+  domain:
+    type: string
+    description: "Primary domain"
+    required: false
+    enum: ["mathematics", "computer_science", "physics"]
+    default: "mathematics"
+    
+  core_contribution:
+    type: string
+    description: "Main contribution of the paper"
+    required: true
+
+# Phase 1: Rapid Reconnaissance
+reconnaissance_fields:
+  problem_addressed:
+    type: string
+    description: "The core problem being solved"
+    required: false
+    
+  initial_assessment:
+    type: string
+    description: "Initial judgement of relevance and credibility"
+    required: false
+
+# Phase 2: Deep Dive - Technical Content
+technical_fields:
+  mathematical_concepts:
+    type: list_of_objects
+    description: "Mathematical concepts with detailed categorization"
+    required: false
+    default: []
+    schema:
+      name:
+        type: string
+        description: "Name of the mathematical concept"
+        required: true
+      category:
+        type: string
+        description: "Type of mathematical concept"
+        required: true
+        enum: ["space", "metric", "principle", "functional", "equation", "operator", "theory", "property", "theorem", "framework", "set", "measure"]
+      description:
+        type: string
+        description: "Detailed description of the concept"
+        required: false
+        
+  methods:
+    type: list_of_objects
+    description: "Methods and techniques used"
+    required: false
+    default: []
+    schema:
+      name:
+        type: string
+        description: "Name of the method"
+        required: true
+      type:
+        type: string
+        description: "Type of method"
+        required: false
+        enum: ["theoretical", "analytical", "computational", "empirical", "experimental"]
+      description:
+        type: string
+        description: "Description of the method"
+        required: false
+        
+  algorithms:
+    type: list_of_objects
+    description: "Algorithms described in the paper"
+    required: false
+    default: []
+    schema:
+      name:
+        type: string
+        description: "Algorithm name"
+        required: true
+      purpose:
+        type: string
+        description: "What the algorithm does"
+        required: false
+      key_idea:
+        type: string
+        description: "Core algorithmic idea"
+        required: false
+      complexity:
+        type: string
+        description: "Computational complexity"
+        required: false
+
+# Critical Analysis Elements
+analysis_fields:
+  assumptions:
+    type: list_of_strings
+    description: "Key assumptions and approximations made"
+    required: false
+    default: []
+    
+  limitations:
+    type: list_of_strings
+    description: "Limitations and boundaries of applicability"
+    required: false
+    default: []
+
+# Evaluation & Validation
+evaluation_fields:
+  evaluation_details:
+    type: object
+    description: "Evaluation approach details"
+    required: false
+    schema:
+      approach:
+        type: string
+        description: "Evaluation methodology"
+      datasets:
+        type: string
+        description: "Datasets used"
+      metrics:
+        type: string
+        description: "Evaluation metrics"
+      baselines:
+        type: string
+        description: "Baseline comparisons"
+      results:
+        type: string
+        description: "Key results"
+        
+  proof_scrutiny:
+    type: object
+    description: "Mathematical proof analysis"
+    required: false
+    schema:
+      proof_strategy:
+        type: string
+        description: "Overall proof approach"
+      key_lemmas:
+        type: string
+        description: "Important supporting lemmas"
+      potential_gaps:
+        type: string
+        description: "Potential weaknesses or gaps"
+
+# Phase 3: Synthesis & Future Work
+synthesis_fields:
+  key_insights:
+    type: list_of_strings
+    description: "Core insights distilled from the paper"
+    required: false
+    default: []
+    
+  future_work:
+    type: list_of_strings
+    description: "Open questions and future research directions"
+    required: false
+    default: []
+    
+  practical_implications:
+    type: list_of_strings
+    description: "Real-world applications and broader impact"
+    required: false
+    default: []
+
+# Context & Connections
+context_fields:
+  research_areas:
+    type: list_of_strings
+    description: "Research areas and fields"
+    required: false
+    default: []
+    
+  innovations:
+    type: list_of_strings
+    description: "Novel approaches and key innovations"
+    required: false
+    default: []
+    
+  applications:
+    type: list_of_objects
+    description: "Real-world applications"
+    required: false
+    default: []
+    schema:
+      domain:
+        type: string
+        description: "Application domain"
+        required: true
+      use_case:
+        type: string
+        description: "Specific use case"
+        required: false
+      impact:
+        type: string
+        description: "Expected impact"
+        required: false
+
+# People & Institutions
+entity_fields:
+  people:
+    type: list_of_strings
+    description: "People mentioned (full names only, no placeholders)"
+    required: false
+    default: []
+    
+  institutions:
+    type: list_of_strings
+    description: "Universities, research centers, organizations"
+    required: false
+    default: []
+
+# Additional structured fields
+additional_fields:
+  theoretical_results:
+    type: list_of_strings
+    description: "Theorems, propositions, and key theoretical results"
+    required: false
+    default: []
+    
+  related_concepts:
+    type: list_of_strings
+    description: "Related concepts and connections to other work"
+    required: false
+    default: []
+
+# Metadata about the extraction
+extraction_metadata:
+  file_path:
+    type: string
+    description: "Path to the source analysis file"
+    required: false
+    
+  extraction_date:
+    type: string
+    description: "When the metadata was extracted"
+    required: false
+    
+  extractor_version:
+    type: string
+    description: "Version of the extraction system"
+    required: false
+    default: "blueprint-v1.0"

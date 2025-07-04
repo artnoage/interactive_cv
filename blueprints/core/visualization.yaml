@@ -1,0 +1,268 @@
+# Knowledge Graph Visualization Blueprint
+# Defines how entities are visualized in the knowledge graph
+
+metadata:
+  name: "Knowledge Graph Visualization"
+  version: "1.0"
+  description: "Visualization rules for knowledge graph nodes and edges"
+
+# Node type mappings - how database entities map to visualization types
+node_type_mappings:
+  # Document types
+  document:
+    academic_document: "paper"
+    chronicle_document: "personal_note"
+  
+  # Topic categories mapped to meaningful node types
+  topic:
+    # Mathematical foundations
+    space: "math_foundation"
+    metric: "math_foundation"
+    principle: "math_foundation"
+    functional: "math_foundation"
+    equation: "math_foundation"
+    operator: "math_foundation"
+    theory: "math_foundation"
+    property: "math_foundation"
+    theorem: "math_foundation"
+    framework: "math_foundation"
+    set: "math_foundation"
+    measure: "math_foundation"
+    
+    # Research and academic
+    research_area: "research_area"
+    assumption: "assumption"
+    limitation: "limitation"
+    concept: "general_concept"
+    innovation: "innovation"
+    insight: "research_insight"
+    
+    # Personal development
+    accomplishment: "personal_achievement"
+    learning: "personal_learning"
+    challenge: "challenge"
+    future_work: "future_direction"
+    
+    # References and papers
+    paper: "reference_paper"
+    
+    # Default for uncategorized topics
+    default: "general_topic"
+  
+  # Method categories
+  method:
+    theoretical: "theoretical_method"
+    analytical: "analytical_method"
+    computational: "computational_method"
+    algorithmic: "algorithmic_method"
+    empirical: "empirical_method"
+    experimental: "experimental_method"
+    tool: "tool"
+    default: "general_method"
+  
+  # Other entity types (use as-is)
+  person: "person"
+  project: "project"
+  institution: "institution"
+  application: "application"
+
+# Color scheme for different node types
+colors:
+  # Documents
+  paper: "#ff4444"                    # Red - academic papers
+  personal_note: "#ff6666"            # Light red - personal notes
+  
+  # Mathematical and theoretical
+  math_foundation: "#4444ff"          # Blue - mathematical concepts
+  theoretical_method: "#6644ff"       # Purple-blue - theoretical methods
+  
+  # Research and academic
+  research_area: "#8844ff"            # Violet - research fields
+  research_insight: "#aa44ff"         # Light violet - research insights
+  assumption: "#ffaa88"               # Light orange - assumptions
+  limitation: "#ff8866"               # Orange-red - limitations
+  innovation: "#ff44aa"               # Pink - innovations
+  
+  # Methods and tools
+  analytical_method: "#bb44bb"        # Purple - analytical methods
+  computational_method: "#aa44aa"     # Dark purple - computational methods
+  algorithmic_method: "#9944aa"       # Deep purple - algorithms
+  empirical_method: "#cc44cc"         # Magenta - empirical methods
+  experimental_method: "#dd44dd"      # Light magenta - experimental methods
+  general_method: "#cc44cc"           # Purple - general methods
+  tool: "#ee44ee"                     # Bright magenta - tools
+  
+  # People and organizations
+  person: "#44cc44"                   # Green - people
+  institution: "#44cccc"              # Teal - institutions
+  
+  # Projects and applications
+  project: "#ff8844"                  # Orange - projects
+  application: "#ffcc44"              # Yellow - applications
+  
+  # Personal development
+  personal_achievement: "#44ff88"     # Light green - achievements
+  personal_learning: "#66ff66"        # Bright green - learning
+  challenge: "#ff8888"                # Light red - challenges
+  future_direction: "#8888ff"         # Light blue - future work
+  
+  # General categories
+  general_concept: "#aaaaaa"          # Gray - general concepts
+  general_topic: "#999999"            # Dark gray - uncategorized topics
+  reference_paper: "#ff6644"          # Red-orange - referenced papers
+  
+  # Default fallback
+  default: "#888888"                  # Medium gray
+
+# Node size mappings
+sizes:
+  # Documents are larger
+  paper: 20
+  personal_note: 18
+  
+  # Important entities are medium
+  person: 14
+  project: 14
+  institution: 14
+  
+  # Concepts and methods are smaller
+  math_foundation: 12
+  research_area: 12
+  theoretical_method: 10
+  analytical_method: 10
+  computational_method: 10
+  algorithmic_method: 10
+  tool: 10
+  
+  # Personal items are medium-small
+  personal_achievement: 11
+  personal_learning: 11
+  challenge: 11
+  future_direction: 11
+  
+  # General items are small
+  general_concept: 9
+  general_topic: 8
+  application: 10
+  
+  # Default size
+  default: 10
+
+# Edge styling based on relationship types
+edge_styles:
+  # Strong relationships
+  authored_by:
+    color: "#ff0000"
+    width: 3
+    style: "solid"
+    
+  part_of:
+    color: "#ff8800"
+    width: 2
+    style: "solid"
+    
+  # Knowledge relationships
+  discusses:
+    color: "#4444ff"
+    width: 1
+    style: "solid"
+    
+  uses_method:
+    color: "#cc44cc"
+    width: 1
+    style: "solid"
+    
+  # Achievement relationships
+  accomplished:
+    color: "#44ff44"
+    width: 2
+    style: "solid"
+    
+  discovered:
+    color: "#44ffaa"
+    width: 2
+    style: "solid"
+    
+  # Future and planning
+  plans:
+    color: "#8888ff"
+    width: 1
+    style: "dashed"
+    
+  suggests_future_work:
+    color: "#8888ff"
+    width: 1
+    style: "dashed"
+    
+  # Weak relationships
+  mentions:
+    color: "#cccccc"
+    width: 1
+    style: "dotted"
+    
+  affiliated_with:
+    color: "#44cccc"
+    width: 1
+    style: "solid"
+    
+  # Default edge
+  default:
+    color: "#999999"
+    width: 1
+    style: "solid"
+
+# Node grouping for layout
+node_groups:
+  documents:
+    types: ["paper", "personal_note"]
+    layout_priority: 1
+    
+  people_orgs:
+    types: ["person", "institution"]
+    layout_priority: 2
+    
+  projects:
+    types: ["project"]
+    layout_priority: 2
+    
+  math_concepts:
+    types: ["math_foundation", "theoretical_method", "analytical_method"]
+    layout_priority: 3
+    
+  research:
+    types: ["research_area", "research_insight", "innovation"]
+    layout_priority: 3
+    
+  personal_dev:
+    types: ["personal_achievement", "personal_learning", "challenge", "future_direction"]
+    layout_priority: 4
+    
+  tools_methods:
+    types: ["tool", "computational_method", "algorithmic_method"]
+    layout_priority: 4
+
+# Legend information
+legend:
+  title: "Interactive CV Knowledge Graph"
+  description: "Visualization of research expertise, personal development, and professional connections"
+  
+  sections:
+    documents:
+      title: "Documents & Papers"
+      description: "Academic papers and personal work notes"
+      
+    foundations:
+      title: "Mathematical Foundations"
+      description: "Core mathematical concepts, spaces, metrics, and principles"
+      
+    methods:
+      title: "Methods & Techniques"
+      description: "Theoretical, analytical, and computational approaches"
+      
+    development:
+      title: "Personal Development"
+      description: "Achievements, learning, challenges, and future directions"
+      
+    connections:
+      title: "Professional Network"
+      description: "People, institutions, and collaborative relationships"

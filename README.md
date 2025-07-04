@@ -1,6 +1,6 @@
 # Interactive CV System
 
-An AI-powered system that transforms academic research papers and personal notes into a dynamic, queryable professional profile. Using advanced NLP and knowledge graphs, it enables intelligent conversations about research expertise and professional journey.
+An AI-powered system that transforms academic research papers and personal notes into a dynamic, queryable professional profile. Built with a **blueprint-driven architecture** that separates domain knowledge from code, enabling rich entity types and configurable processing.
 
 ## 🚀 Quick Start
 
@@ -19,478 +19,253 @@ cp .env.example .env
 # OPENAI_API_KEY=your_key_here
 
 # 4. Build database from scratch (complete pipeline)
-cd DB
-python build_database.py
+python DB/build_database.py
 
-# Or for incremental updates:
-# python update_database.py
+# The build process automatically:
+# - Validates all configurations
+# - Creates database schema from blueprints
+# - Imports all metadata with rich type preservation
+# - Creates semantic chunks
+# - Generates high-quality embeddings (text-embedding-3-large)
+# - Deduplicates entities with 20 parallel workers
+# - Builds knowledge graph with 24+ node types
 
 # 5. Run the interactive agent
 python interactive_agent.py
 ```
 
-## 🏗️ Architecture
+## 🏗️ Blueprint-Driven Architecture
+
+The system is built with a revolutionary **blueprint-driven design** that completely separates domain knowledge from code:
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Data Sources   │     │ Processing Layer │     │   Query Layer   │
-├─────────────────┤     ├──────────────────┤     ├─────────────────┤
-│ Academic Papers │────▶│ LLM Analysis     │────▶│ SQL + Graph     │
-│ Personal Notes  │     │ Entity Extraction│     │ Semantic Search │
-└─────────────────┘     │ Embeddings       │     │ LangChain Agent │
-                        │ Chunking         │     └─────────────────┘
-                        └──────────────────┘     
+│  YAML Blueprints│     │ Generic Processors│     │ Rich Knowledge  │
+├─────────────────┤     ├──────────────────┤     │     Graph       │
+│ extraction_schema│────▶│ blueprint_driven │────▶│ 24+ Node Types  │
+│ database_mapping │     │ components       │     │ Rich Relationships│
+│ visualization   │     │ work with ANY    │     │ Configurable    │
+│ database_schema │     │ document type    │     │ Visualization   │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
 
-Processing Pipeline:
-┌──────────────┐    ┌─────────────┐    ┌──────────────┐    ┌──────────┐
-│ Raw Document │───▶│ LLM Analyzer│───▶│ LLM Extractor│───▶│ Database │
-└──────────────┘    └─────────────┘    └──────────────┘    └──────────┘
-                           │                    │                  │
-                    (Full Analysis)    (Entity Extraction)   (Normalized)
-
-Modular Workflow (NEW):
-┌──────────────┐    ┌──────────────┐    ┌─────────────┐    ┌──────────┐
-│ Raw Document │───▶│ LLM Extractor│───▶│ JSON Files  │───▶│ Database │
-└──────────────┘    └──────────────┘    └─────────────┘    └──────────┘
-                           │                    │                  │
-                    (Extract Metadata)   (Inspectable)      (Unified Import)
+Blueprint Structure:
+blueprints/
+├── academic/          # Academic paper configurations
+│   ├── extraction_schema.yaml     # 28 extraction fields  
+│   └── database_mapping.yaml      # 15 entity mappings
+├── personal/          # Personal notes configurations  
+│   ├── extraction_schema.yaml     # 20 extraction fields
+│   └── database_mapping.yaml      # 12 entity mappings
+└── core/              # Domain-agnostic configurations
+    ├── database_schema.yaml       # Complete database structure
+    ├── visualization.yaml         # Node types, colors, layouts
+    └── blueprint_loader.py        # Configuration parser
 ```
+
+### 🎯 Key Blueprint Benefits
+
+- **Domain-Agnostic Code**: DB and KG systems work with any domain
+- **Rich Type Preservation**: Mathematical concepts keep original categories
+- **Easy Extensibility**: Add new document types via YAML files
+- **No Code Changes**: Modify behavior by editing blueprints
+- **Validation**: Schema validation ensures blueprint correctness
 
 ## 📁 Project Structure
 
 ```
 interactive_cv/
-├── academic/              # Research papers and analyses
-├── personal_notes/        # Daily and weekly notes
-├── agents/                # LLM-based analyzers and extractors
-├── DB/                    # Database and processing system
-│   ├── extractors/        # Base extraction logic
-│   ├── build_database.py  # Complete database builder
-│   ├── update_database.py # Incremental updater
-│   ├── unified_metadata_populator.py # JSON importer
-│   ├── chunker.py         # Document chunking
-│   ├── embeddings.py      # Vector embedding generation
-│   ├── populate_graph_tables.py # Graph table population
-│   └── query_comprehensive.py # Database exploration
-├── KG/                    # Knowledge Graph system
-│   ├── knowledge_graph.py # Graph generation
-│   └── graph_enhanced_query.py # Intelligent queries
-├── scripts/               # Utility scripts
-├── .sync/                 # Chronicle sync system
-├── interactive_agent.py   # Conversational AI interface
-└── web_ui/               # Visualization interface
+├── blueprints/            # YAML configuration files (NEW!)
+│   ├── academic/         # Academic paper blueprints
+│   ├── personal/         # Personal notes blueprints
+│   └── core/            # Domain-agnostic blueprints
+├── academic/             # Research papers and analyses
+├── personal_notes/       # Daily and weekly notes
+├── agents/               # LLM-based analyzers and extractors
+│   ├── extractor.py                   # Generic document extractor
+│   ├── academic_analyzer.py           # Paper analyzer
+│   └── entity_deduplicator.py         # Deduplication
+├── DB/                   # Database and processing system
+│   ├── build_database.py              # Complete database builder
+│   ├── populator.py                   # Generic metadata populator
+│   ├── chunker.py                     # Document chunking
+│   ├── embeddings.py                  # Vector embeddings
+│   ├── populate_graph_tables.py       # Graph table population
+│   └── query_comprehensive.py         # Database exploration
+├── KG/                   # Knowledge Graph system
+│   ├── graph_builder.py               # Rich knowledge graph generator
+│   └── graph_enhanced_query.py        # Intelligent queries
+├── .sync/                # Chronicle sync system
+├── interactive_agent.py  # Conversational AI interface
+└── web_ui/              # Visualization interface
 ```
 
-## 🔍 Key Features
+## 🔍 Rich Entity Types & Knowledge Graph
 
-### 1. Multi-Stage Academic Processing Pipeline
+### Knowledge Graph Statistics (Latest)
+- **Total Nodes**: 1,135 with 24 distinct types
+- **Total Edges**: 1,249 relationships
+- **Rich Node Types**:
+  - `math_foundation` (203): Core mathematical concepts
+  - `person` (181): Authors and collaborators
+  - `research_insight` (93): Key insights from papers
+  - `personal_achievement` (71): Work accomplishments
+  - `research_area` (47): Research domains
+  - `theoretical_method`, `algorithmic_method`, `analytical_method`: Categorized methods
+  - `future_direction`, `innovation`, `limitation`: Research aspects
+  - `tool`, `institution`, `application`: Practical entities
 
-The system uses a sophisticated "Extract First, Chunk Later" approach:
+### Advanced Categorization Examples
+- **Mathematical Concepts**: `space` → `math_foundation`, `probability` → `math_foundation`
+- **Methods**: `numerical` → `computational_method`, `proof` → `theoretical_method`
+- **Personal Work**: `accomplishment` → `personal_achievement`, `learning` → `personal_learning`
 
-```
-Raw Paper → Full Analysis → Entity Extraction → Database → Chunking → Embeddings
-```
-
-**Why This Order Matters**:
-- **Full Context Extraction**: Catches cross-document references, relationships, and concept hierarchies
-- **Smart Chunking**: Splits at semantic boundaries (1000-1500 tokens) AFTER extraction
-- **Entity Mapping**: Each chunk knows which entities it contains (no re-extraction needed)
-- **Efficient RAG**: Small chunks with rich metadata pointers
-
-**Pipeline Stages**:
-1. **Analysis**: LLM analyzes complete paper following structured methodology
-2. **Extraction**: Different LLM extracts entities from FULL analysis (not raw paper)
-3. **Storage**: Atomic database transactions preserve relationships
-4. **Chunking**: Semantic splitting with section awareness
-5. **Embeddings**: Generated for documents, chunks, AND entities
-
-### 2. Knowledge Graph
-- Database-agnostic design
-- 965 nodes and 2232 edges from academic papers and personal notes
-- Entity types: documents, topics, people, projects, methods, institutions, applications
-- Pre-computed graph tables for performance
-- PageRank identifies key research areas and connections (Vaios Laschos as top node)
-
-### 3. Semantic Search & RAG
-
-**RAG Query Flow Example** - "What did Vaios work on with optimal transport?":
-1. **Entity Recognition**: Identify "Vaios" (person) and "optimal transport" (topic)
-2. **Relationship Query**: Find documents linking these entities via SQL
-3. **Chunk Retrieval**: Get chunks from those documents mentioning both
-4. **Semantic Search**: Use embeddings to rank chunk relevance
-5. **Context Assembly**: Include document metadata + chunk content
-6. **Response Generation**: LLM uses rich context to answer
-
-**Key Components**:
-- OpenAI embeddings for all content
-- 65 document chunks for granular retrieval  
-- Chunk-entity mappings with relevance scores
-- Combined SQL + vector search for best results
-
-### 4. Modular Metadata Workflow
-
-The system now supports a modular approach that separates extraction from storage:
-
-**Benefits**:
-- **Separation of Concerns**: Extraction logic is independent of storage
-- **Inspectable Metadata**: JSON files can be reviewed before database import
-- **Flexibility**: Re-run database population without re-extracting
-- **Consistency**: Academic and personal notes follow the same pattern
-- **Debugging**: Easy to see what was extracted and modify if needed
-
-**Components**:
-- `agents/academic_metadata_extractor.py` - Extracts academic metadata to JSON
-- `agents/chronicle_metadata_extractor.py` - Extracts personal notes metadata to JSON  
-- `DB/unified_metadata_populator.py` - Populates database from JSON files
-
-**Workflow**:
-1. Extract metadata from documents → JSON files
-2. Review/modify JSON if needed
-3. Import JSON to database
-4. Update knowledge graph
-
-### 5. Interactive Agent
-- Natural language interface
-- Multiple specialized tools
-- Conversation memory
-- Real-time streaming responses
-
-### 6. Entity Deduplication System
-- **Multi-level detection**: String matching + embedding similarity + LLM verification
-- **Transitive clustering**: Handles chains of duplicates (e.g., "V.Laschos" → "V. Laschos" → "V.Laschos" all merge to one)
-- **Parallel LLM verification**: Up to 20 workers for faster processing
-- **Smart canonical selection**: Based on relationship count, proper capitalization, completeness, and metadata
-- **Safe merging**: Preserves relationships and handles conflicts
-- **Audit logging**: Complete history of all deduplication actions
-- **Dry-run mode**: Preview changes before applying them
-
-## 📊 Current Status (2025-01-04)
+## 📊 Current Status (2025-01-04 - Blueprint Update)
 
 ### Database Statistics
-- **12 academic papers**: All successfully processed
-- **7 personal notes**: Extracted and ready
-- **Entities (after deduplication)**:
-  - **542 topics** (was 577): Mathematical concepts and research areas
-  - **174 people** (was 175): Authors and researchers
-  - **114 methods** (was 132): Analytical and computational techniques
+- **19 documents**: 12 academic papers + 7 personal notes
+- **Entities with Rich Categories**:
+  - **745 topics**: Categorized by domain (math_foundation, research_area, etc.)
+  - **181 people**: Authors and collaborators
+  - **132 methods**: Theoretical, computational, analytical categories
   - **24 institutions**: Universities and organizations
-  - **24 applications** (was 25): Real-world use cases
-  - **8 projects** (was 13): Research and development projects
-- **65 document chunks**: For semantic search
-- **1038 relationships**: Between entities
-- **905 graph nodes** (was 965): 60 duplicates removed (6.2% reduction)
-- **2594 graph edges** (was 2232): Increased due to merged relationships
+  - **21 applications**: Real-world use cases
+  - **13 projects**: Research initiatives
+- **1,249 relationships**: Categorized by type (discusses, proves, uses_method, etc.)
+- **Document chunks**: Semantic segmentation for RAG
 
 ### Processing Pipeline Status
-✅ Academic paper analysis and extraction
-✅ Direct database population
-✅ Semantic chunking with entity mapping
-✅ Embedding generation (needs regeneration)
-✅ Chronicle sync system
-✅ Knowledge graph visualization (965 nodes, 2232 edges)
+✅ **Blueprint-driven architecture** - Complete domain separation
+✅ **Rich entity type preservation** - 24+ node types instead of generic "topics"
+✅ **Academic paper analysis and extraction**
+✅ **Configurable database population**
+✅ **Semantic chunking with entity mapping**
+✅ **High-quality embeddings** with text-embedding-3-large
+✅ **Integrated entity deduplication**
+✅ **Blueprint-driven knowledge graph** with rich visualization
 ⏳ Interactive web UI completion
 
-## 🗄️ Complete Database Schema
+## 🛠️ Blueprint System Usage
 
-### Core Document Tables
-
-```sql
--- Chronicle documents (daily/weekly/monthly notes)
-CREATE TABLE IF NOT EXISTS chronicle_documents (
-    id INTEGER PRIMARY KEY,
-    file_path TEXT UNIQUE NOT NULL,
-    title TEXT NOT NULL,
-    date DATE,
-    note_type TEXT DEFAULT 'daily',
-    content TEXT,
-    content_hash TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Academic documents (papers, analyses)
-CREATE TABLE IF NOT EXISTS academic_documents (
-    id INTEGER PRIMARY KEY,
-    file_path TEXT UNIQUE NOT NULL,
-    title TEXT NOT NULL,
-    date DATE,
-    document_type TEXT DEFAULT 'paper',
-    domain TEXT,
-    content TEXT,
-    content_hash TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Backward compatibility view
-CREATE VIEW IF NOT EXISTS documents AS
-SELECT 
-    'chronicle_' || id as unified_id,
-    'chronicle' as doc_type,
-    id,
-    file_path,
-    title,
-    date,
-    note_type,
-    NULL as document_type,
-    NULL as domain,
-    content,
-    content_hash,
-    created_at,
-    modified_at
-FROM chronicle_documents
-UNION ALL
-SELECT 
-    'academic_' || id as unified_id,
-    'academic' as doc_type,
-    id,
-    file_path,
-    title,
-    date,
-    NULL as note_type,
-    document_type,
-    domain,
-    content,
-    content_hash,
-    created_at,
-    modified_at
-FROM academic_documents;
-```
-
-### Entity Tables
-
-```sql
--- Topics (including mathematical concepts, research areas)
-CREATE TABLE IF NOT EXISTS topics (
-    id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    category TEXT,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- People (authors, collaborators, mentioned individuals)
-CREATE TABLE IF NOT EXISTS people (
-    id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    role TEXT,
-    affiliation TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Projects
-CREATE TABLE IF NOT EXISTS projects (
-    id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    description TEXT,
-    start_date DATE,
-    end_date DATE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Institutions
-CREATE TABLE IF NOT EXISTS institutions (
-    id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    type TEXT,
-    location TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Methods (including algorithms)
-CREATE TABLE IF NOT EXISTS methods (
-    id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    category TEXT,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Applications
-CREATE TABLE IF NOT EXISTS applications (
-    id INTEGER PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
-    domain TEXT,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### Relationship Tables
-
-```sql
--- Unified relationships table (no redundancy!)
-CREATE TABLE IF NOT EXISTS relationships (
-    id INTEGER PRIMARY KEY,
-    source_type TEXT NOT NULL,
-    source_id TEXT NOT NULL,
-    target_type TEXT NOT NULL,
-    target_id TEXT NOT NULL,
-    relationship_type TEXT NOT NULL,
-    confidence REAL DEFAULT 1.0,
-    metadata JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(source_type, source_id, target_type, target_id, relationship_type)
-);
-
--- Index for efficient querying
-CREATE INDEX IF NOT EXISTS idx_relationships_source ON relationships(source_type, source_id);
-CREATE INDEX IF NOT EXISTS idx_relationships_target ON relationships(target_type, target_id);
-CREATE INDEX IF NOT EXISTS idx_relationships_type ON relationships(relationship_type);
-```
-
-### Embeddings and Graph Tables
-
-```sql
--- Embeddings for all entities
-CREATE TABLE IF NOT EXISTS embeddings (
-    id INTEGER PRIMARY KEY,
-    entity_type TEXT NOT NULL,
-    entity_id TEXT NOT NULL,
-    embedding BLOB NOT NULL,
-    model_name TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(entity_type, entity_id, model_name)
-);
-
--- Pre-computed graph nodes for visualization
-CREATE TABLE IF NOT EXISTS graph_nodes (
-    id INTEGER PRIMARY KEY,
-    node_id TEXT UNIQUE NOT NULL,
-    node_type TEXT NOT NULL,
-    node_label TEXT NOT NULL,
-    attributes JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Pre-computed graph edges for visualization
-CREATE TABLE IF NOT EXISTS graph_edges (
-    id INTEGER PRIMARY KEY,
-    source_node_id TEXT NOT NULL,
-    target_node_id TEXT NOT NULL,
-    edge_type TEXT NOT NULL,
-    weight REAL DEFAULT 1.0,
-    attributes JSON,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(source_node_id, target_node_id, edge_type),
-    FOREIGN KEY (source_node_id) REFERENCES graph_nodes(node_id),
-    FOREIGN KEY (target_node_id) REFERENCES graph_nodes(node_id)
-);
-```
-
-### Chunking Tables
-
-```sql
--- Document chunks for RAG
-CREATE TABLE IF NOT EXISTS document_chunks (
-    id INTEGER PRIMARY KEY,
-    document_type TEXT NOT NULL,
-    document_id INTEGER NOT NULL,
-    chunk_index INTEGER NOT NULL,
-    content TEXT NOT NULL,
-    section_name TEXT,
-    chunk_metadata JSON,
-    start_char INTEGER,
-    end_char INTEGER,
-    token_count INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(document_type, document_id, chunk_index)
-);
-
--- Entity mapping to chunks
-CREATE TABLE IF NOT EXISTS chunk_entities (
-    chunk_id INTEGER REFERENCES document_chunks(id),
-    entity_type TEXT NOT NULL,
-    entity_id INTEGER NOT NULL,
-    relevance_score FLOAT DEFAULT 1.0,
-    PRIMARY KEY (chunk_id, entity_type, entity_id)
-);
-```
-
-### Key Design Principles
-
-1. **No Redundancy**: Single `relationships` table for ALL relationships
-2. **Unified IDs**: Documents use format `{type}_{id}` (e.g., 'chronicle_1', 'academic_2')
-3. **Direct Extraction**: Entities created during extraction, no intermediate JSON
-4. **Graph-Ready**: Pre-computed tables for fast visualization
-5. **Flexible Metadata**: JSON fields for extensibility
-6. **Entity Normalization**: Shared entities across documents (topics, people, etc.)
-
-### Common Relationship Types
-
-- `discusses`: Document discusses a topic
-- `authored_by`: Document authored by person
-- `uses_method`: Document uses a method/algorithm
-- `has_application`: Document has an application
-- `part_of`: Document part of project
-- `affiliated_with`: Person affiliated with institution
-- `builds_on`: Document/topic builds on another
-- `enables`: Document/topic enables another
-
-## 🛠️ Usage Examples
-
-### Extract Metadata from Documents
+### 1. Build Database with Blueprints
 
 ```bash
-# Extract academic metadata to JSON
-python scripts/extract_academic_metadata.py
+# Complete build with validation
+python DB/build_database.py --validate-blueprints
 
-# Extract personal notes metadata to JSON
-python scripts/extract_personal_notes_metadata.py
+# Options:
+# --backup              # Backup existing database
+# --skip-embeddings     # Skip embedding generation  
+# --skip-graph          # Skip knowledge graph generation
+# --no-deduplication    # Skip automatic deduplication
+# --db custom.db        # Use custom database name
 ```
 
-### Build or Update Database
+### 2. Extract Metadata Using Blueprints
 
 ```bash
-# Build database from scratch (includes all processing)
-cd DB
-python build_database.py
+# Extract academic papers (uses academic blueprints)
+python agents/extractor.py academic \
+  --input academic/ --output raw_data/academic/extracted_metadata/
 
-# Or update with new documents only
-python update_database.py
+# Extract personal notes (uses personal blueprints)
+python agents/extractor.py personal \
+  --input personal_notes/ --output raw_data/personal_notes/extracted_metadata/
 ```
 
-### Chronicle Sync
+### 3. Generate Rich Knowledge Graph
 
 ```bash
-# Regular sync with metadata extraction
+# Generate graph with rich node types
+python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
+
+# View rich visualization
+open web_ui/index.html
+```
+
+### 4. Validate Blueprint Configurations
+
+```bash
+# Check all blueprints for errors
+python blueprints/core/blueprint_loader.py --validate
+```
+
+## 🗄️ Blueprint-Driven Database Schema
+
+The database schema is entirely generated from `blueprints/core/database_schema.yaml`:
+
+### Document Tables (Generated from Blueprint)
+- `academic_documents`: Papers and analyses  
+- `chronicle_documents`: Personal notes and logs
+
+### Entity Tables (Generated from Blueprint)
+- `topics`: Research concepts with rich categories
+- `people`: Authors and collaborators
+- `methods`: Techniques with type classification  
+- `institutions`: Organizations and affiliations
+- `applications`: Real-world use cases
+- `projects`: Research initiatives
+
+### Processing Tables (Generated from Blueprint)
+- `relationships`: Unified relationship storage
+- `document_chunks`: Semantic chunks for RAG
+- `chunk_entities`: Entity-chunk mappings
+- `embeddings`: Vector storage
+- `graph_nodes`, `graph_edges`: Pre-computed graph
+
+## 🎨 Blueprint Visualization Configuration
+
+The `blueprints/core/visualization.yaml` defines:
+
+```yaml
+# Node type mappings - how database categories become visual types
+node_type_mappings:
+  topic:
+    space: "math_foundation"
+    optimization: "math_foundation"  
+    numerical: "computational_method"
+    proof: "theoretical_method"
+    general: "general_topic"
+    
+# 28 distinct colors for node types
+colors:
+  math_foundation: "#FF6B35"     # Orange - mathematical concepts
+  research_insight: "#4ECDC4"    # Teal - key insights
+  personal_achievement: "#45B7D1" # Blue - accomplishments
+  theoretical_method: "#96CEB4"   # Green - theory methods
+  # ... 24 more types
+
+# Layout grouping for better visualization
+node_groups:
+  academic: ["math_foundation", "research_area", "research_insight"]
+  methods: ["theoretical_method", "computational_method", "analytical_method"]
+  personal: ["personal_achievement", "personal_learning", "challenge"]
+```
+
+## 🚦 Development Workflow
+
+### Adding New Document Types
+1. Create `blueprints/new_type/extraction_schema.yaml`
+2. Create `blueprints/new_type/database_mapping.yaml`  
+3. Update `blueprints/core/visualization.yaml` with new node types
+4. Run `python DB/build_database.py --validate-blueprints`
+5. System automatically supports the new type!
+
+### Modifying Entity Categories
+1. Edit `blueprints/academic/database_mapping.yaml` or `blueprints/personal/database_mapping.yaml`
+2. Update `blueprints/core/visualization.yaml` node mappings
+3. Rebuild database: `python DB/build_database.py`
+4. New categories appear automatically in the knowledge graph
+
+### Chronicle Sync (Personal Notes)
+```bash
+# Regular sync with blueprint-driven extraction
 chronicle
 
 # Dry run to see what would change
 chronicle-dry
 
-# Force re-extraction of all metadata
+# Force re-extraction using current blueprints
 chronicle-force
-```
-
-### Database Exploration
-
-```bash
-# Launch web-based database viewer
-./view_database.sh
-
-# Query the database directly
-python DB/query_comprehensive.py
-```
-
-### Knowledge Graph
-
-```bash
-# Generate/update the knowledge graph JSON
-python KG/knowledge_graph.py DB/metadata.db
-
-# View in web UI
-open web_ui/index.html
-```
-
-### Interactive Agent
-
-```python
-# Example queries:
-"What papers has Vaios written about optimal transport?"
-"How does his work on gradient flows connect to machine learning?"
-"What are the key mathematical methods used across all papers?"
-"Show me papers that mention neural networks"
 ```
 
 ## 🔧 Configuration
@@ -501,42 +276,52 @@ OPENROUTER_API_KEY=     # For LLM analysis and extraction
 OPENAI_API_KEY=         # For embeddings
 ```
 
-### Obsidian Setup
-Edit `.sync/sync_chronicle_with_metadata.py`:
-```python
-"source": "/path/to/Obsidian/Chronicles/",
-"local_dest": "chronicle/",
-```
-
-## 🚦 Development Workflow
-
-1. **Add academic papers**: Place in `academic/` → Run extraction scripts
-2. **Add chronicle notes**: Write in Obsidian → Run `chronicle` → Automatic extraction
-3. **Update database**: Run `python DB/update_database.py` for incremental updates
-4. **Clean duplicate entities** (if needed):
-   - Run `python DB/verify_entities.py` to check for duplicates
-   - Generate embeddings: `python DB/embeddings.py --entities-only --verify`
-   - Deduplicate with clustering: `python agents/entity_deduplicator.py --parallel-workers 20 --merge --backup`
-5. **Update knowledge graph**: Run `python KG/knowledge_graph.py DB/metadata.db`
-6. **Query the system**: Use `interactive_agent.py` or direct SQL queries
+### Blueprint Customization
+Edit YAML files in `blueprints/` to modify:
+- Extraction schemas (what fields to extract)
+- Database mappings (how fields map to entities)
+- Visualization rules (node types, colors, layouts)
+- Database schema (table structure, indexes)
 
 ## 📈 Future Enhancements
 
-- [x] Populate pre-computed graph tables for visualization
-- [x] Extract institutions from papers
-- [x] Entity deduplication system with LLM verification
-- [ ] Regenerate embeddings for all content
+### Completed ✅
+- [x] Blueprint-driven architecture with complete domain separation
+- [x] Rich entity type preservation (24+ node types)
+- [x] Configurable visualization with 28 colors and 7 groups
+- [x] Generic extraction/population/graph systems
+- [x] Entity deduplication with LLM verification
+- [x] High-quality embeddings (text-embedding-3-large)
+
+### In Progress 🚧
 - [ ] Web API (REST/GraphQL) for remote queries
 - [ ] Interactive web UI completion
 - [ ] Real-time RAG pipeline integration
 - [ ] Export to various CV formats (PDF, JSON, etc.)
-- [ ] Multi-language support
+
+### Future 🔮
+- [ ] Multi-language blueprint support
 - [ ] Citation network analysis
 - [ ] Automated paper discovery and import
+- [ ] Blueprint marketplace for different research domains
+
+## 🏆 Blueprint System Advantages
+
+1. **Zero Code Changes**: Add new document types via YAML
+2. **Rich Type System**: 24+ entity types vs generic "topics"
+3. **Domain Flexibility**: Same code works for any research field
+4. **Easy Debugging**: All logic is in readable YAML files
+5. **Collaborative**: Non-programmers can modify extraction rules
+6. **Version Control**: Blueprint changes are tracked in git
+7. **Validation**: Schema validation prevents configuration errors
 
 ## 🤝 Contributing
 
-This is currently a personal project, but ideas and feedback are welcome!
+This blueprint-driven system makes contributions easier! You can:
+- Add new document types by creating blueprint YAML files
+- Modify extraction schemas without touching Python code  
+- Customize visualization by editing `visualization.yaml`
+- Extend database schema via `database_schema.yaml`
 
 ## 📝 License
 
@@ -544,4 +329,4 @@ This is currently a personal project, but ideas and feedback are welcome!
 
 ---
 
-Built with ❤️ to transform static CVs into living, intelligent representations of research journeys.
+Built with ❤️ and **blueprints** to transform static CVs into living, intelligent representations of research journeys.
