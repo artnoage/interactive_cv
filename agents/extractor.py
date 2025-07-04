@@ -16,9 +16,17 @@ from pydantic import SecretStr
 from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import PydanticOutputParser
 
-# Add blueprints to path
-sys.path.append(str(Path(__file__).parent.parent / "blueprints" / "core"))
-from blueprint_loader import get_blueprint_loader, create_extraction_model
+# Add blueprints to path (robust path resolution)
+blueprint_core_path = Path(__file__).parent.parent / "blueprints" / "core"
+if str(blueprint_core_path) not in sys.path:
+    sys.path.insert(0, str(blueprint_core_path))
+
+try:
+    from blueprint_loader import get_blueprint_loader, create_extraction_model
+except ImportError as e:
+    print(f"Error importing blueprint_loader: {e}")
+    print(f"Blueprint path: {blueprint_core_path}")
+    raise
 
 load_dotenv()
 

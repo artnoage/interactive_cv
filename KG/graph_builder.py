@@ -11,9 +11,17 @@ from typing import Dict, List, Any, Optional
 from pathlib import Path
 import logging
 
-# Add blueprints to path
-sys.path.append(str(Path(__file__).parent.parent / "blueprints" / "core"))
-from blueprint_loader import get_blueprint_loader, load_visualization_config
+# Add blueprints to path (robust path resolution)
+blueprint_core_path = Path(__file__).parent.parent / "blueprints" / "core"
+if str(blueprint_core_path) not in sys.path:
+    sys.path.insert(0, str(blueprint_core_path))
+
+try:
+    from blueprint_loader import get_blueprint_loader, load_visualization_config
+except ImportError as e:
+    print(f"Error importing blueprint_loader: {e}")
+    print(f"Blueprint path: {blueprint_core_path}")
+    raise
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

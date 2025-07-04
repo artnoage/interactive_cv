@@ -8,12 +8,20 @@ import json
 import sqlite3
 import sys
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 
-# Add blueprints to path
-sys.path.append(str(Path(__file__).parent.parent / "blueprints" / "core"))
-from blueprint_loader import get_blueprint_loader
+# Add blueprints to path (robust path resolution)
+blueprint_core_path = Path(__file__).parent.parent / "blueprints" / "core"
+if str(blueprint_core_path) not in sys.path:
+    sys.path.insert(0, str(blueprint_core_path))
+
+try:
+    from blueprint_loader import get_blueprint_loader # type: ignore
+except ImportError as e:
+    print(f"Error importing blueprint_loader: {e}")
+    print(f"Blueprint path: {blueprint_core_path}")
+    print(f"Path exists: {blueprint_core_path.exists()}")
+    raise
 
 
 class DatabasePopulator:
@@ -51,8 +59,14 @@ class DatabasePopulator:
             doc_table = document_mapping.get('table')
             id_prefix = document_mapping.get('id_prefix', doc_type)
             
-            # Get file path for content loading
-            file_path = metadata.get('file_path', str(json_path))
+            # Get file path for content loading (ensure it's reasonable length)
+            raw_file_path = metadata.get('file_path', str(json_path))
+            # Truncate if unreasonably long (likely content instead of path)
+            if len(raw_file_path) > 255:  # Max reasonable file path
+                file_path = str(json_path)  # Fall back to JSON path
+                print(f"    Warning: file_path too long ({len(raw_file_path)} chars), using JSON path")
+            else:
+                file_path = raw_file_path
             
             # Read actual content if available
             content = ""
@@ -198,7 +212,7 @@ class DatabasePopulator:
                 values.append(metadata[metadata_field])
             else:
                 # Default value
-                values.append(None)
+                values.append(None)  # type: ignore  # SQL accepts NULL values
         
         placeholders = ', '.join(['?' for _ in values])
         insert_query = f"""
@@ -207,7 +221,7 @@ class DatabasePopulator:
         """
         
         cursor.execute(insert_query, values)
-        return cursor.lastrowid
+        return cursor.lastrowid or -1  # Return -1 if None (shouldn't happen with AUTOINCREMENT)
     
     def _is_object_field(self, field_name: str, special_handling: Dict[str, Any]) -> bool:
         """Check if field contains objects based on special handling rules"""
