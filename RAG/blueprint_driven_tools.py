@@ -113,13 +113,32 @@ class BlueprintDrivenToolGenerator:
                 if not searchable_columns:
                     return []
                 
-                # Build WHERE clause for text search
+                # Build WHERE clause for text search with improved multi-term handling
                 search_conditions = []
                 params = []
                 
-                for col in searchable_columns:
-                    search_conditions.append(f"{col} LIKE ?")
-                    params.append(f"%{query}%")
+                # Split query into terms for better matching
+                query_terms = query.strip().split()
+                
+                if len(query_terms) == 1:
+                    # Single term - use original logic
+                    for col in searchable_columns:
+                        search_conditions.append(f"{col} LIKE ?")
+                        params.append(f"%{query}%")
+                else:
+                    # Multi-term - each term should match at least one column
+                    for term in query_terms:
+                        term_conditions = []
+                        for col in searchable_columns:
+                            term_conditions.append(f"{col} LIKE ?")
+                            params.append(f"%{term}%")
+                        
+                        if term_conditions:
+                            search_conditions.append(f"({' OR '.join(term_conditions)})")
+                    
+                    # Convert to AND logic for multi-term (all terms must be found somewhere)
+                    if len(search_conditions) > 1:
+                        search_conditions = [f"({' AND '.join(search_conditions)})"]
                 
                 # Add filter conditions
                 filter_conditions = []
@@ -165,9 +184,14 @@ class BlueprintDrivenToolGenerator:
             
             return results
         
+        # Get enhanced description from tool guidance if available
+        enhanced_description = self._get_enhanced_description(f"search_{table_name}")
+        if not enhanced_description:
+            enhanced_description = f"Search {table_schema.description or table_name} by text query with optional filters"
+        
         return GeneratedTool(
             name=f"search_{table_name}",
-            description=f"Search {table_schema.description or table_name} by text query with optional filters",
+            description=enhanced_description,
             function=search_function,
             category="schema_driven_search",
             parameters={
@@ -652,6 +676,17 @@ class BlueprintDrivenToolGenerator:
                 return group_name
         
         return "default"
+    
+    def _get_enhanced_description(self, tool_name: str) -> Optional[str]:
+        """Get enhanced description from tool guidance configuration."""
+        tool_guidance = self.loader.get_tool_guidance()
+        enhanced_descriptions = tool_guidance.get('enhanced_descriptions', {})
+        
+        tool_config = enhanced_descriptions.get(tool_name)
+        if tool_config:
+            return tool_config.get('description')
+        
+        return None
     
     # ========== Public API Methods ==========
     

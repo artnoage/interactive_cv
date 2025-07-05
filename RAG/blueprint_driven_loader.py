@@ -81,6 +81,7 @@ class BlueprintLoader:
         self.entity_mappings: Dict[str, Dict[str, EntityMapping]] = {}
         self.visualization_config: Optional[VisualizationConfig] = None
         self.extraction_schemas: Dict[str, Dict[str, Any]] = {}
+        self.tool_guidance: Optional[Dict[str, Any]] = None
         
         self._load_all_blueprints()
     
@@ -93,6 +94,9 @@ class BlueprintLoader:
         
         # Load visualization config
         self._load_visualization_config()
+        
+        # Load tool guidance config
+        self._load_tool_guidance()
         
         # Load domain-specific mappings
         self._load_domain_mappings()
@@ -169,6 +173,20 @@ class BlueprintLoader:
             node_type_mappings=viz_data.get('node_type_mappings', {})
         )
     
+    def _load_tool_guidance(self):
+        """Load tool guidance configuration from core/tool_guidance.yaml."""
+        guidance_file = self.blueprints_dir / "core" / "tool_guidance.yaml"
+        
+        if not guidance_file.exists():
+            logger.warning(f"Tool guidance config not found: {guidance_file}")
+            self.tool_guidance = {}
+            return
+        
+        with open(guidance_file, 'r') as f:
+            self.tool_guidance = yaml.safe_load(f)
+        
+        logger.info("Loaded tool guidance configuration")
+    
     def _load_domain_mappings(self):
         """Load domain-specific entity mappings."""
         for domain_dir in self.blueprints_dir.iterdir():
@@ -238,6 +256,10 @@ class BlueprintLoader:
     def get_extraction_schema(self, domain: str) -> Dict[str, Any]:
         """Get extraction schema for a domain."""
         return self.extraction_schemas.get(domain, {})
+    
+    def get_tool_guidance(self) -> Dict[str, Any]:
+        """Get tool guidance configuration."""
+        return self.tool_guidance or {}
     
     def get_entity_tables(self) -> List[str]:
         """Get list of all entity table names."""

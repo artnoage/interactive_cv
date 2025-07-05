@@ -135,6 +135,10 @@ class BlueprintRawAgent:
             self.tool_generator = BlueprintDrivenToolGenerator(DB_PATH)
             generated_tools = self.tool_generator.list_all_tools()
             print(f"✅ Successfully generated {len(generated_tools)} tools from blueprints")
+            
+            # Get tool guidance for enhanced prompting
+            self.tool_guidance = self.tool_generator.loader.get_tool_guidance()
+            print(f"📋 Loaded tool guidance with {len(self.tool_guidance.get('enhanced_descriptions', {}))} enhanced descriptions")
         except Exception as e:
             print(f"❌ Error initializing blueprint tools: {e}")
             raise
@@ -171,6 +175,9 @@ class BlueprintRawAgent:
         
         # Bind tools to LLM
         self.llm_with_tools = self.llm.bind_tools(self.tools)
+        
+        # Generate enhanced system prompt using tool guidance
+        self.enhanced_system_prompt = self._build_enhanced_system_prompt()
         
         # Build the agent graph
         self.agent = self._build_agent()
@@ -302,6 +309,62 @@ class BlueprintRawAgent:
         except Exception as e:
             return f"Error executing {tool_name}: {str(e)}"
     
+    def _build_enhanced_system_prompt(self) -> str:
+        """Build enhanced system prompt using tool guidance configuration."""
+        base_prompt = SYSTEM_PROMPT
+        
+        if not self.tool_guidance:
+            return base_prompt
+        
+        # Add tool-specific guidance
+        enhanced_descriptions = self.tool_guidance.get('enhanced_descriptions', {})
+        usage_patterns = self.tool_guidance.get('usage_patterns', {})
+        question_strategies = self.tool_guidance.get('question_type_strategies', {})
+        
+        enhancement = "\n\n## 🎯 BLUEPRINT-ENHANCED TOOL STRATEGIES\n\n"
+        
+        # Add key tool descriptions
+        enhancement += "### 🔧 Key Tools with Enhanced Guidance:\n\n"
+        priority_tools = ['search_academic_documents', 'search_chronicle_documents', 'search_topics', 
+                         'traverse_discusses', 'reverse_discusses', 'explore_topic_categories']
+        
+        for tool_name in priority_tools:
+            if tool_name in enhanced_descriptions:
+                tool_info = enhanced_descriptions[tool_name]
+                enhancement += f"**{tool_name}**: {tool_info.get('description', '')}\n"
+                
+                examples = tool_info.get('examples', [])
+                if examples:
+                    enhancement += f"Examples: {examples[0]}\n"
+                
+                when_to_use = tool_info.get('when_to_use', '')
+                if when_to_use:
+                    enhancement += f"Use when: {when_to_use}\n"
+                enhancement += "\n"
+        
+        # Add usage patterns
+        if usage_patterns:
+            enhancement += "### 🔄 Multi-Tool Usage Patterns:\n\n"
+            for pattern_name, pattern_info in list(usage_patterns.items())[:3]:
+                enhancement += f"**{pattern_name.replace('_', ' ').title()}**: {pattern_info.get('description', '')}\n"
+                steps = pattern_info.get('steps', {})
+                if steps:
+                    for step_num in sorted(steps.keys())[:3]:
+                        enhancement += f"{step_num}. {steps[step_num]}\n"
+                enhancement += "\n"
+        
+        # Add question type strategies
+        if question_strategies:
+            enhancement += "### 🎯 Question Type Strategies:\n\n"
+            for q_type, strategy in list(question_strategies.items())[:4]:
+                triggers = strategy.get('trigger_phrases', [])
+                primary_tools = strategy.get('primary_tools', [])
+                enhancement += f"**{q_type.replace('_', ' ').title()}** (triggers: {', '.join(triggers[:2])}): Start with {', '.join(primary_tools[:2])}\n"
+        
+        enhancement += "\n🚀 **REMEMBER**: You have 79 sophisticated tools - use them intelligently with these strategies!"
+        
+        return base_prompt + enhancement
+    
     def _build_agent(self) -> CompiledStateGraph:
         """Build the agent graph using LangGraph."""
         
@@ -314,7 +377,7 @@ class BlueprintRawAgent:
             
             # Add system message if this is the first message
             if len(messages) == 1:
-                messages = [SystemMessage(content=SYSTEM_PROMPT)] + messages
+                messages = [SystemMessage(content=self.enhanced_system_prompt)] + messages
             
             response = self.llm_with_tools.invoke(messages)
             return {"messages": [response]}
