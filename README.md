@@ -96,14 +96,24 @@ python DB/build_database.py
 # - Deduplicates entities with 20 parallel workers
 # - Builds knowledge graph with 24+ node types
 
-# 6. Run the interactive agents
-
-# Run the Interactive CV Agent
+# 6. Run the interactive agent (blueprint-powered with semantic intelligence)
 python interactive_agent.py
 
-# Use Pro model for better results  
+# Or use Pro model for better instruction following
 AGENT_MODEL=pro python interactive_agent.py
+
+# Or use Claude 4 Sonnet for superior instruction following (recommended for complex queries)
+AGENT_MODEL=claude python interactive_agent.py
 ```
+
+## 📊 Current Status (January 2025)
+
+- ✅ **Blueprint system fully operational** - 83+ tools automatically generated from YAML
+- ✅ **Semantic intelligence integrated** - Hybrid SQL + embedding search
+- ✅ **Database populated** - 12 academic papers, personal notes, 1000+ entities
+- ✅ **Knowledge graph built** - 1,135 nodes, 1,249 relationships
+- ⚠️ **LLM instruction following** - Complex multi-tool queries need improvement
+- 🔄 **In progress** - Optimizing agent prompts for better tool orchestration
 
 ## 🏗️ Revolutionary Blueprint-Driven Architecture
 

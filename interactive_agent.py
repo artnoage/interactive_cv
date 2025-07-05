@@ -165,7 +165,8 @@ class InteractiveCVAgent:
         model_key = os.getenv("AGENT_MODEL", "flash")
         models = {
             "flash": "google/gemini-2.5-flash",
-            "pro": "google/gemini-2.5-pro"
+            "pro": "google/gemini-2.5-pro",
+            "claude": "anthropic/claude-sonnet-4"
         }
         model_name = models.get(model_key, models["flash"])
         
