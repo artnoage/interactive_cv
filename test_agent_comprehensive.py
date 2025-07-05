@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
 Comprehensive test of Interactive CV Agent using the full QA test set.
-Supports both manual-tool agent and blueprint-raw agent for comparison.
-Uses the complete qa_test_set.json with 35 questions instead of the limited chunk.
+Uses the blueprint-powered agent with semantic intelligence.
 """
 
 import json
@@ -16,32 +15,20 @@ import argparse
 # Add project root to path
 sys.path.append(str(Path(__file__).parent))
 
-from interactive_agent_final import InteractiveCVAgent
-from interactive_agent_blueprint_raw import BlueprintRawAgent
+from interactive_agent import InteractiveCVAgent
 from agents.judge_agent import JudgeAgent, AnswerQuality
 
 
 class ComprehensiveAgentEvaluator:
     """Evaluates the Interactive CV Agent using the comprehensive QA test set."""
     
-    def __init__(self, agent_type: str = "manual"):
-        """Initialize the evaluator with agent and judge.
-        
-        Args:
-            agent_type: "manual" for InteractiveCVAgent or "blueprint" for BlueprintRawAgent
-        """
+    def __init__(self):
+        """Initialize the evaluator with agent and judge."""
         print("🚀 Initializing Comprehensive Agent Evaluator...")
+        print("🔧 Using Interactive CV Agent (83+ blueprint-generated tools with semantic intelligence)")
         
-        if agent_type == "blueprint":
-            print("🔧 Using Blueprint Raw Agent (79 auto-generated tools)")
-            self.agent = BlueprintRawAgent()
-            self.agent_name = "Blueprint Raw Agent"
-        else:
-            print("🛠️ Using Manual Tool Agent (10 hand-coded tools)")
-            self.agent = InteractiveCVAgent()
-            self.agent_name = "Manual Tool Agent"
-        
-        self.agent_type = agent_type
+        self.agent = InteractiveCVAgent()
+        self.agent_name = "Interactive CV Agent"
         self.judge = JudgeAgent()
         
         # Load comprehensive test set
@@ -315,11 +302,10 @@ class ComprehensiveAgentEvaluator:
         """Save evaluation results to file."""
         if filename is None:
             timestamp = time.strftime("%Y%m%d_%H%M%S")
-            filename = f"evaluation_{self.agent_type}_{timestamp}.json"
+            filename = f"evaluation_{timestamp}.json"
         
         output = {
             "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "agent_type": self.agent_type,
             "agent_name": self.agent_name,
             "test_set_metadata": self.metadata,
             "summary": {
@@ -338,8 +324,6 @@ class ComprehensiveAgentEvaluator:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Comprehensive Evaluation of Interactive CV Agent")
-    parser.add_argument("--agent", choices=["manual", "blueprint"], default="manual", 
-                       help="Agent type: 'manual' for 10 hand-coded tools, 'blueprint' for 79 auto-generated tools")
     parser.add_argument("--all", action="store_true", help="Evaluate all 35 questions")
     parser.add_argument("--random", type=int, default=5, help="Evaluate N random questions (default: 5)")
     parser.add_argument("--category", choices=["single_paper", "personal_notes", "cross_paper", "cross_domain"], 
@@ -349,57 +333,11 @@ def main():
     parser.add_argument("--questions", nargs="+", type=int, help="Question IDs to evaluate (1-35)")
     parser.add_argument("--save", action="store_true", help="Save results to file")
     parser.add_argument("--quick", action="store_true", help="Quick test with 3 random questions")
-    parser.add_argument("--compare", action="store_true", help="Run both agents and compare results")
     
     args = parser.parse_args()
     
-    # Handle comparison mode
-    if args.compare:
-        print("🔄 COMPARISON MODE: Testing both agents...")
-        
-        # Test manual agent
-        print("\n" + "="*50)
-        print("🛠️ TESTING MANUAL TOOL AGENT")
-        print("="*50)
-        evaluator_manual = ComprehensiveAgentEvaluator("manual")
-        
-        if args.quick:
-            results_manual = evaluator_manual.evaluate_random_questions(3)
-        elif args.random and not args.all:
-            results_manual = evaluator_manual.evaluate_random_questions(args.random)
-        else:
-            results_manual = evaluator_manual.evaluate_random_questions(5)
-        
-        # Test blueprint agent
-        print("\n" + "="*50)
-        print("🔧 TESTING BLUEPRINT RAW AGENT")
-        print("="*50)
-        evaluator_blueprint = ComprehensiveAgentEvaluator("blueprint")
-        
-        # Use same questions for fair comparison
-        same_questions = [r["question_id"] for r in results_manual]
-        results_blueprint = evaluator_blueprint.evaluate_subset(same_questions)
-        
-        # Print comparison
-        print("\n" + "="*80)
-        print("📊 AGENT COMPARISON RESULTS")
-        print("="*80)
-        
-        manual_avg = sum(r["judgment"]["score"] for r in results_manual) / len(results_manual)
-        blueprint_avg = sum(r["judgment"]["score"] for r in results_blueprint) / len(results_blueprint)
-        
-        print(f"Manual Tool Agent (10 tools):    {manual_avg:.1f}/100")
-        print(f"Blueprint Raw Agent (79 tools):  {blueprint_avg:.1f}/100")
-        print(f"Difference:                      {blueprint_avg - manual_avg:+.1f} points")
-        
-        if args.save:
-            evaluator_manual.save_results(results_manual, f"comparison_manual_{time.strftime('%Y%m%d_%H%M%S')}.json")
-            evaluator_blueprint.save_results(results_blueprint, f"comparison_blueprint_{time.strftime('%Y%m%d_%H%M%S')}.json")
-        
-        return
-    
-    # Initialize evaluator with selected agent
-    evaluator = ComprehensiveAgentEvaluator(args.agent)
+    # Initialize evaluator
+    evaluator = ComprehensiveAgentEvaluator()
     
     # Run evaluation based on arguments
     if args.all:

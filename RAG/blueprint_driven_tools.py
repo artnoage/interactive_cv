@@ -14,6 +14,7 @@ from dataclasses import dataclass
 import logging
 
 from RAG.blueprint_driven_loader import BlueprintLoader, EntityMapping, DatabaseTable
+from RAG.semantic_enhancement import SemanticEnhancementEngine
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,10 @@ class BlueprintDrivenToolGenerator:
         self.loader = BlueprintLoader(blueprints_dir)
         self.generated_tools: Dict[str, GeneratedTool] = {}
         
+        # Initialize semantic enhancement engine
+        semantic_config = self.loader.get_semantic_config()
+        self.semantic_engine = SemanticEnhancementEngine(db_path, semantic_config)
+        
         # Generate all tools from blueprints
         self._generate_all_tools()
     
@@ -72,6 +77,9 @@ class BlueprintDrivenToolGenerator:
         
         # Generate visualization-ready tools
         self._generate_visualization_tools()
+        
+        # Generate semantic search tools
+        self._generate_semantic_tools()
         
         logger.info(f"Generated {len(self.generated_tools)} tools from blueprints")
     
@@ -189,10 +197,15 @@ class BlueprintDrivenToolGenerator:
         if not enhanced_description:
             enhanced_description = f"Search {table_schema.description or table_name} by text query with optional filters"
         
+        # Apply semantic enhancement to the search function
+        enhanced_search_function = self.semantic_engine.enhance_search_function(
+            search_function, f"search_{table_name}"
+        )
+        
         return GeneratedTool(
             name=f"search_{table_name}",
             description=enhanced_description,
-            function=search_function,
+            function=enhanced_search_function,
             category="schema_driven_search",
             parameters={
                 "query": {"type": "str", "description": "Search query"},
@@ -687,6 +700,41 @@ class BlueprintDrivenToolGenerator:
             return tool_config.get('description')
         
         return None
+    
+    def _generate_semantic_tools(self):
+        """Generate dedicated semantic search tools from configuration."""
+        try:
+            semantic_tools = self.semantic_engine.create_semantic_tools()
+            
+            for tool_name, tool_function in semantic_tools.items():
+                semantic_config = self.loader.get_semantic_config()
+                tool_spec = semantic_config.get('semantic_tools', {}).get(tool_name, {})
+                
+                generated_tool = GeneratedTool(
+                    name=tool_name,
+                    description=tool_spec.get('description', f"Semantic search tool: {tool_name}"),
+                    function=tool_function,
+                    category=tool_spec.get('category', 'semantic_search'),
+                    parameters=self._parse_tool_parameters(tool_spec.get('parameters', {})),
+                    generated_from=f"semantic_enhancement.yaml:{tool_name}"
+                )
+                
+                self.generated_tools[tool_name] = generated_tool
+                
+            logger.info(f"Generated {len(semantic_tools)} semantic tools")
+            
+        except Exception as e:
+            logger.warning(f"Failed to generate semantic tools: {e}")
+    
+    def _parse_tool_parameters(self, param_config: Dict[str, str]) -> Dict[str, Any]:
+        """Parse tool parameters from configuration."""
+        parameters = {}
+        for param_name, param_desc in param_config.items():
+            parameters[param_name] = {
+                "type": "str",  # Default type
+                "description": param_desc
+            }
+        return parameters
     
     # ========== Public API Methods ==========
     

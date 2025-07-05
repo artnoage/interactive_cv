@@ -12,7 +12,7 @@ The Interactive CV has undergone a **revolutionary transformation** that embodie
 
 | Aspect | Manual Tools | Blueprint-Generated |
 |--------|-------------|---------------------|
-| **Tool Count** | 13 methods | **79 tools** (6.1x more) |
+| **Tool Count** | 13 methods | **83 tools** (6.4x more) |
 | **Code Lines** | 652 lines | 651 generator lines |
 | **Relationship Types** | 1 basic tool | **20 relationship types** |
 | **Category Awareness** | Basic filtering | **22 rich categories** |
@@ -22,12 +22,14 @@ The Interactive CV has undergone a **revolutionary transformation** that embodie
 
 ### ⚡ Blueprint-Generated Agent System
 
-The system now features **79 automatically generated tools** from YAML specifications:
+The system now features **83+ automatically generated tools** with semantic intelligence from YAML specifications:
 
 **Current Agent Architecture:**
-- **`interactive_agent_final.py`** - Uses revolutionary blueprint-generated tools (79 tools)
-- **Blueprint-Driven Tools** - Domain-aware, schema-safe, relationship-traversal capabilities
+- **`interactive_agent_final.py`** - Uses blueprint-generated tools with semantic enhancement + centralized profile
+- **`interactive_agent_blueprint_raw.py`** - Uses all 83+ blueprint tools directly with semantic intelligence  
+- **Blueprint-Driven Tools** - Domain-aware, schema-safe, relationship-traversal capabilities with semantic search
 - **Configuration-Driven Intelligence** - Tools generated automatically from YAML specifications
+- **Centralized Profile System** - Consistent biography across all agents from Profile/ directory
 
 **Legacy Multi-Tier Agents** (Still Available):
 1. **Original Agent** (`interactive_agent.py`) - Basic SQL keyword search with 8 tools
@@ -36,7 +38,9 @@ The system now features **79 automatically generated tools** from YAML specifica
 4. **Ultimate Agent** (`interactive_agent_ultimate.py`) - Adds answer validation & knowledge graph exploration
 
 **Revolutionary Features:**
-- **🎯 79 Sophisticated Tools**: Automatically generated vs 13 manual tools (6.1x improvement)
+- **🎯 83+ Sophisticated Tools**: Automatically generated with semantic intelligence vs 13 manual tools (6.4x improvement)
+- **🧠 Semantic Intelligence**: Hybrid search combining SQL and embeddings for better concept discovery
+- **👤 Centralized Profile System**: Consistent representation across all agents from Profile/ directory
 - **🔧 Zero-Code Extension**: Add research domains via YAML files only
 - **🧠 Entity-Aware Intelligence**: 22+ category types with rich domain knowledge
 - **🔗 Relationship Traversal**: 20+ relationship types for comprehensive graph navigation
@@ -46,16 +50,16 @@ The system now features **79 automatically generated tools** from YAML specifica
 
 **Revolutionary Usage:**
 ```bash
-# Use the blueprint-generated agent (RECOMMENDED)
+# Use the blueprint-powered agent with semantic intelligence (RECOMMENDED)
 python interactive_agent_final.py
 
-# Legacy agents (still available for comparison)
-python interactive_agent_ultimate.py
+# Use the blueprint raw agent with all 83+ generated tools
+python interactive_agent_blueprint_raw.py
 
 # Use Pro model for better results with any agent
 AGENT_MODEL=pro python interactive_agent_final.py
 
-# Test the blueprint-generated tools
+# Test the blueprint-generated tools with semantic enhancement
 python RAG/blueprint_driven_tools.py
 
 # Validate blueprint configurations
@@ -69,7 +73,7 @@ from RAG.blueprint_driven_tools import BlueprintDrivenToolGenerator
 # Initialize generator (reads ALL YAML blueprints)
 generator = BlueprintDrivenToolGenerator()
 
-# Automatically generated 79 tools from specifications!
+# Automatically generated 83+ tools with semantic intelligence from specifications!
 print(f"Generated {len(generator.list_all_tools())} tools")
 
 # Execute any generated tool
@@ -253,9 +257,22 @@ We use a **normalized SQLite database** with clean entity-relationship structure
 └── CLAUDE.md              # This file (detailed documentation)
 ```
 
-## Current Status (2025-01-04 - Content Loading & Interactive Agent Fixes)
+## Current Status (2025-01-05 - Semantic Intelligence & Centralized Profile System)
 
-### Interactive Agent Fixes (Latest)
+### Semantic Intelligence Integration (Latest Breakthrough)
+- **Blueprint + Semantic Fusion**: Successfully integrated semantic search into blueprint-generated tools
+- **83+ Enhanced Tools**: Now includes 4 dedicated semantic tools plus semantic enhancement of existing tools
+- **Hybrid Search Architecture**: Combines SQL keyword search with OpenAI embeddings for concept discovery
+- **Query Expansion**: Uses semantic similarity to enhance search terms before SQL execution
+- **Performance Breakthrough**: Blueprint agent scored 90/100 vs 0/100 previously on Assignment Method vs WGANs question
+
+### Centralized Profile System
+- **Profile Loader**: Created `Profile/profile_loader.py` for consistent profile management
+- **Both Agents Use Same Profile**: Manual and blueprint agents now load from `Profile/Profile_Prompt.md` automatically
+- **Level Playing Field**: Eliminates hardcoded profile differences between agents
+- **Configuration Philosophy**: Follows blueprint principle of separating content from code
+
+### Previous Interactive Agent Fixes
 - **Threading Issue**: Fixed "SQLite objects created in a thread can only be used in that same thread" error
   - **Solution**: Created database connections within each tool function instead of sharing
 - **Content Retrieval**: Enhanced from 200 chars to 1500+ chars per search result
@@ -304,6 +321,57 @@ We use a **normalized SQLite database** with clean entity-relationship structure
   - ⏳ Personal notes chunking optimization needed
 
 ## Usage
+
+### Profile Setup (Required First Step)
+
+#### Centralized Profile System
+
+The Interactive CV uses a **centralized profile system** located in the `Profile/` directory. This ensures both agents use identical, consistent profile information following the blueprint philosophy.
+
+**Required Profile Files:**
+- **`Profile/Profile_Prompt.md`** - Agent-ready system prompt with detailed biography
+- **`Profile/Profile.md`** - Comprehensive academic profile (optional)
+
+**Setting Up Your Profile:**
+1. **Edit `Profile/Profile_Prompt.md`** with your information:
+   - Core identity and background  
+   - Research expertise and keywords
+   - Professional experience
+   - Current focus areas
+   - Personal details
+
+2. **Both agents automatically load this profile** - no code changes needed
+
+**Profile Structure Template:**
+```markdown
+### **Agent System Prompt: My Profile**
+
+**1. Core Identity**
+[Your background, PhD, experience]
+
+**2. Executive Narrative** 
+[Your career evolution and expertise]
+
+**3. Research Expertise (Keywords)**
+[Detailed technical areas]
+
+**4. Research Evolution & Key Contributions**
+[Your research phases and impact]
+
+**5. Professional Experience**
+[Work history and positions]
+
+**6. Education**
+[Academic background]
+
+**7. Practical Implementation Experience**
+[Technical skills and projects]
+
+**8. Personal & Professional Profile**
+[Philosophy, interests, languages]
+```
+
+The profile loader ensures consistent representation across all system components while maintaining the blueprint architecture's principle of separating configuration from code.
 
 ### Configuration-Driven Database Management
 
@@ -768,13 +836,14 @@ db_doc_type = 'chronicle' if doc_type == 'personal' else doc_type
 - **Enterprise Deployment**: Organizations can customize without touching code
 
 **📊 Quantified Success:**
+- **83+ sophisticated tools** with semantic intelligence vs 13 manual tools (6.4x improvement)
+- **90/100 score improvement** on challenging questions (Assignment Method vs WGANs: 0→90)
+- **Hybrid search capabilities** combining SQL keyword search with OpenAI embeddings
+- **Centralized profile system** ensuring consistent representation across all agents
 - **1,135 rich nodes** vs 965 generic nodes (18% increase in granularity)
 - **24+ entity types** vs 6 generic types (400% increase in categorization)
-- **28 visualization colors** vs basic color scheme
 - **100% configurable** system vs hardcoded logic
-- **Zero code changes** needed for new domains
-- **38 document chunks** created with proper content loading
-- **285 entity-chunk mappings** for precise entity location
+- **Zero code changes** needed for new domains or semantic enhancement
 
 This blueprint-driven architecture transforms the Interactive CV from a clever academic tool into a **universal knowledge extraction platform** that can adapt to any domain while maintaining the sophistication and intelligence that makes it powerful.
 

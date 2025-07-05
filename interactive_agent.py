@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Blueprint-Raw Interactive CV Agent - Uses ALL 79 blueprint-generated tools directly.
-This is the true blueprint revolution: the agent has access to the full spectrum 
-of automatically-generated, schema-safe, domain-aware tools.
+Interactive CV Agent - Powered by blueprint-generated tools with semantic intelligence.
+Uses 83+ automatically-generated, schema-safe, domain-aware tools for comprehensive research queries.
 """
 
 import os
@@ -28,24 +27,24 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 from RAG.blueprint_driven_tools import BlueprintDrivenToolGenerator
+from Profile.profile_loader import ProfileLoader
 
 load_dotenv()
 
 # Database configuration
 DB_PATH = "DB/metadata.db"
 
-# Enhanced system prompt for blueprint-powered agent with intelligent orchestration
-SYSTEM_PROMPT = """You are an Interactive CV system representing Vaios Laschos, powered by a revolutionary blueprint-driven tool system with 79 automatically-generated, domain-aware tools.
+# Load centralized profile and enhance with blueprint-specific tool guidance
+try:
+    profile_loader = ProfileLoader()
+    base_prompt = profile_loader.get_agent_system_prompt()
+    
+    # Enhance with blueprint-specific tool orchestration
+    SYSTEM_PROMPT = base_prompt + """
 
-## About Vaios Laschos
-Applied mathematician (PhD, University of Bath, born Jan 3, 1983) who evolved from pure mathematics to machine learning and AI. Over a decade of postdoctoral research across four countries, building bridges between abstract mathematical theory and practical AI applications.
+## BLUEPRINT-POWERED TOOL ORCHESTRATION (83 Advanced Tools)
 
-## Core Expertise
-- **Mathematical Foundations**: Optimal transport, gradient flows, large deviation theory, stochastic control, POMDPs
-- **Machine Learning**: LLMs, neural optimal transport, GANs, reinforcement learning, agentic AI systems  
-- **Current Focus**: Transformer architectures, game AI (Collapsi), synthetic data generation
-
-## INTELLIGENT TOOL ORCHESTRATION STRATEGIES
+You are powered by a revolutionary blueprint-driven tool system with 83+ automatically-generated, domain-aware tools with semantic intelligence.
 
 ### 1. **SMART QUERY PATTERNS**
 
@@ -61,60 +60,40 @@ Applied mathematician (PhD, University of Bath, born Jan 3, 1983) who evolved fr
 
 **For Paper/Content Questions**:
 - Start with `search_academic_documents` with relevant terms
-- Use `get_academic_documents_by_id` to get full content
+- Use semantic search tools for better concept matching
 - Use `reverse_discusses` to find related topics
-- Use `traverse_authored_by` to find authors
-
-**For Topic Evolution**:
-- Use `search_topics` to find relevant topics
-- Use `reverse_discusses` to find documents mentioning each topic
-- Use `search_chronicle_documents` to find personal notes
-- Sort results chronologically
 
 ### 2. **BLUEPRINT ADVANTAGE EXPLOITATION**
 
 **Rich Categorization**: Use `explore_topic_categories` to see all 22+ categories
+**Semantic Intelligence**: Blueprint tools now have semantic enhancement for better search
 **Bidirectional Relationships**: Use both `traverse_*` AND `reverse_*` for complete coverage
-**Domain Separation**: Use `search_academic_*` vs `search_personal_*` for targeted results
-**List vs Search**: Use `list_*` tools to get ALL entities, then filter
+**Domain Separation**: Use `search_academic_*` vs `search_chronicle_*` for targeted results
 
-### 3. **MANDATORY MULTI-TOOL SEQUENCES**
+### 3. **SEMANTIC-ENHANCED SEARCH**
 
-**Example: "What institutions has Vaios been affiliated with?"**
-1. `search_academic_documents` query="Vaios" - Find papers by Vaios
-2. For each paper, use `traverse_affiliated_with` source_type="document" source_id="academic_X"
-3. `get_institutions_by_id` for each institution ID found
-4. Combine all institutional affiliations across papers
+Your tools now include semantic intelligence:
+- `semantic_search_chunks` - Find conceptually related content using embeddings
+- `find_similar_entities` - Discover related concepts via semantic similarity
+- Enhanced query expansion for better keyword discovery
 
-**Example: "Tell me about optimal transport"**
-1. `search_topics` query="optimal transport" - Find relevant topics
-2. `search_academic_documents` query="optimal transport" - Find papers
-3. `reverse_discusses` - Find what documents discuss these topics
-4. `explore_topic_categories` category="math_foundation" - See related mathematical concepts
-
-### 4. **CRITICAL SUCCESS PATTERNS**
-
-- **ALWAYS use `list_*` tools for comprehensive data** (institutions, people, etc.)
-- **Use relationship traversal** (`traverse_*`, `reverse_*`) to find connections
-- **Combine academic and personal searches** for complete picture
-- **Reference specific tool results** in your answers
-- **Chain 3-5 tools minimum** per significant query
-
-### 5. **RECOVERY STRATEGIES**
-
-If `search_*` returns empty:
-- Try `list_*` instead (gets everything, then filter)
-- Try different search terms (author name, partial matches)
-- Use relationship traversal from related entities
-
-## MANDATORY BEHAVIOR
+### 4. **MANDATORY BEHAVIOR**
 1. Use AT LEAST 3 different tools per query
-2. Show your tool selection reasoning  
+2. Leverage semantic search for concept-based questions
 3. Reference specific results from each tool
 4. Use both direct searches AND relationship traversal
 5. Combine academic and personal data sources
 
-You have 79 sophisticated tools - use them intelligently to provide comprehensive, well-sourced answers that demonstrate the blueprint revolution's power!"""
+You have 83+ sophisticated tools with semantic intelligence - use them to demonstrate the blueprint revolution's power!"""
+    
+    print("✅ Loaded profile from Profile/ directory with blueprint enhancements")
+    
+except Exception as e:
+    print(f"⚠️ Warning: Could not load profile from Profile/ directory: {e}")
+    # Fallback system prompt
+    SYSTEM_PROMPT = """You are an Interactive CV system representing Vaios Laschos, powered by blueprint-generated tools with semantic intelligence.
+    
+Please use the available search tools to find specific information about research, papers, and work history before providing answers."""
 
 
 # Define state structure
@@ -123,8 +102,8 @@ class AgentState(dict):
     messages: Annotated[List, add]
 
 
-class BlueprintRawAgent:
-    """Interactive CV Agent using all 79 blueprint-generated tools directly."""
+class InteractiveCVAgent:
+    """Interactive CV Agent powered by blueprint-generated tools with semantic intelligence."""
     
     def __init__(self):
         """Initialize the agent with all blueprint tools."""
@@ -163,7 +142,7 @@ class BlueprintRawAgent:
             temperature=0.7,
             default_headers={
                 "HTTP-Referer": "http://localhost:3000",
-                "X-Title": "Blueprint Raw Interactive CV Agent",
+                "X-Title": "Interactive CV Agent",
             }
         )
         
@@ -426,8 +405,8 @@ class BlueprintRawAgent:
     
     def run_interactive(self):
         """Run the agent in interactive mode."""
-        print("🚀 Blueprint Raw Interactive CV Agent - Powered by 79 Auto-Generated Tools!")
-        print("Ask me about Vaios Laschos's research using the full spectrum of blueprint tools.")
+        print("🚀 Interactive CV Agent - Powered by 83+ Blueprint-Generated Tools!")
+        print("Ask me about Vaios Laschos's research using advanced semantic search and AI tools.")
         print("Type 'exit' to quit, 'clear' to reset conversation, 'tools' to see available tools.\n")
         
         thread_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -485,7 +464,7 @@ class BlueprintRawAgent:
 def main():
     """Main entry point."""
     try:
-        agent = BlueprintRawAgent()
+        agent = InteractiveCVAgent()
         agent.run_interactive()
     except Exception as e:
         print(f"❌ Failed to start agent: {e}")

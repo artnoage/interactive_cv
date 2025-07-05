@@ -2,15 +2,63 @@
 
 ## Revolutionary Blueprint-Driven Knowledge Platform
 
-An AI-powered system that transforms academic research papers and personal notes into a dynamic, queryable professional profile. Features a **revolutionary blueprint-driven architecture** that automatically generates sophisticated tools from YAML specifications, representing the future of configuration-driven development.
+An AI-powered system that transforms academic research papers and personal notes into a dynamic, queryable professional profile. Features a **revolutionary blueprint-driven architecture** with semantic intelligence that automatically generates sophisticated tools from YAML specifications.
 
 ### 🎯 Core Innovation: "Blueprints over Business Logic"
 
-- **79 automatically generated tools** vs 13 manual tools (6.1x improvement)
+- **83+ automatically generated tools** with semantic enhancement vs 13 manual tools (6.4x improvement)
+- **Semantic intelligence** - hybrid search combining SQL and embeddings for better concept discovery
+- **Centralized profile system** - consistent representation across all agents
 - **Zero-code domain extension** - add new research areas via YAML files only
 - **Universal adaptability** - works for any research field without code changes
 - **Schema-guaranteed consistency** - tools match database structure automatically
-- **Multi-tier agent system** with 74% accuracy improvement through semantic search, query planning, and answer validation
+
+## 📋 Profile Setup (Required First Step)
+
+### Centralized Profile System
+
+The Interactive CV uses a **centralized profile system** that ensures consistent representation across all agents. Before running the system, you must customize your profile.
+
+**Required Setup:**
+1. **Edit `Profile/Profile_Prompt.md`** with your information:
+   - Core identity and professional background
+   - Research expertise with specific keywords
+   - Professional experience and positions
+   - Current focus areas and interests
+   - Personal details and philosophy
+
+2. **Both agents automatically load this profile** - no code changes needed
+
+**Profile Template Structure:**
+```markdown
+### **Agent System Prompt: My Profile**
+
+**1. Core Identity**
+[Your background, PhD, experience]
+
+**2. Executive Narrative** 
+[Your career evolution and expertise]
+
+**3. Research Expertise (Keywords)**
+[Detailed technical areas for search optimization]
+
+**4. Research Evolution & Key Contributions**
+[Your research phases and major contributions]
+
+**5. Professional Experience**
+[Work history and institutional affiliations]
+
+**6. Education**
+[Academic background and degrees]
+
+**7. Practical Implementation Experience**
+[Technical skills, tools, and hands-on projects]
+
+**8. Personal & Professional Profile**
+[Work philosophy, interests, languages]
+```
+
+This centralized approach follows the blueprint philosophy: configuration over code, ensuring your profile is consistent across all system components.
 
 ## 🚀 Quick Start
 
@@ -22,13 +70,21 @@ cd interactive_cv
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Set up environment variables
+# 3. Set up your profile (REQUIRED)
+# Edit Profile/Profile_Prompt.md with your information:
+# - Core identity and background
+# - Research expertise and keywords  
+# - Professional experience
+# - Current focus areas
+# - Personal details
+
+# 4. Set up environment variables
 cp .env.example .env
 # Add your API keys:
 # OPENROUTER_API_KEY=your_key_here
 # OPENAI_API_KEY=your_key_here
 
-# 4. Build database from scratch (complete pipeline)
+# 5. Build database from scratch (complete pipeline)
 python DB/build_database.py
 
 # The build process automatically:
@@ -40,13 +96,13 @@ python DB/build_database.py
 # - Deduplicates entities with 20 parallel workers
 # - Builds knowledge graph with 24+ node types
 
-# 5. Run the interactive agent
+# 6. Run the interactive agents
+
+# Run the Interactive CV Agent
 python interactive_agent.py
 
-# Or use the advanced agents for better results:
-python interactive_agent_enhanced.py  # +22% accuracy with semantic search
-python interactive_agent_advanced.py   # +35% accuracy with query planning
-python interactive_agent_ultimate.py   # +74% accuracy with all improvements
+# Use Pro model for better results  
+AGENT_MODEL=pro python interactive_agent.py
 ```
 
 ## 🏗️ Revolutionary Blueprint-Driven Architecture
@@ -419,6 +475,31 @@ Define your entities (genes, compounds, algorithms, historical events, literary 
 
 **This is the power of universal, blueprint-driven development.**
 
+### Blueprint Tool Categories (83 Generated Tools)
+
+1. **Schema-Driven Tools (27 tools)**
+   - `search_academic_documents`, `search_topics`, `search_people`, etc.
+   - `get_*_by_id` tools for all entity types
+   - `list_*` tools with pagination and filtering
+
+2. **Entity-Aware Search (10 tools)**
+   - `search_academic_topics`, `search_personal_people`
+   - Domain-specific with category filtering
+
+3. **Relationship Traversal (40 tools)**
+   - **Forward**: `traverse_discusses`, `traverse_uses_method`, `traverse_authored_by`
+   - **Reverse**: `reverse_discusses`, `reverse_authored_by`, `reverse_innovates`
+   - Automatic discovery from entity mappings
+
+4. **Semantic Intelligence Tools (4 tools)**
+   - `semantic_search_chunks` - Find conceptually related content
+   - `find_similar_entities` - Discover related concepts via embeddings
+   - Query expansion and semantic enhancement
+
+5. **Category & Visualization Tools (2 tools)**
+   - `explore_topic_categories` with 22+ categories
+   - `get_visualization_data` with complete styling
+
 ### Modifying Entity Categories
 1. Edit `blueprints/academic/database_mapping.yaml` or `blueprints/personal/database_mapping.yaml`
 2. Update `blueprints/core/visualization.yaml` node mappings
@@ -616,8 +697,7 @@ See [MODEL_USAGE_GUIDE.md](MODEL_USAGE_GUIDE.md) for detailed model configuratio
 - **[Web UI](web_ui/README.md)**: Interactive visualization interface
 
 ### 🔥 Blueprint Revolution Details
-- **[Blueprint Transformation Summary](docs/BLUEPRINT_TRANSFORMATION_SUMMARY.md)**: Complete technical transformation analysis
-- **[CLAUDE.md](CLAUDE.md)**: Comprehensive project documentation with blueprint vision
+- **[CLAUDE.md](CLAUDE.md)**: Comprehensive project documentation with complete blueprint transformation analysis
 
 ## 🤝 Contributing
 

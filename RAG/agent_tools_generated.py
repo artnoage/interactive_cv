@@ -400,12 +400,20 @@ class GeneratedInteractiveCVTools:
                               similarity_threshold: float = 0.5) -> List[Dict[str, Any]]:
         """Semantic search using blueprint-generated tools + fallback to manual semantic search."""
         try:
-            # Try to use enhanced search capabilities
-            from RAG import semantic_search
-            return semantic_search.semantic_search_chunks(
-                self.db_path, query, limit=limit, doc_type=doc_type, 
-                similarity_threshold=similarity_threshold
-            )
+            # Try to use blueprint-generated semantic search first
+            if 'semantic_search_chunks' in self.generator.list_all_tools():
+                return self.generator.execute_tool(
+                    'semantic_search_chunks',
+                    query=query, limit=limit, doc_type=doc_type, 
+                    similarity_threshold=similarity_threshold
+                )
+            else:
+                # Fallback to manual semantic search
+                from RAG import semantic_search
+                return semantic_search.semantic_search_chunks(
+                    self.db_path, query, limit=limit, doc_type=doc_type, 
+                    similarity_threshold=similarity_threshold
+                )
         except Exception as e:
             logger.error(f"Error in semantic_search_chunks: {e}")
             return []
@@ -414,11 +422,20 @@ class GeneratedInteractiveCVTools:
                             limit: int = 15, similarity_threshold: float = 0.5) -> List[Dict[str, Any]]:
         """Find similar entities using semantic search."""
         try:
-            from RAG import semantic_search
-            return semantic_search.find_similar_entities(
-                self.db_path, query, entity_type=entity_type, 
-                limit=limit, similarity_threshold=similarity_threshold
-            )
+            # Try to use blueprint-generated semantic search first
+            if 'find_similar_entities' in self.generator.list_all_tools():
+                return self.generator.execute_tool(
+                    'find_similar_entities',
+                    query=query, entity_type=entity_type, 
+                    limit=limit, similarity_threshold=similarity_threshold
+                )
+            else:
+                # Fallback to manual semantic search
+                from RAG import semantic_search
+                return semantic_search.find_similar_entities(
+                    self.db_path, query, entity_type=entity_type, 
+                    limit=limit, similarity_threshold=similarity_threshold
+                )
         except Exception as e:
             logger.error(f"Error in find_similar_entities: {e}")
             return []
