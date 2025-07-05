@@ -82,6 +82,7 @@ class BlueprintLoader:
         self.visualization_config: Optional[VisualizationConfig] = None
         self.extraction_schemas: Dict[str, Dict[str, Any]] = {}
         self.tool_guidance: Optional[Dict[str, Any]] = None
+        self.semantic_config: Optional[Dict[str, Any]] = None
         
         self._load_all_blueprints()
     
@@ -97,6 +98,9 @@ class BlueprintLoader:
         
         # Load tool guidance config
         self._load_tool_guidance()
+        
+        # Load semantic enhancement config
+        self._load_semantic_config()
         
         # Load domain-specific mappings
         self._load_domain_mappings()
@@ -187,6 +191,20 @@ class BlueprintLoader:
         
         logger.info("Loaded tool guidance configuration")
     
+    def _load_semantic_config(self):
+        """Load semantic enhancement configuration from core/semantic_enhancement.yaml."""
+        semantic_file = self.blueprints_dir / "core" / "semantic_enhancement.yaml"
+        
+        if not semantic_file.exists():
+            logger.warning(f"Semantic enhancement config not found: {semantic_file}")
+            self.semantic_config = {}
+            return
+        
+        with open(semantic_file, 'r') as f:
+            self.semantic_config = yaml.safe_load(f)
+        
+        logger.info("Loaded semantic enhancement configuration")
+    
     def _load_domain_mappings(self):
         """Load domain-specific entity mappings."""
         for domain_dir in self.blueprints_dir.iterdir():
@@ -260,6 +278,10 @@ class BlueprintLoader:
     def get_tool_guidance(self) -> Dict[str, Any]:
         """Get tool guidance configuration."""
         return self.tool_guidance or {}
+    
+    def get_semantic_config(self) -> Dict[str, Any]:
+        """Get semantic enhancement configuration."""
+        return self.semantic_config or {}
     
     def get_entity_tables(self) -> List[str]:
         """Get list of all entity table names."""
