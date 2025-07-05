@@ -9,14 +9,11 @@ created from declarative specifications rather than manual coding.
 """
 
 import sqlite3
-import numpy as np
-from typing import Dict, List, Any, Optional, Tuple, Callable
+from typing import Dict, List, Any, Optional, Callable, Tuple
 from dataclasses import dataclass
 import logging
-from pathlib import Path
 
 from RAG.blueprint_driven_loader import BlueprintLoader, EntityMapping, DatabaseTable
-from RAG import semantic_search
 
 logger = logging.getLogger(__name__)
 

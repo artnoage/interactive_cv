@@ -22,8 +22,8 @@ from pydantic import SecretStr
 
 from dotenv import load_dotenv
 
-# Import our tools from RAG module
-from RAG.agent_tools import InteractiveCVTools
+# Import our blueprint-generated tools
+from RAG.agent_tools_generated import GeneratedInteractiveCVTools
 
 load_dotenv()
 
@@ -61,8 +61,8 @@ class InteractiveCVAgent:
     
     def __init__(self):
         """Initialize the agent with our new tools."""
-        # Initialize the tools backend
-        self.cv_tools = InteractiveCVTools(DB_PATH, GRAPH_PATH)
+        # Initialize the blueprint-generated tools backend
+        self.cv_tools = GeneratedInteractiveCVTools(DB_PATH)
         
         # Initialize OpenRouter LLM
         api_key = os.getenv("OPENROUTER_API_KEY")

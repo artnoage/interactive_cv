@@ -11,7 +11,7 @@ declarative YAML specifications rather than manual coding.
 import yaml
 import sqlite3
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 import logging
 
@@ -79,7 +79,7 @@ class BlueprintLoader:
         self.blueprints_dir = Path(blueprints_dir)
         self.database_schema: Dict[str, DatabaseTable] = {}
         self.entity_mappings: Dict[str, Dict[str, EntityMapping]] = {}
-        self.visualization_config: VisualizationConfig = None
+        self.visualization_config: Optional[VisualizationConfig] = None
         self.extraction_schemas: Dict[str, Dict[str, Any]] = {}
         
         self._load_all_blueprints()
@@ -231,7 +231,7 @@ class BlueprintLoader:
         """Get all entity mappings for all domains."""
         return self.entity_mappings.copy()
     
-    def get_visualization_config(self) -> VisualizationConfig:
+    def get_visualization_config(self) -> Optional[VisualizationConfig]:
         """Get visualization configuration."""
         return self.visualization_config
     
@@ -313,7 +313,7 @@ class BlueprintLoader:
                 columns.append(col_def)
             
             # Add table constraints
-            for constraint_name, constraint in table.constraints.items():
+            for constraint in table.constraints.values():
                 if constraint.get('type') == 'UNIQUE':
                     cols = ', '.join(constraint.get('columns', []))
                     constraints.append(f"UNIQUE({cols})")
@@ -355,7 +355,10 @@ class BlueprintLoader:
             cursor = conn.execute(f"PRAGMA table_info({table_name})")
             actual_columns = {row[1]: row[2] for row in cursor}  # name: type
             
-            expected_columns = {col.name: col.type for col in expected_table.columns.values()}
+            if expected_table and expected_table.columns:
+                expected_columns = {col.name: col.type for col in expected_table.columns.values()}
+            else:
+                expected_columns = {}
             
             if actual_columns != expected_columns:
                 validation_results['schema_mismatches'].append({
