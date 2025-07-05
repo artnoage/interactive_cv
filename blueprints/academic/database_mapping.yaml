@@ -26,6 +26,7 @@ entity_mappings:
     target_table: "topics"
     entity_type: "topic"
     relationship_type: "discusses"
+    relationship_direction: "document_to_entity"  # document → topic
     category_handling: "preserve_original"  # Keep the original category from metadata
     description_field: "description"
     
@@ -34,6 +35,7 @@ entity_mappings:
     target_table: "topics"
     entity_type: "topic"
     relationship_type: "discusses"
+    relationship_direction: "document_to_entity"  # document → topic
     category_override: "research_area"  # Force this category
     
   # Methods and algorithms
@@ -41,6 +43,7 @@ entity_mappings:
     target_table: "methods"
     entity_type: "method"
     relationship_type: "uses_method"
+    relationship_direction: "document_to_entity"  # document → method
     category_field: "type"  # Map 'type' to 'category' column
     description_field: "description"
     
@@ -48,6 +51,7 @@ entity_mappings:
     target_table: "methods"
     entity_type: "method"
     relationship_type: "uses_method"
+    relationship_direction: "document_to_entity"  # document → method
     category_override: "algorithmic"
     description_field: "purpose"  # Use purpose as description
     
@@ -56,17 +60,20 @@ entity_mappings:
     target_table: "people"
     entity_type: "person"
     relationship_type: "mentions"
+    relationship_direction: "document_to_entity"  # document → person
     
   authors:
     target_table: "people"
     entity_type: "person"
     relationship_type: "authored_by"
+    relationship_direction: "document_to_entity"  # document → person
     role_override: "author"  # Set role to author
     
   institutions:
     target_table: "institutions"
     entity_type: "institution"
     relationship_type: "affiliated_with"
+    relationship_direction: "document_to_entity"  # document → institution
     
   # Applications
   applications:

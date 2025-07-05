@@ -2,7 +2,7 @@
   "date": "2025-06-29",
   "note_type": "daily",
   "title": "Daily Note - 2025-06-29",
-  "summary": "Productive day working on multiple projects, including Collapsi RL training system enhancements and academic CV enrichment. Major architectural improvements were made, leading to breakthroughs in training performance for Collapsi and comprehensive analyses for the interactive CV project.",
+  "summary": "Productive day working on multiple projects, specifically enhancing the Collapsi RL training system through architectural modularization and performance breakthroughs with mixed batch training, and completing comprehensive academic paper analyses for the interactive CV project.",
   "topics": [
     "reinforcement-learning",
     "mcts",
@@ -10,7 +10,11 @@
     "monte-carlo-returns",
     "dynamic-opponent-pool",
     "modular-architecture",
-    "academic-analysis"
+    "academic-analysis",
+    "rl-training",
+    "adaptive-learning",
+    "rl-methods",
+    "game-ai"
   ],
   "projects": [
     "collapsi-rl",
@@ -20,47 +24,42 @@
   "people": [],
   "institutions": [],
   "methods": [
-    "mixed batch training",
-    "dynamic opponent pool evolution",
-    "Monte Carlo returns",
-    "MCTS integration",
+    "MCTS",
+    "PPO",
     "GAE",
-    "session management",
-    "round-robin tournaments"
+    "Monte Carlo"
   ],
   "tools": [
     "python",
     "pytorch",
     "git",
-    "mcts",
-    "ppo",
-    "gae",
-    "monte-carlo",
     "logging",
     "heatmap-visualization"
   ],
   "accomplishments": [
     "Successfully refactored Collapsi RL training architecture into modular components (collapsi_net.py, collapsi_env.py)",
-    "Achieved breakthrough performance with mixed batch training (50.9-54.7% win rates vs checkpoint opponents)",
-    "Completed comprehensive academic paper analyses for interactive CV project (300+ line analyses, added mathematical depth including frameworks, theorems, proofs, and cross-domain applications)",
+    "Achieved breakthrough performance with mixed batch training",
+    "Completed comprehensive academic paper analyses for interactive CV project",
     "Fixed all diagnostics issues and improved code quality",
-    "Implemented Dynamic Opponent Pool (auto-selects top N strongest opponents)",
-    "Completed MCTS integration with on/off flag",
-    "Implemented Session Management to prevent checkpoint mixing",
-    "Developed Evaluation System using round-robin tournaments with heatmap visualization"
+    "Implemented MCTS integration with on/off flag",
+    "Developed session management to prevent checkpoint mixing",
+    "Established an evaluation system for round-robin tournaments with heatmap visualization",
+    "Transformed 300+ line paper summaries into comprehensive documents for CV",
+    "Added mathematical depth including frameworks, theorems, proofs to CV analyses",
+    "Identified cross-domain applications in physics, ML, biology, economics connections for CV analyses"
   ],
   "insights": [
-    "Mixed batch training with checkpoint opponents proved more effective than pure self-play for RL training.",
-    "Dynamic opponent pool evolution prevents training plateaus.",
-    "Monte Carlo returns work better than GAE for short-horizon games like Collapsi.",
-    "MCTS integration adds significant playing strength (200-400 Elo) at the cost of computation time.",
-    "Modular architecture benefits for ML training systems aid future development and testing.",
-    "Importance of diverse training opponents for preventing plateaus."
+    "Mixed batch training with checkpoint opponents proved more effective than pure self-play",
+    "Dynamic opponent pool evolution prevents training plateaus",
+    "Monte Carlo returns work better than GAE for short-horizon games like Collapsi",
+    "MCTS integration adds significant playing strength at the cost of computation time",
+    "Modular architecture benefits for ML training systems",
+    "Importance of diverse training opponents"
   ],
   "learning": [
     "Advanced RL techniques for board games",
     "MCTS implementation patterns",
-    "Benefits of modular architecture for ML training systems",
+    "Modular architecture benefits for ML training systems",
     "Importance of diverse training opponents"
   ],
   "challenges": [],
@@ -70,13 +69,13 @@
     "Begin interactive frontend development for CV project"
   ],
   "metrics": {
-    "collapsi_win_rates": "50.9-54.7% (vs checkpoint opponents)",
-    "mcts_elo_gain": "200-400 Elo",
-    "academic_analyses_length": "300+ lines"
+    "mixed_batch_training_win_rates": "50.9-54.7% vs checkpoint opponents",
+    "MCTS_elo_gain": "200-400 Elo",
+    "academic_paper_analyses_lines": "300+"
   },
   "papers": [],
   "file_path": "/home/artnoage/Projects/interactive_cv/raw_data/personal_notes/Daily Notes/2025-06-29.md",
-  "extraction_date": "2025-07-05T11:51:38.280289",
+  "extraction_date": "2025-07-05T18:13:49.964215",
   "extractor_version": "blueprint-v1.0",
   "document_type": "personal"
 }

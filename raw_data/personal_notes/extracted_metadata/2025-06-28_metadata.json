@@ -2,7 +2,7 @@
   "date": "2025-06-28",
   "note_type": "daily",
   "title": "Daily Note - 2025-06-28",
-  "summary": "Productive day focused on improving the Collapsi RL training system and completing an academic paper analysis project. Key achievements include implementing session timestamps and architecture preservation for RL training, integrating MCTS with PPO, fixing codebase diagnostics, and transforming academic paper summaries into comprehensive technical documents.",
+  "summary": "Productive day focused on improving Collapsi RL training with session timestamps, architecture preservation, MCTS integration, and fixing diagnostic issues. Also completed comprehensive academic paper analysis and enrichment, transforming basic summaries into detailed technical documents, and set up an initial repository for an interactive CV project.",
   "topics": [
     "reinforcement-learning",
     "mcts",
@@ -20,11 +20,10 @@
   "people": [],
   "institutions": [],
   "methods": [
-    "MCTS integration with PPO",
-    "session timestamps for training checkpoints",
-    "architecture preservation in checkpoints",
-    "model evaluation system with tournaments and heatmap visualizations",
-    "type checking and diagnostics",
+    "MCTS integration",
+    "PPO training",
+    "Monte Carlo returns",
+    "GAE",
     "systematic paper analysis methodology"
   ],
   "tools": [
@@ -37,44 +36,45 @@
     "monte-carlo"
   ],
   "accomplishments": [
-    "Implemented session timestamps for training checkpoints on Collapsi RL",
+    "Implemented session timestamps for Collapsi RL training checkpoints",
     "Added complete architecture preservation in Collapsi RL checkpoints",
-    "Created comprehensive model evaluation system for Collapsi RL with tournaments and heatmap visualizations",
-    "Integrated Monte Carlo Tree Search (MCTS) with PPO training for enhanced Collapsi gameplay",
+    "Created comprehensive model evaluation system with tournaments and heatmap visualizations for Collapsi",
+    "Integrated Monte Carlo Tree Search (MCTS) with PPO training for Collapsi enhanced gameplay",
     "Fixed all type checking and diagnostic issues across the Collapsi codebase",
-    "Rewrote README.md and updated CLAUDE.md documentation for Collapsi",
+    "Rewrote Collapsi README.md and updated CLAUDE.md documentation",
     "Completed comprehensive analysis and enrichment of all academic papers",
-    "Transformed basic summaries into 300+ line technical documents for academic papers",
-    "Added deep mathematical frameworks and theoretical implications to academic paper analyses",
+    "Transformed basic academic paper summaries into 300+ line technical documents",
+    "Added deep mathematical frameworks and theoretical implications to academic analyses",
     "Connected academic research to broader literature in optimal transport, control theory, and statistical mechanics",
     "Created publication-quality academic analyses suitable for graduate reference",
     "Set up initial repository for Interactive CV project with academic profiles and paper analyses",
-    "Created comprehensive academic profile for Interactive CV with research style and technical mastery sections",
-    "Made initial git commit preserving all academic work"
+    "Created comprehensive academic profile with research style and technical mastery sections for Interactive CV",
+    "Made initial git commit preserving all academic work for Interactive CV"
   ],
   "insights": [
-    "Session timestamps are crucial for preventing checkpoint confusion in long training runs.",
-    "MCTS integration can add significant Elo strength (200-400 Elo) but comes with a high computational cost (50x).",
-    "Monte Carlo returns work better than GAE for short-horizon games like Collapsi.",
-    "A systematic paper analysis methodology produces significantly better academic documentation."
+    "Session timestamps are crucial for preventing checkpoint confusion in long training runs",
+    "MCTS integration can add 200-400 Elo strength but at 50x computational cost",
+    "Monte Carlo returns work better than GAE for short-horizon games like Collapsi",
+    "Systematic paper analysis methodology produces significantly better academic documentation",
+    "Terminal outcome prediction as auxiliary loss improves credit assignment in RL"
   ],
   "learning": [
-    "MCTS implementation patterns for two-player games",
-    "Terminal outcome prediction as auxiliary loss improves credit assignment in RL"
+    "MCTS implementation patterns for two-player games"
   ],
   "challenges": [],
   "future_work": [
-    "Start comparative training runs for Standard PPO vs PPO+MCTS",
+    "Start comparative training runs: Standard PPO vs PPO+MCTS",
     "Set up GitHub repository for interactive CV project",
     "Begin frontend development for interactive CV presentation"
   ],
   "metrics": {
-    "MCTS Integration Elo Strength": "200-400 Elo",
-    "MCTS Computational Cost": "50x"
+    "MCTS_Elo_strength_gain": "200-400 Elo",
+    "MCTS_computational_cost_increase": "50x",
+    "academic_paper_summary_length_increase": "from basic to 300+ lines"
   },
   "papers": [],
   "file_path": "/home/artnoage/Projects/interactive_cv/raw_data/personal_notes/Daily Notes/2025-06-28.md",
-  "extraction_date": "2025-07-05T11:51:19.999313",
+  "extraction_date": "2025-07-05T18:13:31.328576",
   "extractor_version": "blueprint-v1.0",
   "document_type": "personal"
 }

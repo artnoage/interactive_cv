@@ -7,6 +7,20 @@ metadata:
   description: "Enhanced tool descriptions and usage strategies for blueprint-generated tools"
   purpose: "Provide LLM agents with clear guidance on when and how to use generated tools effectively"
 
+# Relationship direction mappings - explains how relationships flow
+relationship_directions:
+  # All relationships currently flow from document to entity
+  authored_by: "document → person"  # Papers point to their authors
+  affiliated_with: "document → institution"  # Papers point to affiliated institutions
+  discusses: "document → topic"  # Papers point to topics they discuss
+  uses_method: "document → method"  # Papers point to methods they use
+  has_application: "document → application"  # Papers point to applications
+  mentions: "document → person"  # Papers point to people mentioned
+  
+  # This means:
+  # - To find papers by an author: use reverse_authored_by(target_type='person', target_id='person_X')
+  # - To find institutions of an author: first get their papers, then traverse_affiliated_with from papers
+
 # Enhanced tool descriptions with specific use cases and examples
 enhanced_descriptions:
   # Academic Document Tools
@@ -134,9 +148,15 @@ question_type_strategies:
     follow_up_tools: ["reverse_discusses", "search_academic_documents"]
     
   collaboration_analysis:
-    trigger_phrases: ["collaborated with", "worked with", "co-authors", "institutions"]
-    primary_tools: ["search_people", "search_institutions"]
-    follow_up_tools: ["traverse_authored_by", "traverse_affiliated_with"]
+    trigger_phrases: ["collaborated with", "worked with", "co-authors"]
+    primary_tools: ["search_people"]
+    follow_up_tools: ["reverse_authored_by", "traverse_affiliated_with"]
+    
+  institution_affiliation:
+    trigger_phrases: ["institutions", "affiliated with", "university", "organizations"]
+    primary_tools: ["search_people", "list_institutions"]
+    follow_up_tools: ["reverse_authored_by", "traverse_affiliated_with"]
+    notes: "Institutions connect to documents, not people. To find author's institutions: get their papers first, then traverse to institutions"
     
   research_evolution:
     trigger_phrases: ["evolution", "development", "over time", "progression"]
