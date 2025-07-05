@@ -1,0 +1,39 @@
+{
+  "answers": [
+    {
+      "id": 11,
+      "expected_answer": "Vaios's game development work on Collapsi shows practical application of his theoretical expertise. He implemented Monte Carlo Tree Search (MCTS) and AlphaZero-style training, which connect to his research on POMDPs and reinforcement learning. His work on policy distillation from MCTS and temperature-based exploration in the Collapsi project reflects his deep understanding of decision-making under uncertainty, which is central to his academic work on risk-sensitive POMDPs and optimal transport in machine learning.",
+      "category": "cross_domain",
+      "difficulty": "very_hard",
+      "source": "original"
+    },
+    {
+      "id": 12,
+      "expected_answer": "Fourier Neural Operators (FNOs) are neural network architectures that learn mappings between function spaces. They are discretization-invariant because they perform key operations in Fourier space, making them suitable for learning to solve problems on grids of varying resolutions. UNOT uses FNOs as the solver network S_phi because they can generalize across measures of different resolutions (from 10x10 to 64x64 in experiments), which was a key requirement for creating a universal solver that works across different datasets and resolutions.",
+      "category": "single_paper",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 13,
+      "expected_answer": "Vaios discovered that MCTS instantiation per move was a major performance bottleneck in the Collapsi project. He fixed this by extracting MCTS into a standalone module and ensuring proper instance management. He also extracted common evaluation logic, reducing approximately 40 lines of duplicate code, created a centralized state preparation helper function, and achieved 60-70% file size reduction through ONNX conversion for the AI models.",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 14,
+      "expected_answer": "Vaios's papers consistently explore computational trade-offs: UNOT trades training time (35h) for fast inference, the Assignment Method trades flexibility for O(mN) complexity, and risk-sensitive POMDPs trade approximation accuracy (number of exponential terms) for tractability. This pattern appears in his Collapsi implementation where he chose DFS for the 4x4 board (manageable complexity) and used ONNX for 60-70% model size reduction, showing his consistent approach to balancing theoretical optimality with practical constraints.",
+      "category": "cross_domain",
+      "difficulty": "very_hard",
+      "source": "original"
+    },
+    {
+      "id": 15,
+      "expected_answer": "Vaios frequently collaborates with researchers from TU Berlin and WIAS Berlin, including Klaus Obermayer (appearing in multiple papers), Andreas Kapetanis, Jan Tinapp, and Arsham Afsardeir. In the UNOT paper, he worked with Jonathan Geuter, Gregor Kornhardt, and Ingimar Tomasson at Harvard. His personal notes also mention Mark S. Ball's Collapsi tutorial, showing he engages with the broader community. This demonstrates his collaborative approach across both theoretical research and practical development.",
+      "category": "cross_domain",
+      "difficulty": "medium",
+      "source": "original"
+    }
+  ]
+}

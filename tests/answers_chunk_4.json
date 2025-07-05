@@ -1,0 +1,39 @@
+{
+  "answers": [
+    {
+      "id": 16,
+      "expected_answer": "Vaios documented important insights about AlphaZero training: the policy loss can decrease while value loss remains high, suggesting the policy might be memorizing MCTS patterns without true understanding. He noted that if the policy truly understands good moves, it should implicitly understand position values, and a persistent gap indicates potential for improvement. He implemented policy distillation from MCTS and temperature-based exploration to address these issues.",
+      "category": "personal_notes",
+      "difficulty": "hard",
+      "source": "original"
+    },
+    {
+      "id": 17,
+      "expected_answer": "In the GAN paper, 'assignment' refers to the mathematical concept of assigning generated data points to real data points to minimize transport cost, with the assigner network learning optimal assignments for the dual OT problem. In his game development, assignment appears more practically - he assigns themes to UI elements, assigns moves to valid positions via DFS pathfinding, and assigns policies to game states via MCTS. Both contexts involve optimization and finding optimal mappings, reflecting his consistent mathematical thinking across domains.",
+      "category": "cross_domain",
+      "difficulty": "very_hard",
+      "source": "original"
+    },
+    {
+      "id": 18,
+      "expected_answer": "The main limitations of UNOT are: 1) The model must be retrained for each new cost function, limiting its universality, 2) The model does not extrapolate well to resolutions significantly higher than those seen during training, 3) The current implementation is designed for measures on uniform grids and does not directly apply to unstructured point clouds, and 4) The performance on higher-dimensional domains (d > 3) is not explored.",
+      "category": "single_paper",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 19,
+      "expected_answer": "Vaios demonstrated strong software engineering practices including: refactoring to standalone architecture (removing backend dependencies), creating modular code (extracting MCTS into standalone module), implementing proper abstraction (centralized state preparation), comprehensive documentation (README and CLAUDE.md updates), version control with proper session-based checkpoint management, performance optimization (ONNX conversion, fixing instance-per-move bottleneck), and implementing save/load systems with localStorage. He also set up Tailscale for secure networking.",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 20,
+      "expected_answer": "Vaios's work shows a clear evolution from theoretical foundations to practical applications. His papers on optimal transport and risk-sensitive POMDPs represent deep mathematical theory (measure theory, Kantorovich duality, functional analysis). The GAN training paper bridges theory and practice by applying OT theory to neural network training. His Collapsi project represents full practical implementation, using reinforcement learning concepts (MCTS, AlphaZero) in a working game. Throughout, he maintains mathematical rigor while addressing real computational constraints, demonstrating how strong theoretical foundations enable better practical solutions.",
+      "category": "cross_domain",
+      "difficulty": "very_hard",
+      "source": "original"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "answers": [
+    {
+      "id": 21,
+      "expected_answer": "On 2025-06-26, for the 'obsidian-mcp-setup' project, key accomplishments included installing and configuring the mcp-obsidian server, creating comprehensive guidance documentation, testing all 12 MCP tools, and creating a template system.",
+      "category": "personal_notes",
+      "difficulty": "easy",
+      "source": "geminis_pairs"
+    },
+    {
+      "id": 22,
+      "expected_answer": "For 'game-development' and 'pathfinding' from 2025-06-27 to 2025-06-30, the tools used included Python, JavaScript, React, localStorage, PyTorch, ONNX, Tailscale, webstorage, and CUDA.",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "geminis_pairs"
+    },
+    {
+      "id": 23,
+      "expected_answer": "During 2025-W26, insights regarding 'Collapsi RL' and 'reinforcement-learning' included: mixed opponent pools prevent training plateaus, Monte Carlo returns are superior to GAE for short games, session timestamps prevent checkpoint confusion in RL training, movement rule flexibility significantly transforms game strategy, and modular architecture is essential for ML systems.",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "geminis_pairs"
+    },
+    {
+      "id": 24,
+      "expected_answer": "On 2025-06-27, the main challenge was an initial misconception about Collapsi game movement rules. For 2025-W26, challenges included initial game rule confusion costing time, significant MCTS performance overhead (50x slower), and missed daily notes early in the week.",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "geminis_pairs"
+    },
+    {
+      "id": 25,
+      "expected_answer": "Future work related to 'reinforcement-learning' and the 'Collapsi RL' project includes: beginning RL implementation, testing the game engine thoroughly with edge cases, considering adding game statistics/analytics, starting comparative training runs (Standard PPO vs PPO+MCTS), testing the new dynamic opponent pool selection system, running comparative experiments between standard PPO and PPO+MCTS, testing AlphaZero training with full 1M episodes, implementing the policy-value consistency loss experiment, and continuing Collapsi RL model training.",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "geminis_pairs"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "questions": [
+    {
+      "id": 16,
+      "question": "What specific insights about AlphaZero training did Vaios document in his personal notes?",
+      "category": "personal_notes",
+      "difficulty": "hard",
+      "source": "original"
+    },
+    {
+      "id": 17,
+      "question": "How does the concept of 'assignment' appear differently in Vaios's GAN paper versus his game development work?",
+      "category": "cross_domain",
+      "difficulty": "very_hard",
+      "source": "original"
+    },
+    {
+      "id": 18,
+      "question": "What are the main limitations of UNOT according to the paper?",
+      "category": "single_paper",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 19,
+      "question": "What software engineering practices did Vaios demonstrate in his June 2025 work?",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 20,
+      "question": "How does Vaios's work demonstrate the evolution from pure mathematics to practical AI applications?",
+      "category": "cross_domain",
+      "difficulty": "very_hard",
+      "source": "original"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "questions": [
+    {
+      "id": 11,
+      "question": "What connection exists between Vaios's theoretical work and his practical game development?",
+      "category": "cross_domain",
+      "difficulty": "very_hard",
+      "source": "original"
+    },
+    {
+      "id": 12,
+      "question": "What are Fourier Neural Operators and why were they chosen for UNOT?",
+      "category": "single_paper",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 13,
+      "question": "What performance improvements did Vaios discover while working on the Collapsi project?",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 14,
+      "question": "How do the computational trade-offs in Vaios's academic papers reflect in his practical implementations?",
+      "category": "cross_domain",
+      "difficulty": "very_hard",
+      "source": "original"
+    },
+    {
+      "id": 15,
+      "question": "What evidence of collaborative work appears across Vaios's papers and projects?",
+      "category": "cross_domain",
+      "difficulty": "medium",
+      "source": "original"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "questions": [
+    {
+      "id": 1,
+      "question": "What is UNOT and who developed it?",
+      "category": "single_paper",
+      "difficulty": "easy",
+      "source": "original"
+    },
+    {
+      "id": 2,
+      "question": "How does the Assignment Method for training GANs differ from traditional WGANs?",
+      "category": "single_paper",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 3,
+      "question": "What game development work did Vaios do in late June 2025?",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 4,
+      "question": "What institutions has Vaios been affiliated with according to his papers?",
+      "category": "cross_paper",
+      "difficulty": "easy",
+      "source": "original"
+    },
+    {
+      "id": 5,
+      "question": "How does Vaios's work on risk-sensitive POMDPs relate to utility functions and what was the core innovation?",
+      "category": "single_paper",
+      "difficulty": "hard",
+      "source": "original"
+    }
+  ]
+}

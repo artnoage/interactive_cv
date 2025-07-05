@@ -1,0 +1,39 @@
+{
+  "answers": [
+    {
+      "id": 1,
+      "expected_answer": "UNOT (Universal Neural Optimal Transport) is a universal neural OT solver that can accurately and rapidly predict entropic optimal transport distances and plans for a given cost function, across different datasets and for discrete measures of variable resolutions. It was developed by Jonathan Geuter, Gregor Kornhardt, Ingimar Tomasson, and Vaios Laschos, and was presented at ICML 2025.",
+      "category": "single_paper",
+      "difficulty": "easy",
+      "source": "original"
+    },
+    {
+      "id": 2,
+      "expected_answer": "The Assignment Method, developed by Vaios Laschos, Jan Tinapp, and Klaus Obermayer, enables generative networks to be trained by minimizing the optimal transport distance for any arbitrary, user-specified cost function, not just the Wasserstein-1 metric used in traditional WGANs. It uses an auxiliary 'assigner' network that learns the dual potential by balancing assignments between generated and real data, effectively decoupling the training process from the constraints of the Wasserstein-1 metric. This allows for more flexible, domain-specific cost functions like SSIM for better perceptual quality.",
+      "category": "single_paper",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 3,
+      "expected_answer": "In late June 2025, Vaios worked extensively on the Collapsi game. On June 27, he fixed the core game logic by rewriting get_valid_moves() to use DFS pathfinding allowing orthogonal movement with direction changes, updated the backend API, and implemented 5 themes (Cyberpunk, Classic Board, Neon Nights, Minimalist, Retro Arcade). On June 30, he refactored Collapsi into a standalone web application, created a complete JavaScript port, integrated AI with ONNX, and built a complete AlphaZero-style training system with policy distillation from MCTS.",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "original"
+    },
+    {
+      "id": 4,
+      "expected_answer": "Based on his papers, Vaios has been affiliated with: Technische Universit\u00e4t Berlin (Germany), Weierstrass Institute (WIAS) Berlin (Germany), Harvard John A. Paulson School of Engineering and Applied Sciences, and the Kempner Institute at Harvard University. His work has also been supported by the Deutsche Forschungsgemeinschaft (DFG).",
+      "category": "cross_paper",
+      "difficulty": "easy",
+      "source": "original"
+    },
+    {
+      "id": 5,
+      "expected_answer": "In the paper with Arsham Afsardeir, Andreas Kapetanis, and Klaus Obermayer, Vaios developed a novel framework that transforms a risk-sensitive POMDP with a general utility function into a computationally tractable, fully observable multivariate utility optimization problem. The core innovation was approximating the utility function as a sum of exponentials and introducing a multivariate information state vector, where each component corresponds to an exponential term. This bridges the gap between the restrictive but solvable exponential utility case and the general but intractable arbitrary utility case.",
+      "category": "single_paper",
+      "difficulty": "hard",
+      "source": "original"
+    }
+  ]
+}

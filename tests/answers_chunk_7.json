@@ -1,0 +1,39 @@
+{
+  "answers": [
+    {
+      "id": 31,
+      "expected_answer": "The paper 'Evolutionary Variational Inequalities on the Hellinger-Kantorovich and Spherical Hellinger-Kantorovich spaces' addresses the problem of establishing the existence and uniqueness of solutions for gradient flows, formulated as Evolutionary Variational Inequalities (EVIs), on the Hellinger-Kantorovich (HK) and Spherical Hellinger-Kantorovich (SHK) metric spaces. A key insight is that the EVI framework is the 'correct' notion of gradient flow for HK/SHK spaces, as it provides a unique solution even when the corresponding PDE is ill-posed (non-unique).",
+      "category": "single_paper",
+      "difficulty": "hard",
+      "source": "geminis_pairs_2"
+    },
+    {
+      "id": 32,
+      "expected_answer": "The main innovations of 'Training Generative Networks with Arbitrary Optimal Transport costs.' are the 'Assignment Method' (a novel training framework for GANs based on balancing assignments), the generalization of GAN training to arbitrary optimal transport costs, and the 'Assignment Variance' metric for evaluating mode collapse. Its primary limitation is high computational complexity, making it impractical for large datasets.",
+      "category": "single_paper",
+      "difficulty": "medium",
+      "source": "geminis_pairs_2"
+    },
+    {
+      "id": 33,
+      "expected_answer": "The core contribution of 'Universal Neural Optimal Transport' is the development of UNOT, a universal neural OT solver that can accurately and rapidly predict entropic OT distances and plans for a given cost function, across different datasets and for discrete measures of variable resolutions. It uses a Fourier Neural Operator (FNO) as its neural network architecture.",
+      "category": "single_paper",
+      "difficulty": "easy",
+      "source": "geminis_pairs_2"
+    },
+    {
+      "id": 34,
+      "expected_answer": "Key findings of 'Universal Neural Optimal Transport' are that UNOT can predict entropic OT distances with a relative error of only 1-3% after a single Sinkhorn iteration, vastly outperforming standard initializations, and that the use of Fourier Neural Operators (FNOs) allows UNOT to successfully generalize across measures of different resolutions.",
+      "category": "single_paper",
+      "difficulty": "medium",
+      "source": "geminis_pairs_2"
+    },
+    {
+      "id": 35,
+      "expected_answer": "Key insights from 'Training Generative Networks with Arbitrary Optimal Transport costs.' are that the choice of cost function is not merely a theoretical detail but has a direct, practical impact on the qualitative nature of the generated samples, and that the generator and the 'critic' (or 'assigner') can have a more cooperative relationship than the adversarial one in original GANs, with the assigner providing explicit targets for the generator.",
+      "category": "single_paper",
+      "difficulty": "hard",
+      "source": "geminis_pairs_2"
+    }
+  ]
+}

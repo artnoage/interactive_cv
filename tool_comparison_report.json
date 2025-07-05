@@ -1,0 +1,684 @@
+{
+  "summary": {
+    "manual_tools": 13,
+    "generated_tools": 79,
+    "generation_ratio": 6.076923076923077,
+    "blueprint_driven_advantages": [
+      "Automatic tool generation from configuration",
+      "Schema consistency guaranteed",
+      "Category-aware search capabilities",
+      "Rich relationship traversal",
+      "Visualization-ready data",
+      "Easy maintenance and extension"
+    ]
+  },
+  "coverage": {
+    "manual_total": 13,
+    "generated_total": 79,
+    "manual_categories": {
+      "search": 5,
+      "get": 10,
+      "list": 0,
+      "semantic": 1,
+      "other": 0
+    },
+    "generated_categories": {
+      "schema_driven_search": 9,
+      "schema_driven_get": 9,
+      "schema_driven_list": 9,
+      "entity_aware_search": 10,
+      "relationship_traversal": 20,
+      "reverse_relationship_traversal": 20,
+      "category_exploration": 1,
+      "visualization": 1
+    },
+    "coverage_analysis": {
+      "manual_methods": [
+        "find_methods",
+        "find_project_connections",
+        "find_research_topics",
+        "find_similar_entities",
+        "get_all_institutions",
+        "get_author_affiliations",
+        "get_collaborations",
+        "get_paper_authors",
+        "get_paper_content",
+        "get_research_evolution",
+        "search_academic_papers",
+        "search_chronicle_notes",
+        "semantic_search_chunks"
+      ],
+      "generated_tools": [
+        "search_academic_documents",
+        "get_academic_documents_by_id",
+        "list_academic_documents",
+        "search_chronicle_documents",
+        "get_chronicle_documents_by_id",
+        "list_chronicle_documents",
+        "search_topics",
+        "get_topics_by_id",
+        "list_topics",
+        "search_people",
+        "get_people_by_id",
+        "list_people",
+        "search_projects",
+        "get_projects_by_id",
+        "list_projects",
+        "search_institutions",
+        "get_institutions_by_id",
+        "list_institutions",
+        "search_methods",
+        "get_methods_by_id",
+        "list_methods",
+        "search_applications",
+        "get_applications_by_id",
+        "list_applications",
+        "search_relationships",
+        "get_relationships_by_id",
+        "list_relationships",
+        "search_personal_topics",
+        "search_personal_projects",
+        "search_personal_people",
+        "search_personal_institutions",
+        "search_personal_methods",
+        "search_academic_topics",
+        "search_academic_methods",
+        "search_academic_people",
+        "search_academic_institutions",
+        "search_academic_applications",
+        "traverse_proves",
+        "reverse_proves",
+        "traverse_discovers",
+        "reverse_discovers",
+        "traverse_uses_method",
+        "reverse_uses_method",
+        "traverse_mentions",
+        "reverse_mentions",
+        "traverse_relates_to",
+        "reverse_relates_to",
+        "traverse_discusses",
+        "reverse_discusses",
+        "traverse_has_limitation",
+        "reverse_has_limitation",
+        "traverse_has_application",
+        "reverse_has_application",
+        "traverse_plans",
+        "reverse_plans",
+        "traverse_faced_challenge",
+        "reverse_faced_challenge",
+        "traverse_affiliated_with",
+        "reverse_affiliated_with",
+        "traverse_learned",
+        "reverse_learned",
+        "traverse_suggests_future_work",
+        "reverse_suggests_future_work",
+        "traverse_references",
+        "reverse_references",
+        "traverse_authored_by",
+        "reverse_authored_by",
+        "traverse_accomplished",
+        "reverse_accomplished",
+        "traverse_innovates",
+        "reverse_innovates",
+        "traverse_part_of",
+        "reverse_part_of",
+        "traverse_discovered",
+        "reverse_discovered",
+        "traverse_makes_assumption",
+        "reverse_makes_assumption",
+        "explore_topic_categories",
+        "get_visualization_data"
+      ],
+      "manual_detail": {
+        "search": [
+          "find_research_topics",
+          "get_research_evolution",
+          "search_academic_papers",
+          "search_chronicle_notes",
+          "semantic_search_chunks"
+        ],
+        "get": [
+          "find_methods",
+          "find_project_connections",
+          "find_research_topics",
+          "find_similar_entities",
+          "get_all_institutions",
+          "get_author_affiliations",
+          "get_collaborations",
+          "get_paper_authors",
+          "get_paper_content",
+          "get_research_evolution"
+        ],
+        "list": [],
+        "semantic": [
+          "semantic_search_chunks"
+        ],
+        "other": []
+      },
+      "generated_detail": {
+        "schema_driven_search": [
+          "search_academic_documents",
+          "search_chronicle_documents",
+          "search_topics",
+          "search_people",
+          "search_projects",
+          "search_institutions",
+          "search_methods",
+          "search_applications",
+          "search_relationships"
+        ],
+        "schema_driven_get": [
+          "get_academic_documents_by_id",
+          "get_chronicle_documents_by_id",
+          "get_topics_by_id",
+          "get_people_by_id",
+          "get_projects_by_id",
+          "get_institutions_by_id",
+          "get_methods_by_id",
+          "get_applications_by_id",
+          "get_relationships_by_id"
+        ],
+        "schema_driven_list": [
+          "list_academic_documents",
+          "list_chronicle_documents",
+          "list_topics",
+          "list_people",
+          "list_projects",
+          "list_institutions",
+          "list_methods",
+          "list_applications",
+          "list_relationships"
+        ],
+        "entity_aware_search": [
+          "search_personal_topics",
+          "search_personal_projects",
+          "search_personal_people",
+          "search_personal_institutions",
+          "search_personal_methods",
+          "search_academic_topics",
+          "search_academic_methods",
+          "search_academic_people",
+          "search_academic_institutions",
+          "search_academic_applications"
+        ],
+        "relationship_traversal": [
+          "traverse_proves",
+          "traverse_discovers",
+          "traverse_uses_method",
+          "traverse_mentions",
+          "traverse_relates_to",
+          "traverse_discusses",
+          "traverse_has_limitation",
+          "traverse_has_application",
+          "traverse_plans",
+          "traverse_faced_challenge",
+          "traverse_affiliated_with",
+          "traverse_learned",
+          "traverse_suggests_future_work",
+          "traverse_references",
+          "traverse_authored_by",
+          "traverse_accomplished",
+          "traverse_innovates",
+          "traverse_part_of",
+          "traverse_discovered",
+          "traverse_makes_assumption"
+        ],
+        "reverse_relationship_traversal": [
+          "reverse_proves",
+          "reverse_discovers",
+          "reverse_uses_method",
+          "reverse_mentions",
+          "reverse_relates_to",
+          "reverse_discusses",
+          "reverse_has_limitation",
+          "reverse_has_application",
+          "reverse_plans",
+          "reverse_faced_challenge",
+          "reverse_affiliated_with",
+          "reverse_learned",
+          "reverse_suggests_future_work",
+          "reverse_references",
+          "reverse_authored_by",
+          "reverse_accomplished",
+          "reverse_innovates",
+          "reverse_part_of",
+          "reverse_discovered",
+          "reverse_makes_assumption"
+        ],
+        "category_exploration": [
+          "explore_topic_categories"
+        ],
+        "visualization": [
+          "get_visualization_data"
+        ]
+      }
+    }
+  },
+  "search_capabilities": {
+    "manual_search": {
+      "neural_topics": {
+        "count": 5,
+        "time": 0.0032591819763183594,
+        "results": [
+          {
+            "id": 348,
+            "name": "Adapting the framework to work with non-uniform grids or unstructured point clouds, possibly by using Graph Neural Operators.",
+            "category": "future_work",
+            "description": null,
+            "mention_count": 1
+          },
+          {
+            "id": 329,
+            "name": "Banach Space",
+            "category": "space",
+            "description": "A complete normed vector space. Neural Operators are defined as maps between Banach spaces of functions.",
+            "mention_count": 1
+          }
+        ]
+      },
+      "optimal transport_topics": {
+        "count": 5,
+        "time": 0.004773378372192383,
+        "results": [
+          {
+            "id": 330,
+            "name": "Optimal Transport",
+            "category": "research_area",
+            "description": null,
+            "mention_count": 6
+          },
+          {
+            "id": 166,
+            "name": "Connected research to broader literature in optimal transport, control theory, and statistical mechanics",
+            "category": "accomplishment",
+            "description": null,
+            "mention_count": 1
+          }
+        ]
+      },
+      "Vaios_people": {
+        "count": 5,
+        "time": 0.0006949901580810547,
+        "results": [
+          {
+            "id": 3,
+            "doc_id": "academic_3",
+            "title": "Universal Neural Optimal Transport",
+            "date": 2025,
+            "domain": "computer_science",
+            "content_preview": "# Analysis of Universal Neural Optimal Transport\n\n**Authors**: Jonathan Geuter, Gregor Kornhardt, Ingimar Tomasson, Vaios Laschos\n**Year**: 2025\n**Venue**: Proceedings of the 42nd International Conference on Machine Learning (ICML)\n**Domain**: Computer Science\n**Analysis Date**: 2025-07-03T16:08:45.862358\n\n## Executive Summary\n\nThis paper introduces Universal Neural Optimal Transport (UNOT), a novel framework for rapidly approximating solutions to entropic Optimal Transport (OT) problems. The core challenge addressed is the high computational cost of traditional iterative solvers like the Sinkhorn algorithm, which is a bottleneck in many machine learning applications. UNOT reframes the problem as learning a mapping from pairs of probability measures to the dual potentials of their OT problem. To achieve this, it employs a Fourier Neural Operator (FNO), an architecture that is invariant to the discretization of the input measures, allowing UNOT to process distributions of varying resolutions.\n\nThe UNOT framework consists of two main components trained adversarially: a solver network (S_phi, the FNO) that predicts the dual potentials, and a generator network (G_theta) that creates challenging pairs of distributions for training. The training is self-supervised, using a bootstrapping loss where the solver is trained to predict the result of a few Sinkhorn iterations initialized with its own previous prediction. This avoids the need for ground-truth solutions. The authors provide"
+          },
+          {
+            "id": 9,
+            "doc_id": "academic_9",
+            "title": "Evolutionary Variational Inequalities on the Hellinger-Kantorovich and Spherical Hellinger-Kantorovich spaces",
+            "date": 2023,
+            "domain": "mathematics",
+            "content_preview": "# Analysis of Evolutionary Variational Inequalities on the Hellinger-Kantorovich and Spherical Hellinger-Kantorovich spaces\n\n**Authors**: Vaios Laschos, Alexander Mielke\n**Year**: 2023\n**Venue**: Preprint (arXiv:2312.14482)\n**Domain**: Mathematics\n**Analysis Date**: 2025-07-03T16:15:40.155472\n\n## Executive Summary\n\nThis paper establishes a comprehensive existence and uniqueness theory for gradient flows on the Hellinger-Kantorovich (HK) and Spherical Hellinger-Kantorovich (SHK) spaces. These spaces model transport processes where mass is not conserved, leading to reaction-diffusion type partial differential equations (PDEs). The authors study the convergence of the Minimizing Movement (MM) scheme, a time-discretization method, for geodesically \u03bb-convex energy functionals. The standard convergence theory for gradient flows is not applicable because the HK and SHK spaces lack global geometric regularity (specifically, the squared distance is not globally semiconcave).\n\nThe core contribution is a novel two-pronged approach. First, the authors develop an abstract existence theorem for Evolutionary Variational Inequalities (EVI) that weakens the global semiconcavity assumption. It only requires that the space can be approximated by a nested sequence of subsets on which the squared distance is semiconcave (a 'local \u03ba-concavity' property). Second, they prove a crucial technical result: the iterates of the MM scheme for HK and SHK spaces remain within these well-behaved subsets. Spec"
+          }
+        ]
+      },
+      "University_institutions": {
+        "count": 5,
+        "time": 0.0007197856903076172,
+        "results": [
+          {
+            "id": 9,
+            "name": "Technische Universit\u00e4t Berlin",
+            "type": null,
+            "location": null,
+            "mention_count": 3
+          },
+          {
+            "id": 21,
+            "name": "WIAS Berlin",
+            "type": null,
+            "location": null,
+            "mention_count": 2
+          }
+        ]
+      }
+    },
+    "generated_search": {
+      "neural_topics": {
+        "count": 5,
+        "time": 0.0009827613830566406,
+        "results": [
+          {
+            "id": 196,
+            "name": "Collapsi RL system supports comparing raw neural network vs MCTS-enhanced versions",
+            "category": "accomplishment",
+            "description": null,
+            "created_at": "2025-07-04 13:29:28"
+          },
+          {
+            "id": 335,
+            "name": "Neural Operators",
+            "category": "research_area",
+            "description": null,
+            "created_at": "2025-07-04 13:29:28"
+          }
+        ]
+      },
+      "optimal transport_topics": {
+        "count": 5,
+        "time": 0.0009295940399169922,
+        "results": [
+          {
+            "id": 166,
+            "name": "Connected research to broader literature in optimal transport, control theory, and statistical mechanics",
+            "category": "accomplishment",
+            "description": null,
+            "created_at": "2025-07-04 13:29:28"
+          },
+          {
+            "id": 222,
+            "name": "Optimal Transport Theory",
+            "category": "research_area",
+            "description": null,
+            "created_at": "2025-07-04 13:29:28"
+          }
+        ]
+      },
+      "Vaios_people": {
+        "count": 1,
+        "time": 0.0004935264587402344,
+        "results": [
+          {
+            "id": 3,
+            "name": "Vaios Laschos",
+            "role": null,
+            "affiliation": null,
+            "created_at": "2025-07-04 13:29:28"
+          }
+        ]
+      },
+      "University_institutions": {
+        "count": 5,
+        "time": 0.00045561790466308594,
+        "results": [
+          {
+            "id": 4,
+            "name": "Kempner Institute at Harvard University",
+            "type": null,
+            "location": null,
+            "created_at": "2025-07-04 13:29:28"
+          },
+          {
+            "id": 8,
+            "name": "Brown University",
+            "type": null,
+            "location": null,
+            "created_at": "2025-07-04 13:29:28"
+          }
+        ]
+      }
+    },
+    "performance": {},
+    "capability_comparison": {}
+  },
+  "relationship_capabilities": {
+    "manual_relationships": {
+      "collaborations": {
+        "count": 5,
+        "sample": [
+          {
+            "author1": "Vaios Laschos",
+            "author2": "Klaus Obermayer",
+            "paper_count": 3
+          },
+          {
+            "author1": "Vaios Laschos",
+            "author2": "Alexander Mielke",
+            "paper_count": 2
+          }
+        ]
+      }
+    },
+    "generated_relationships": {
+      "discusses": {
+        "count": 3,
+        "sample": [
+          {
+            "relationship_type": "discusses",
+            "target_type": "topic",
+            "target_id": "209",
+            "confidence": 0.9,
+            "metadata": null,
+            "target_details": {
+              "id": 209,
+              "name": "Metric Cone",
+              "category": "space",
+              "description": "A space C formed by taking the quotient of X x [0,inf) where all points in X x {0} are identified as a single apex '0'. The distance is given by d_C^2([x0,r0],[x1,r1]) = r0^2 + r1^2 - 2*r0*r1*cos(min(pi, dX(x0,x1))).",
+              "created_at": "2025-07-04 13:29:28"
+            }
+          },
+          {
+            "relationship_type": "discusses",
+            "target_type": "topic",
+            "target_id": "210",
+            "confidence": 0.9,
+            "metadata": null,
+            "target_details": {
+              "id": 210,
+              "name": "Hellinger-Kantorovich Distance (HK_alpha,beta or HK_l)",
+              "category": "metric",
+              "description": "A family of distances on the space of non-negative finite measures M(X) that interpolates between the Wasserstein distance (transport) and the Hellinger distance (creation/annihilation).",
+              "created_at": "2025-07-04 13:29:28"
+            }
+          }
+        ]
+      },
+      "uses_method": {
+        "count": 3,
+        "sample": [
+          {
+            "relationship_type": "uses_method",
+            "target_type": "method",
+            "target_id": "74",
+            "confidence": 0.8,
+            "metadata": null,
+            "target_details": {
+              "id": 74,
+              "name": "Cone Space Analysis",
+              "category": "theoretical",
+              "description": "Developing abstract geometric results for cone spaces and then applying them to the specific case of the Hellinger-Kantorovich space.",
+              "created_at": "2025-07-04 13:29:28"
+            }
+          },
+          {
+            "relationship_type": "uses_method",
+            "target_type": "method",
+            "target_id": "75",
+            "confidence": 0.8,
+            "metadata": null,
+            "target_details": {
+              "id": 75,
+              "name": "Scaling Argument",
+              "category": "analytical",
+              "description": "Exploiting a specific scaling property of the HK distance to establish its cone structure. This is the central methodological tool of the paper.",
+              "created_at": "2025-07-04 13:29:28"
+            }
+          }
+        ]
+      },
+      "authored_by": {
+        "count": 2,
+        "sample": [
+          {
+            "relationship_type": "authored_by",
+            "target_type": "person",
+            "target_id": "3",
+            "confidence": 1.0,
+            "metadata": null,
+            "target_details": {
+              "id": 3,
+              "name": "Vaios Laschos",
+              "role": null,
+              "affiliation": null,
+              "created_at": "2025-07-04 13:29:28"
+            }
+          },
+          {
+            "relationship_type": "authored_by",
+            "target_type": "person",
+            "target_id": "4",
+            "confidence": 1.0,
+            "metadata": null,
+            "target_details": {
+              "id": 4,
+              "name": "Alexander Mielke",
+              "role": null,
+              "affiliation": null,
+              "created_at": "2025-07-04 13:29:28"
+            }
+          }
+        ]
+      },
+      "accomplished": {
+        "count": 0,
+        "sample": []
+      }
+    },
+    "relationship_types": {
+      "available": [
+        "proves",
+        "discovers",
+        "uses_method",
+        "mentions",
+        "relates_to",
+        "discusses",
+        "has_limitation",
+        "has_application",
+        "plans",
+        "faced_challenge",
+        "affiliated_with",
+        "learned",
+        "suggests_future_work",
+        "references",
+        "authored_by",
+        "accomplished",
+        "innovates",
+        "part_of",
+        "discovered",
+        "makes_assumption"
+      ],
+      "count": 20
+    }
+  },
+  "category_awareness": {
+    "manual_categories": {
+      "topics_with_category": {
+        "count": 1,
+        "sample": [
+          {
+            "id": 369,
+            "name": "Use of Fourier Neural Operators for solving OT problems.",
+            "category": "innovation",
+            "description": null,
+            "mention_count": 1
+          }
+        ]
+      }
+    },
+    "generated_categories": {
+      "overview": {
+        "total_categories": 22,
+        "top_categories": [
+          "insight",
+          "future_work",
+          "accomplishment",
+          "concept",
+          "theorem"
+        ]
+      },
+      "specific_category": {
+        "category": "insight",
+        "count": 3,
+        "sample": [
+          "DFS pathfinding is effective for constrained movement on small boards",
+          "Monte Carlo returns are superior to GAE for short games"
+        ]
+      }
+    },
+    "category_richness": {}
+  },
+  "visualization_readiness": {
+    "manual_viz": {
+      "basic_data": {
+        "count": 3,
+        "has_viz_data": false,
+        "sample_fields": [
+          "id",
+          "name",
+          "category",
+          "description",
+          "mention_count"
+        ]
+      }
+    },
+    "generated_viz": {
+      "rich_data": {
+        "has_entity": true,
+        "has_visualization": true,
+        "viz_fields": [
+          "type",
+          "color",
+          "size",
+          "group"
+        ],
+        "sample": {
+          "entity": {
+            "id": 1,
+            "name": "game-development",
+            "category": "general",
+            "description": null,
+            "created_at": "2025-07-04 13:29:28"
+          },
+          "visualization": {
+            "type": "general_topic",
+            "color": "#999999",
+            "size": 8,
+            "group": "default"
+          }
+        }
+      }
+    },
+    "viz_features": {}
+  },
+  "code_complexity": {
+    "manual_complexity": {
+      "lines_of_code": 652,
+      "methods_count": 13,
+      "avg_lines_per_method": 50.15384615384615,
+      "hardcoded_schemas": 15,
+      "error_handling": 14
+    },
+    "generated_complexity": {
+      "generator_lines": 651,
+      "tools_generated": 79,
+      "tools_per_generator_line": 0.12135176651305683,
+      "configuration_driven": true,
+      "schema_references": 9
+    },
+    "maintenance_analysis": {
+      "manual_schema_changes": "Requires manual code updates for each schema change",
+      "generated_schema_changes": "Automatic regeneration from updated blueprints",
+      "adding_new_entity_type": {
+        "manual": "Requires writing new methods, queries, error handling",
+        "generated": "Add YAML mapping, automatic tool generation"
+      },
+      "consistency": {
+        "manual": "Prone to inconsistencies between similar tools",
+        "generated": "Guaranteed consistency from blueprint specifications"
+      }
+    }
+  },
+  "conclusions": {
+    "coverage": "Generated tools provide 79 tools vs 13 manual methods",
+    "sophistication": "Generated tools include advanced features like relationship traversal and category exploration",
+    "maintainability": "Blueprint-driven approach eliminates manual coding for schema changes",
+    "consistency": "Generated tools guarantee consistency across similar operations",
+    "extensibility": "Adding new entity types requires only YAML configuration updates"
+  }
+}
