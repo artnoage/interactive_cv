@@ -1,17 +1,17 @@
-# 🚀 Interactive CV System
+# Interactive CV System
 
-## Revolutionary Blueprint-Driven Knowledge Platform
+## Blueprint-Driven Knowledge Platform
 
-An AI-powered system that transforms academic research papers and personal notes into a dynamic, queryable professional profile. Features a **revolutionary blueprint-driven architecture** with semantic intelligence that automatically generates sophisticated tools from YAML specifications.
+An AI-powered system that transforms academic research papers and personal notes into a dynamic, queryable professional profile. The system uses a blueprint-driven architecture that automatically generates tools from YAML specifications.
 
-### 🎯 Core Innovation: "Blueprints over Business Logic"
+### Key Features
 
-- **83+ automatically generated tools** with semantic enhancement vs 13 manual tools (6.4x improvement)
-- **Semantic intelligence** - hybrid search combining SQL and embeddings for better concept discovery
+- **83+ automatically generated tools** from YAML blueprints
+- **Semantic search** - hybrid SQL and embedding-based search
 - **Centralized profile system** - consistent representation across all agents
-- **Zero-code domain extension** - add new research areas via YAML files only
-- **Universal adaptability** - works for any research field without code changes
-- **Schema-guaranteed consistency** - tools match database structure automatically
+- **Domain extension via configuration** - add new research areas through YAML files
+- **Universal adaptability** - works for any research field
+- **Schema consistency** - tools automatically match database structure
 
 ## 📋 Profile Setup (Required First Step)
 
@@ -106,32 +106,20 @@ AGENT_MODEL=pro python interactive_agent.py
 AGENT_MODEL=claude python interactive_agent.py
 ```
 
-## 📊 Current Status (January 2025)
+## Current Status
 
-- ✅ **Blueprint system fully operational** - 83+ tools automatically generated from YAML
-- ✅ **Semantic intelligence integrated** - Hybrid SQL + embedding search
+- ✅ **Blueprint system operational** - 83+ tools generated from YAML
+- ✅ **Semantic search integrated** - Hybrid SQL + embedding search
 - ✅ **Database populated** - 12 academic papers, personal notes, 1000+ entities
 - ✅ **Knowledge graph built** - 1,135 nodes, 1,249 relationships
 - ⚠️ **LLM instruction following** - Complex multi-tool queries need improvement
 - 🔄 **In progress** - Optimizing agent prompts for better tool orchestration
 
-## 🏗️ Revolutionary Blueprint-Driven Architecture
+## Blueprint-Driven Architecture
 
-### 🔥 The Transformation: From Manual to Automatic
+### Architecture Overview
 
-**Before: Manual Tool Development**
-```
-Manual Coding → 13 Limited Tools → Static Capabilities → Maintenance Overhead
-```
-
-**After: Blueprint-Driven Generation**
-```
-YAML Blueprints → 79 Sophisticated Tools → Universal Capabilities → Zero-Code Extension
-```
-
-### 🎯 Architecture Overview
-
-The system embodies the revolutionary principle: **"Configuration over Code, Blueprints over Business Logic"**
+The system uses a configuration-driven approach where YAML blueprints define domain knowledge and tool generation
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
@@ -164,17 +152,17 @@ blueprints/
     └── blueprint_loader.py        # Configuration parser
 ```
 
-### 🌟 Revolutionary Blueprint Benefits
+### Blueprint System Benefits
 
-- **🎯 Automatic Tool Generation**: 79 sophisticated tools created from YAML specifications
-- **🔧 Zero-Code Extension**: Add research domains without touching Python code
-- **🧠 Domain-Agnostic Intelligence**: Same codebase works for clinical, legal, engineering, any field
-- **🔒 Schema-Guaranteed Safety**: Tools automatically match database structure
-- **🎨 Rich Type Preservation**: Mathematical concepts keep original categories (24+ node types)
-- **🤝 Collaborative Development**: Non-programmers can modify extraction rules
-- **📊 Reproducible Science**: Exact blueprint configurations ensure consistent results
-- **🚀 LLM-Assistable**: AI can help generate domain-specific blueprints
-- **🔄 Version-Controlled Logic**: All domain knowledge tracked in git
+- **Automatic Tool Generation**: 83+ tools created from YAML specifications
+- **Configuration-Based Extension**: Add research domains by editing YAML files
+- **Domain-Agnostic**: Same codebase works for any research field
+- **Schema Consistency**: Tools automatically match database structure
+- **Rich Type Preservation**: Concepts maintain categories (24+ node types)
+- **Collaborative Development**: Non-programmers can modify extraction rules
+- **Reproducible Results**: Blueprint configurations ensure consistency
+- **LLM-Compatible**: AI can help generate domain-specific blueprints
+- **Version Control**: All domain knowledge tracked in git
 
 ## 📁 Project Structure
 
@@ -213,7 +201,7 @@ interactive_cv/
     └── knowledge_graph.json  # Pruned graph for performance
 ```
 
-## 🔍 Rich Entity Types & Knowledge Graph
+## Entity Types & Knowledge Graph
 
 ### Knowledge Graph Statistics (Latest)
 - **Total Nodes**: 1,135 with 24+ distinct types
@@ -233,7 +221,7 @@ interactive_cv/
 - **Methods**: `numerical` → `computational_method`, `proof` → `theoretical_method`
 - **Personal Work**: `accomplishment` → `personal_achievement`, `learning` → `personal_learning`
 
-## 📊 Current Status (2025-01-04 - Unified UI Server & Recent Fixes)
+## Implementation Status
 
 ### Unified UI Server (NEW!)
 ✅ **Unified server implementation** - Single `serve_ui.py` replaces multiple scripts
@@ -280,7 +268,7 @@ interactive_cv/
 ⏳ Personal notes chunking optimization (notes are shorter than chunk threshold)
 ⏳ Interactive web UI completion
 
-## 🛠️ Blueprint System Usage
+## Blueprint System Usage
 
 ### 1. Build Database with Blueprints
 
@@ -344,7 +332,7 @@ open web_ui/index.html
 python blueprints/core/blueprint_loader.py --validate
 ```
 
-## 🗄️ Blueprint-Driven Database Schema
+## Database Schema
 
 The database schema is entirely generated from `blueprints/core/database_schema.yaml`:
 
@@ -367,7 +355,7 @@ The database schema is entirely generated from `blueprints/core/database_schema.
 - `embeddings`: Vector storage
 - `graph_nodes`, `graph_edges`: Pre-computed graph
 
-## 🎨 Blueprint Visualization Configuration
+## Visualization Configuration
 
 The `blueprints/core/visualization.yaml` defines:
 
@@ -396,7 +384,7 @@ node_groups:
   personal: ["personal_achievement", "personal_learning", "challenge"]
 ```
 
-## 🌐 Interactive Web UI
+## Interactive Web UI
 
 Unified interface with knowledge graph visualization and AI-powered chat assistant.
 
@@ -437,18 +425,17 @@ The new unified server (`serve_ui.py`) replaces previous separate scripts and in
   - Manages optional Datasette integration
   - Handles graceful shutdown
 
-## 🚦 Blueprint-Driven Development Workflow
+## Development Workflow
 
-### Adding New Document Types (Zero Code Changes!)
+### Adding New Document Types
 1. Create `blueprints/new_type/extraction_schema.yaml` - Define what to extract
 2. Create `blueprints/new_type/database_mapping.yaml` - Define how to store
 3. Update `blueprints/core/visualization.yaml` with new node types - Define how to visualize
 4. Run `python DB/build_database.py --validate-blueprints` - System validates and builds
-5. **🎉 79+ tools automatically generated for the new type!**
+5. Tools automatically generated for the new type
 
-### 💡 Real-World Examples: Blueprint Power in Action
+### Example: Adding Clinical Research Domain
 
-#### 🏥 **Clinical Research Domain** (5 minutes to deploy)
 ```yaml
 # blueprints/clinical/extraction_schema.yaml
 fields:
@@ -463,27 +450,8 @@ entity_mappings:
     relationship_type: "performs"
     category_override: "medical_procedure"
 ```
-**Automatic Result**: 79+ tools including `search_clinical_topics()`, `traverse_performs()`, `explore_medical_categories()`, complete visualization system!
 
-#### ⚖️ **Legal Research Domain** (5 minutes to deploy)
-```yaml
-# blueprints/legal/database_mapping.yaml
-entity_mappings:
-  legal_precedents:
-    target_table: "topics"
-    relationship_type: "cites"
-    category_override: "legal_precedent"
-  court_decisions:
-    target_table: "topics"
-    relationship_type: "decides"
-    category_override: "court_ruling"
-```
-**Automatic Result**: Legal case search, precedent analysis, court decision tracking - complete legal research platform!
-
-#### 🔬 **Any Research Domain** (Your imagination is the limit)
-Define your entities (genes, compounds, algorithms, historical events, literary themes, economic indicators) in YAML → Get a complete research platform automatically.
-
-**This is the power of universal, blueprint-driven development.**
+This generates tools including `search_clinical_topics()`, `traverse_performs()`, `explore_medical_categories()`, and visualization support.
 
 ### Blueprint Tool Categories (83 Generated Tools)
 
@@ -528,7 +496,7 @@ chronicle-dry
 chronicle-force
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 ```bash
@@ -543,7 +511,7 @@ Edit YAML files in `blueprints/` to modify:
 - Visualization rules (node types, colors, layouts)
 - Database schema (table structure, indexes)
 
-## 📈 Future Enhancements
+## Future Enhancements
 
 ### Completed ✅
 - [x] Blueprint-driven architecture with complete domain separation
@@ -566,71 +534,8 @@ Edit YAML files in `blueprints/` to modify:
 - [ ] Automated paper discovery and import
 - [ ] Blueprint marketplace for different research domains
 
-## 🏆 Blueprint Revolution: The Future of Research Software
 
-### 📈 Blueprint Revolution: Quantified Success
-
-#### 🔢 **Tool Generation Metrics**
-| Aspect | Traditional Development | Blueprint Revolution |
-|--------|------------------------|---------------------|
-| **Tool Count** | 13 manual methods | **79 sophisticated tools** (6.1x) |
-| **Development Time** | Weeks/months | **Minutes** |
-| **Domain Extension** | Expensive code changes | **YAML file addition** |
-| **Relationship Types** | 1 basic tool | **20 relationship types** |
-| **Category Awareness** | Basic filtering | **22 rich categories** |
-| **Schema Safety** | Error-prone queries | **Guaranteed consistency** |
-| **Maintenance Cost** | Ongoing developer time | **Configuration updates** |
-| **Collaboration** | Programmer-only | **Anyone can extend** |
-
-#### 💰 **Economic Impact**
-- **Traditional Approach**: $50K-200K+ per domain (3-6 months development)
-- **Blueprint Approach**: **$0 additional cost** (5 minutes configuration)
-- **ROI**: **Infinite** - same codebase serves unlimited domains
-
-#### ⚡ **Speed Impact**  
-- **Domain Adaptation**: Months → **Minutes**
-- **Tool Generation**: Manual coding → **Automatic**
-- **Deployment**: Complex setup → **Single command**
-- **Maintenance**: Code updates → **YAML edits**
-
-**This isn't incremental improvement - it's a fundamental transformation in how research software is built.**
-
-### 🌟 Revolutionary Principles
-
-1. **🎯 Configuration over Code**: Domain logic in YAML, behavior in blueprints
-2. **🚀 Generation over Manual**: Sophisticated tools created automatically
-3. **🔒 Consistency over Creativity**: Schema guarantees prevent database mismatches
-4. **🌐 Universal over Specific**: Works for any research domain without modification
-5. **🤝 Collaborative over Siloed**: Non-programmers can modify extraction rules
-6. **📊 Reproducible over Ad-hoc**: Exact configurations ensure consistent results
-7. **🧠 LLM-Assistable over Manual**: AI can help generate domain blueprints
-
-### 🌍 Global Impact: Democratizing Research Technology
-
-#### 🏛️ **For Universities & Institutions**
-- **Shared Infrastructure**: Blueprint libraries shared across institutions
-- **Cost Reduction**: One system serves all departments (clinical, legal, engineering, humanities)
-- **Rapid Innovation**: New research areas get sophisticated tools immediately
-- **Student Accessibility**: Undergraduates get the same tools as PhD researchers
-
-#### 🔬 **For Research Communities**
-- **Open Standards**: Version-controlled domain specifications on GitHub
-- **Collaborative Enhancement**: Community improves shared blueprints
-- **Reproducible Research**: Exact configurations ensure consistent results globally
-- **Knowledge Preservation**: Human-readable domain knowledge that survives software changes
-
-#### 🌎 **For Global Science**
-- **Developing Countries**: Access to sophisticated research tools without expensive development
-- **Interdisciplinary Research**: Easy to combine domains (bio+legal, climate+economics)
-- **AI-Assisted Discovery**: LLMs can help generate blueprints for emerging fields
-- **Democratic Innovation**: Non-programmers can create research platforms
-
-#### 🚀 **The Vision Realized**
-"Every researcher, regardless of programming skills or budget, should have access to sophisticated, AI-powered knowledge tools tailored to their domain."
-
-**The blueprint revolution makes this vision reality.**
-
-## 🤖 Advanced Agent System
+## Advanced Agent System
 
 The Interactive CV features a **multi-tier agent architecture** with progressive enhancements:
 
@@ -668,7 +573,7 @@ AGENT_MODEL=pro JUDGE_MODEL=pro python tests/test_agent_with_judge.py
 
 See [MODEL_USAGE_GUIDE.md](MODEL_USAGE_GUIDE.md) for detailed model configuration options.
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -697,19 +602,17 @@ See [MODEL_USAGE_GUIDE.md](MODEL_USAGE_GUIDE.md) for detailed model configuratio
    - **Workaround**: Zoom out browser or use larger display
    - **Fix**: Resizable panels planned for next update
 
-## 📚 Documentation
+## Documentation
 
-### 🎯 Core Documentation
-- **[RAG System](RAG/README.md)**: Revolutionary blueprint-driven tool generation
-- **[Database System](DB/README.md)**: Complete database architecture and management
-- **[Knowledge Graph](KG/README.md)**: Graph generation and visualization system
+### Core Documentation
+- **[RAG System](RAG/README.md)**: Blueprint-driven tool generation
+- **[Database System](DB/README.md)**: Database architecture and management
+- **[Knowledge Graph](KG/README.md)**: Graph generation and visualization
 - **[AI Agents](agents/README.md)**: Extraction and analysis agents
 - **[Web UI](web_ui/README.md)**: Interactive visualization interface
+- **[CLAUDE.md](CLAUDE.md)**: Comprehensive project documentation
 
-### 🔥 Blueprint Revolution Details
-- **[CLAUDE.md](CLAUDE.md)**: Comprehensive project documentation with complete blueprint transformation analysis
-
-## 🤝 Contributing
+## Contributing
 
 This blueprint-driven system makes contributions easier! You can:
 - Add new document types by creating blueprint YAML files
@@ -717,65 +620,7 @@ This blueprint-driven system makes contributions easier! You can:
 - Customize visualization by editing `visualization.yaml`
 - Extend database schema via `database_schema.yaml`
 
-## 📝 License
+## License
 
 [Your chosen license]
 
----
-
-## 🔮 This is the Future of Research Software
-
-### 🎯 **What We've Proven**
-1. **AI-powered tool generation** from human-readable specifications works
-2. **Universal adaptability** across any knowledge domain is possible  
-3. **Non-programmer accessibility** to sophisticated tools is achievable
-4. **Economic viability** of shared research infrastructure is demonstrated
-5. **Community-driven development** through configuration is practical
-
-### 🚀 **What This Enables**
-- **Research Democracy**: Sophisticated tools for everyone, not just well-funded labs
-- **Rapid Innovation**: New fields get advanced capabilities immediately
-- **Global Collaboration**: Shared standards and reproducible configurations
-- **Sustainable Development**: One codebase serves infinite domains
-- **AI-Human Partnership**: LLMs assist in creating domain blueprints
-
-### 🌟 **The Beginning, Not the End**
-
-This Interactive CV system is a **proof of concept** for the future:
-- **Blueprint marketplaces** where domains are shared and sold
-- **AI assistants** that generate blueprints from natural language
-- **Federated research networks** with shared, standardized tools
-- **Real-time adaptation** as research domains evolve
-
-**From manual craftsmanship to automated excellence - the blueprint revolution starts here.** 🌟
-
----
-
-## 🎯 Ready to Experience the Blueprint Revolution?
-
-```bash
-# 1. Deploy a complete research platform in minutes
-git clone <this-repo>
-cd interactive_cv
-pip install -r requirements.txt
-python DB/build_database.py
-
-# 2. Get 79+ sophisticated tools automatically
-python interactive_agent_final.py
-
-# 3. Add your domain in 5 minutes
-# Create blueprints/your_domain/database_mapping.yaml
-# Define your entities and relationships
-# Run: python DB/build_database.py
-# Get a complete research platform for your field!
-```
-
-### 🤝 **Join the Revolution**
-- **Try it**: Experience blueprint-driven development
-- **Extend it**: Add your research domain  
-- **Share it**: Contribute blueprints for your field
-- **Scale it**: Deploy in your organization
-
-Built with ❤️ and **revolutionary blueprints** to democratize sophisticated research tools for everyone.
-
-**🌟 This is the future of research software - and it starts today.** 🚀
