@@ -2,7 +2,7 @@
   "date": "2025-06-26",
   "note_type": "daily",
   "title": "Daily Note - 2025-06-26",
-  "summary": "Successfully integrated Obsidian with Claude Code using the MCP server, tested all MCP tools, and created comprehensive guidance documentation, including a template system.",
+  "summary": "Focused on setting up and testing Obsidian MCP integration, creating comprehensive guidance documentation, and exploring automation possibilities.",
   "topics": [
     "obsidian-integration",
     "mcp-tools",
@@ -14,9 +14,7 @@
   ],
   "people": [],
   "institutions": [],
-  "methods": [
-    "template system creation"
-  ],
+  "methods": [],
   "tools": [
     "obsidian",
     "mcp",
@@ -26,12 +24,14 @@
     "Installed and configured mcp-obsidian server",
     "Created comprehensive guidance documentation",
     "Tested all 12 MCP tools",
-    "Created template system"
+    "Created template system",
+    "Integrated Obsidian with Claude Code using MCP server"
   ],
   "insights": [
     "Templates work by reading template files and replacing variables",
     "MCP provides direct access to Obsidian without manual API calls",
-    "Can automate daily note creation with templates"
+    "Can automate daily note creation with templates",
+    "The MCP integration opens up powerful automation possibilities"
   ],
   "learning": [
     "MCP documentation for Obsidian integration",
@@ -45,6 +45,8 @@
   ],
   "metrics": {},
   "papers": [],
-  "file_path": "raw_data/personal_notes/Daily Notes/2025-06-26.md",
-  "extracted_at": "2025-07-03T19:46:27.991974"
+  "file_path": "/home/artnoage/Projects/interactive_cv/raw_data/personal_notes/Daily Notes/2025-06-26.md",
+  "extraction_date": "2025-07-05T11:51:33.997186",
+  "extractor_version": "blueprint-v1.0",
+  "document_type": "personal"
 }

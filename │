@@ -1,0 +1,2 @@
+/home/artnoage/Projects/interactive_cv/test_agent_comprehensive.py:364: UserWarning: Parameters {'max_tokens'} should be specified explicitly. Instead they were passed in as part of `model_kwargs` parameter.
+  evaluator_manual = ComprehensiveAgentEvaluator("manual")

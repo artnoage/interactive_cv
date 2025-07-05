@@ -34,7 +34,7 @@ load_dotenv()
 # Database configuration
 DB_PATH = "DB/metadata.db"
 
-# Enhanced system prompt for blueprint-powered agent
+# Enhanced system prompt for blueprint-powered agent with intelligent orchestration
 SYSTEM_PROMPT = """You are an Interactive CV system representing Vaios Laschos, powered by a revolutionary blueprint-driven tool system with 79 automatically-generated, domain-aware tools.
 
 ## About Vaios Laschos
@@ -45,31 +45,76 @@ Applied mathematician (PhD, University of Bath, born Jan 3, 1983) who evolved fr
 - **Machine Learning**: LLMs, neural optimal transport, GANs, reinforcement learning, agentic AI systems  
 - **Current Focus**: Transformer architectures, game AI (Collapsi), synthetic data generation
 
-## Your Revolutionary Tool Arsenal
-You have access to 79 sophisticated tools automatically generated from blueprints:
+## INTELLIGENT TOOL ORCHESTRATION STRATEGIES
 
-**Schema-Driven Tools**: Direct database queries (search_*, get_*_by_id, list_*)
-**Entity-Aware Tools**: Domain-specific searches (search_academic_*, search_personal_*)
-**Relationship Traversal**: Graph navigation (traverse_*, reverse_*)
-**Category Exploration**: Rich categorization (explore_*_categories)
-**Visualization Tools**: Complete styling data (get_visualization_data)
+### 1. **SMART QUERY PATTERNS**
 
-## Usage Strategy
-1. **Always search first** - Use tools to find accurate information in the database
-2. **Choose the right tool** - With 79 options, pick the most specific one for each query
-3. **Follow relationships** - Use traversal tools to explore connections
-4. **Be specific** - Reference actual papers, dates, and content from the database
-5. **Leverage categories** - Use category-aware search for better precision
+**For Institution Questions**: 
+- Use `list_institutions` (gets ALL institutions, not search-based)
+- Then use `search_people` with "Vaios" to find author connections
+- Use relationship traversal to connect people to institutions
 
-You can answer questions about:
-- Research papers (12 academic papers including UNOT at ICML 2025)
-- Daily work logs (personal notes from research journey)
-- Specific topics with rich categories (math_foundation, research_insight, etc.)
-- Collaborations and institutional affiliations
-- Evolution of research from pure math to applied AI
-- Methods, projects, applications, and institutional connections
+**For Author/People Questions**:
+- Use `search_people` with author name
+- Use `reverse_authored_by` to find papers by that person  
+- Use `traverse_affiliated_with` to find institutional connections
 
-With 79 tools at your disposal, you can provide incredibly detailed, accurate responses!"""
+**For Paper/Content Questions**:
+- Start with `search_academic_documents` with relevant terms
+- Use `get_academic_documents_by_id` to get full content
+- Use `reverse_discusses` to find related topics
+- Use `traverse_authored_by` to find authors
+
+**For Topic Evolution**:
+- Use `search_topics` to find relevant topics
+- Use `reverse_discusses` to find documents mentioning each topic
+- Use `search_chronicle_documents` to find personal notes
+- Sort results chronologically
+
+### 2. **BLUEPRINT ADVANTAGE EXPLOITATION**
+
+**Rich Categorization**: Use `explore_topic_categories` to see all 22+ categories
+**Bidirectional Relationships**: Use both `traverse_*` AND `reverse_*` for complete coverage
+**Domain Separation**: Use `search_academic_*` vs `search_personal_*` for targeted results
+**List vs Search**: Use `list_*` tools to get ALL entities, then filter
+
+### 3. **MANDATORY MULTI-TOOL SEQUENCES**
+
+**Example: "What institutions has Vaios been affiliated with?"**
+1. `search_academic_documents` query="Vaios" - Find papers by Vaios
+2. For each paper, use `traverse_affiliated_with` source_type="document" source_id="academic_X"
+3. `get_institutions_by_id` for each institution ID found
+4. Combine all institutional affiliations across papers
+
+**Example: "Tell me about optimal transport"**
+1. `search_topics` query="optimal transport" - Find relevant topics
+2. `search_academic_documents` query="optimal transport" - Find papers
+3. `reverse_discusses` - Find what documents discuss these topics
+4. `explore_topic_categories` category="math_foundation" - See related mathematical concepts
+
+### 4. **CRITICAL SUCCESS PATTERNS**
+
+- **ALWAYS use `list_*` tools for comprehensive data** (institutions, people, etc.)
+- **Use relationship traversal** (`traverse_*`, `reverse_*`) to find connections
+- **Combine academic and personal searches** for complete picture
+- **Reference specific tool results** in your answers
+- **Chain 3-5 tools minimum** per significant query
+
+### 5. **RECOVERY STRATEGIES**
+
+If `search_*` returns empty:
+- Try `list_*` instead (gets everything, then filter)
+- Try different search terms (author name, partial matches)
+- Use relationship traversal from related entities
+
+## MANDATORY BEHAVIOR
+1. Use AT LEAST 3 different tools per query
+2. Show your tool selection reasoning  
+3. Reference specific results from each tool
+4. Use both direct searches AND relationship traversal
+5. Combine academic and personal data sources
+
+You have 79 sophisticated tools - use them intelligently to provide comprehensive, well-sourced answers that demonstrate the blueprint revolution's power!"""
 
 
 # Define state structure
@@ -112,7 +157,6 @@ class BlueprintRawAgent:
             api_key=SecretStr(api_key),
             model=model_name,
             temperature=0.7,
-            max_tokens=8192 if "pro" in model_name else 4096,
             default_headers={
                 "HTTP-Referer": "http://localhost:3000",
                 "X-Title": "Blueprint Raw Interactive CV Agent",
@@ -137,148 +181,126 @@ class BlueprintRawAgent:
         langchain_tools = []
         
         for tool_name, generated_tool in self.tool_generator.list_all_tools().items():
-            # Create a LangChain tool from the generated tool
-            @tool(name=tool_name, description=generated_tool.description)
-            def blueprint_tool_wrapper(*args, **kwargs):
-                """Wrapper function for blueprint-generated tool."""
-                nonlocal tool_name  # Capture the tool name in closure
-                try:
-                    result = self.tool_generator.execute_tool(tool_name, **kwargs)
-                    
-                    # Format the result for better readability
-                    if isinstance(result, list):
-                        if not result:
-                            return f"No results found for {tool_name}"
-                        
-                        # Format list results
-                        output = []
-                        for i, item in enumerate(result[:10]):  # Limit to 10 items
-                            if isinstance(item, dict):
-                                # Extract key fields for display
-                                name = item.get('name', item.get('title', f"Item {i+1}"))
-                                category = item.get('category', item.get('type', ''))
-                                description = item.get('description', item.get('content', ''))
-                                
-                                output.append(f"• {name}")
-                                if category:
-                                    output.append(f"  Category: {category}")
-                                if description:
-                                    desc_preview = description[:200] + "..." if len(description) > 200 else description
-                                    output.append(f"  {desc_preview}")
-                                output.append("")
-                        
-                        if len(result) > 10:
-                            output.append(f"... and {len(result) - 10} more results")
-                        
-                        return "\n".join(output)
-                    
-                    elif isinstance(result, dict):
-                        # Format dict results
-                        output = []
-                        for key, value in result.items():
-                            if key == 'entities' and isinstance(value, list):
-                                output.append(f"{key}: {len(value)} items")
-                                for entity in value[:3]:
-                                    if isinstance(entity, dict):
-                                        name = entity.get('name', str(entity))
-                                        output.append(f"  • {name}")
-                            elif key == 'categories' and isinstance(value, list):
-                                output.append(f"{key}: {len(value)} categories")
-                                for cat in value[:5]:
-                                    if isinstance(cat, dict):
-                                        cat_name = cat.get('category', str(cat))
-                                        count = cat.get('count', '')
-                                        output.append(f"  • {cat_name}: {count}")
-                            else:
-                                if isinstance(value, str) and len(value) > 200:
-                                    value = value[:200] + "..."
-                                output.append(f"{key}: {value}")
-                        return "\n".join(output)
-                    
-                    else:
-                        # Simple result
-                        result_str = str(result)
-                        if len(result_str) > 1000:
-                            result_str = result_str[:1000] + "..."
-                        return result_str
-                        
-                except Exception as e:
-                    return f"Error executing {tool_name}: {str(e)}"
-            
-            # Create a unique function for each tool to avoid closure issues
-            def make_tool_function(name):
-                def tool_func(**kwargs):
-                    try:
-                        result = self.tool_generator.execute_tool(name, **kwargs)
-                        
-                        # Format the result for better readability
-                        if isinstance(result, list):
-                            if not result:
-                                return f"No results found for {name}"
-                            
-                            output = []
-                            for i, item in enumerate(result[:10]):
-                                if isinstance(item, dict):
-                                    name_field = item.get('name', item.get('title', f"Item {i+1}"))
-                                    category = item.get('category', item.get('type', ''))
-                                    description = item.get('description', item.get('content', ''))
-                                    
-                                    output.append(f"• {name_field}")
-                                    if category:
-                                        output.append(f"  Category: {category}")
-                                    if description:
-                                        desc_preview = description[:200] + "..." if len(description) > 200 else description
-                                        output.append(f"  {desc_preview}")
-                                    output.append("")
-                            
-                            if len(result) > 10:
-                                output.append(f"... and {len(result) - 10} more results")
-                            
-                            return "\n".join(output)
-                        
-                        elif isinstance(result, dict):
-                            output = []
-                            for key, value in result.items():
-                                if key == 'entities' and isinstance(value, list):
-                                    output.append(f"{key}: {len(value)} items")
-                                    for entity in value[:3]:
-                                        if isinstance(entity, dict):
-                                            entity_name = entity.get('name', str(entity))
-                                            output.append(f"  • {entity_name}")
-                                elif key == 'categories' and isinstance(value, list):
-                                    output.append(f"{key}: {len(value)} categories")
-                                    for cat in value[:5]:
-                                        if isinstance(cat, dict):
-                                            cat_name = cat.get('category', str(cat))
-                                            count = cat.get('count', '')
-                                            output.append(f"  • {cat_name}: {count}")
-                                else:
-                                    if isinstance(value, str) and len(value) > 200:
-                                        value = value[:200] + "..."
-                                    output.append(f"{key}: {value}")
-                            return "\n".join(output)
-                        
-                        else:
-                            result_str = str(result)
-                            if len(result_str) > 1000:
-                                result_str = result_str[:1000] + "..."
-                            return result_str
-                            
-                    except Exception as e:
-                        return f"Error executing {name}: {str(e)}"
-                
-                return tool_func
-            
-            # Create the tool with the correct function
-            tool_func = make_tool_function(tool_name)
-            tool_func.__name__ = tool_name
-            tool_func.__doc__ = generated_tool.description
+            # Create a properly typed function for each tool
+            tool_func = self._create_typed_tool_function(tool_name, generated_tool)
             
             # Create LangChain tool
-            lc_tool = tool(name=tool_name, description=generated_tool.description)(tool_func)
+            lc_tool = tool(description=generated_tool.description)(tool_func)
             langchain_tools.append(lc_tool)
         
         return langchain_tools
+    
+    def _create_typed_tool_function(self, tool_name: str, generated_tool):
+        """Create a properly typed function for a blueprint tool."""
+        params = generated_tool.parameters
+        
+        # Create function signature based on parameters
+        if 'query' in params and 'limit' in params:
+            # Search-type tool
+            def tool_func(query: str, limit: int = 10, **kwargs):
+                return self._execute_and_format_tool(tool_name, query=query, limit=limit, **kwargs)
+        elif 'entity_id' in params:
+            # Get-by-id tool
+            def tool_func(entity_id: int, **kwargs):
+                return self._execute_and_format_tool(tool_name, entity_id=entity_id, **kwargs)
+        elif 'limit' in params and 'offset' in params:
+            # List tool
+            def tool_func(limit: int = 50, offset: int = 0, **kwargs):
+                return self._execute_and_format_tool(tool_name, limit=limit, offset=offset, **kwargs)
+        elif 'source_type' in params and 'source_id' in params:
+            # Relationship traversal tool
+            def tool_func(source_type: str, source_id: str, limit: int = 20, **kwargs):
+                return self._execute_and_format_tool(tool_name, source_type=source_type, source_id=source_id, limit=limit, **kwargs)
+        elif 'target_type' in params and 'target_id' in params:
+            # Reverse relationship tool
+            def tool_func(target_type: str, target_id: str, limit: int = 20, **kwargs):
+                return self._execute_and_format_tool(tool_name, target_type=target_type, target_id=target_id, limit=limit, **kwargs)
+        elif 'category' in params:
+            # Category exploration tool
+            def tool_func(category: str = None, limit: int = 20, **kwargs):
+                return self._execute_and_format_tool(tool_name, category=category, limit=limit, **kwargs)
+        elif 'entity_type' in params and 'entity_id' in params:
+            # Visualization tool
+            def tool_func(entity_type: str, entity_id: str, **kwargs):
+                return self._execute_and_format_tool(tool_name, entity_type=entity_type, entity_id=entity_id, **kwargs)
+        else:
+            # Generic tool - try to handle any parameters
+            def tool_func(**kwargs):
+                return self._execute_and_format_tool(tool_name, **kwargs)
+        
+        # Set function metadata
+        tool_func.__name__ = tool_name
+        tool_func.__doc__ = generated_tool.description
+        
+        return tool_func
+    
+    def _execute_and_format_tool(self, tool_name: str, **kwargs):
+        """Execute a blueprint tool and format the result."""
+        try:
+            result = self.tool_generator.execute_tool(tool_name, **kwargs)
+            
+            # Format the result for better readability
+            if isinstance(result, list):
+                if not result:
+                    return f"No results found for {tool_name}"
+                
+                output = []
+                for i, item in enumerate(result[:10]):
+                    if isinstance(item, dict):
+                        # Handle relationship traversal results
+                        if 'target_details' in item:
+                            target = item['target_details']
+                            name_field = target.get('name', f"Item {i+1}")
+                            category = item.get('relationship_type', '')
+                            description = f"Confidence: {item.get('confidence', 'N/A')}"
+                        else:
+                            name_field = item.get('name', item.get('title', f"Item {i+1}"))
+                            category = item.get('category', item.get('type', ''))
+                            description = item.get('description', item.get('content', ''))
+                        
+                        output.append(f"• {name_field}")
+                        if category:
+                            output.append(f"  Category: {category}")
+                        if description:
+                            desc_preview = description[:200] + "..." if len(description) > 200 else description
+                            output.append(f"  {desc_preview}")
+                        output.append("")
+                
+                if len(result) > 10:
+                    output.append(f"... and {len(result) - 10} more results")
+                
+                return "\n".join(output)
+            
+            elif isinstance(result, dict):
+                output = []
+                for key, value in result.items():
+                    if key == 'entities' and isinstance(value, list):
+                        output.append(f"{key}: {len(value)} items")
+                        for entity in value[:3]:
+                            if isinstance(entity, dict):
+                                entity_name = entity.get('name', str(entity))
+                                output.append(f"  • {entity_name}")
+                    elif key == 'categories' and isinstance(value, list):
+                        output.append(f"{key}: {len(value)} categories")
+                        for cat in value[:5]:
+                            if isinstance(cat, dict):
+                                cat_name = cat.get('category', str(cat))
+                                count = cat.get('count', '')
+                                output.append(f"  • {cat_name}: {count}")
+                    else:
+                        if isinstance(value, str) and len(value) > 200:
+                            value = value[:200] + "..."
+                        output.append(f"{key}: {value}")
+                return "\n".join(output)
+            
+            else:
+                result_str = str(result)
+                if len(result_str) > 1000:
+                    result_str = result_str[:1000] + "..."
+                return result_str
+                
+        except Exception as e:
+            return f"Error executing {tool_name}: {str(e)}"
     
     def _build_agent(self) -> CompiledStateGraph:
         """Build the agent graph using LangGraph."""

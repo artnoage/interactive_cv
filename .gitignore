@@ -5,5 +5,5 @@ __pycache__/
 .backup
 temp
 logs/
-raw_data/chronicle/
+raw_data/personal_notes/
 raw_data/academic/

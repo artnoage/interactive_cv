@@ -2,7 +2,7 @@
   "date": "2025-W26",
   "note_type": "weekly",
   "title": "Weekly Note - Week 26 2025",
-  "summary": "Major project development week with breakthrough improvements in Collapsi RL training system and completion of comprehensive academic documentation.",
+  "summary": "Major project development week with breakthrough improvements in Collapsi RL training system, completion of comprehensive academic documentation, and significant advancements in game AI and modular architecture.",
   "topics": [
     "game-development",
     "reinforcement-learning",
@@ -14,83 +14,87 @@
     "modular-architecture"
   ],
   "projects": [
-    "Collapsi Game",
-    "Collapsi RL",
-    "Interactive CV",
-    "Obsidian MCP Setup"
+    "collapsi-game",
+    "collapsi-rl",
+    "interactive-cv",
+    "obsidian-mcp-setup"
   ],
   "people": [
     "Mark S. Ball"
   ],
-  "institutions": [],
+  "institutions": [
+    "Claude Code Community"
+  ],
   "methods": [
-    "DFS pathfinding",
-    "Monte Carlo Tree Search",
-    "Proximal Policy Optimization",
+    "MCTS (Monte Carlo Tree Search)",
+    "PPO (Proximal Policy Optimization)",
+    "DFS (Depth-First Search)",
     "Mixed batch training",
-    "Dynamic opponent pool evolution",
-    "Modular architecture"
+    "Dynamic opponent pool evolution"
   ],
   "tools": [
-    "Python",
-    "PyTorch",
-    "JavaScript",
-    "React",
-    "Obsidian",
-    "MCP",
-    "Git",
-    "localStorage",
-    "Claude Code"
+    "python",
+    "pytorch",
+    "javascript",
+    "react",
+    "obsidian",
+    "mcp",
+    "git",
+    "dfs",
+    "localStorage"
   ],
   "accomplishments": [
-    "Achieved 54.7% win rate with mixed batch training for RL",
-    "Integrated MCTS, adding 200-400 Elo strength to game AI",
-    "Transformed academic papers into 300+ line technical documents",
-    "Overhauled Collapsi into a full RL system with web UI",
-    "Implemented modular architecture for Collapsi",
-    "Established foundation for Interactive CV project",
-    "Successfully integrated Obsidian with Claude Code using MCP server",
-    "Fixed Collapsi movement rules and implemented DFS pathfinding",
-    "Created polished web UI with 5 themes for Collapsi",
+    "Fixed Collapsi movement rules allowing direction changes",
+    "Implemented DFS pathfinding for proper game mechanics",
+    "Integrated Obsidian with Claude Code using MCP server",
+    "Created comprehensive guidance documentation for MCP tools",
     "Enhanced RL training with session timestamps and architecture preservation",
-    "Fixed all code diagnostics"
+    "Integrated MCTS with PPO training",
+    "Achieved 50.9-54.7% win rates in Collapsi RL",
+    "Refactored training into modular components",
+    "Made initial commit for interactive CV project",
+    "Transformed academic papers into 300+ line technical documents",
+    "Overhauled Collapsi from basic to full RL system with web UI",
+    "Separated concerns for maintainability in modular architecture",
+    "Set up Obsidian-Claude Code integration for team"
   ],
   "insights": [
-    "DFS pathfinding is effective for constrained movement on small boards",
+    "Movement rule flexibility transforms game strategy",
+    "Modular architecture essential for ML systems",
+    "Systematic analysis produces publication-quality work",
+    "DFS pathfinding perfect for constrained movement on small boards",
     "Mixed opponent pools prevent training plateaus",
-    "Monte Carlo returns are superior to GAE for short games",
-    "Session timestamps prevent checkpoint confusion in RL training",
-    "Movement rule flexibility significantly transforms game strategy",
-    "Modular architecture is essential for ML systems",
-    "Systematic analysis produces publication-quality work"
+    "Monte Carlo returns > GAE for short games",
+    "Session timestamps prevent checkpoint confusion"
   ],
   "learning": [
     "MCTS implementation patterns for two-player games",
     "RL techniques for board games",
-    "Academic writing methodology guides"
+    "Academic writing methodology guides",
+    "Always verify game rules before implementation",
+    "Modular design pays off immediately",
+    "Consistent documentation prevents knowledge loss"
   ],
   "challenges": [
     "Initial game rule confusion cost time",
-    "MCTS performance overhead was significant (50x slower)",
-    "Missed daily notes early in the week"
+    "MCTS performance overhead significant (50x slower than desired)",
+    "Missing daily notes early in week"
   ],
   "future_work": [
     "Deploy Collapsi web version online",
     "Implement AlphaZero training for Collapsi",
     "Build interactive CV frontend",
-    "Full 1M episode training run for Collapsi",
-    "CV frontend prototype deadline",
-    "Collapsi public release",
-    "Set up GitHub Pages deployment",
+    "Set up GitHub Pages deployment for Collapsi",
     "Research frontend frameworks for CV",
-    "Prepare AlphaZero implementation plan"
+    "Prepare AlphaZero implementation plan",
+    "Create more automations for Obsidian Integration"
   ],
   "metrics": {
-    "RL Win Rate": "50.9-54.7%",
-    "MCTS Elo Strength Added": "200-400",
-    "Academic Document Length": "300+ lines"
+    "Collapsi_RL_WinRate": "50.9-54.7%"
   },
   "papers": [],
-  "file_path": "raw_data/personal_notes/Weekly Notes/2025-W26.md",
-  "extracted_at": "2025-07-03T19:46:54.300884"
+  "file_path": "/home/artnoage/Projects/interactive_cv/raw_data/personal_notes/Weekly Notes/2025-W26.md",
+  "extraction_date": "2025-07-05T11:51:02.914407",
+  "extractor_version": "blueprint-v1.0",
+  "document_type": "personal"
 }

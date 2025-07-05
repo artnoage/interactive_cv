@@ -31,7 +31,7 @@ load_dotenv()
 DB_PATH = "DB/metadata.db"
 GRAPH_PATH = "KG/knowledge_graph.json"
 
-# Enhanced system prompt with comprehensive profile
+# Enhanced system prompt with comprehensive profile and tool usage strategy
 SYSTEM_PROMPT = """You are an Interactive CV system representing Vaios Laschos, an applied mathematician (PhD, University of Bath) who has evolved from pure mathematics to machine learning and AI. Born January 3, 1983, I've spent over a decade in postdoctoral research across four countries, building bridges between abstract mathematical theory and practical AI applications.
 
 ## My Core Expertise
@@ -39,15 +39,46 @@ SYSTEM_PROMPT = """You are an Interactive CV system representing Vaios Laschos, 
 - **Machine Learning**: LLMs, neural optimal transport, GANs, reinforcement learning, agentic AI systems
 - **Current Focus**: Transformer architectures, game AI (Collapsi), synthetic data generation
 
-## How to Use This System
-Ask me about:
-- My research papers (12 academic papers including UNOT at ICML 2025)
-- Daily work logs (personal notes from my research journey)
-- Specific topics (optimal transport, GANs, reinforcement learning, etc.)
-- Collaborations and institutional affiliations
-- Evolution of my research from pure math to applied AI
+## Tool Usage Strategy - CRITICAL INSTRUCTIONS
+You have access to powerful search tools. Follow this strategy for optimal results:
 
-I'll search my actual papers and notes to give you accurate, specific answers based on my real work."""
+1. **ALWAYS USE TOOLS FIRST**: Never answer from general knowledge alone. Always search the database first.
+
+2. **USE MULTIPLE TOOLS SEQUENTIALLY**: Don't stop after one tool call. Use multiple tools to gather comprehensive information:
+   - Start with broad searches (search_academic_papers, find_research_topics)
+   - Get specific details (find_methods, find_research_topics)
+   - Explore connections (get_research_evolution, find_project_connections)
+   - Cross-reference information (search_chronicle_notes for personal context)
+
+3. **RETRY ON FAILURES**: If a tool returns empty results or errors:
+   - Try alternative search terms
+   - Use different tools (e.g., if search_academic_papers fails, try find_research_topics)
+   - Break down complex queries into simpler parts
+
+4. **BUILD COMPREHENSIVE ANSWERS**: Use 2-4 tools per query to provide rich, well-sourced answers:
+   - Find the relevant papers/notes
+   - Get detailed content
+   - Find related topics or collaborators
+   - Check for evolution over time
+
+5. **BE SPECIFIC**: Reference actual paper titles, dates, quotes, and specific findings from the database.
+
+## What You Can Search
+- Research papers (12 academic papers including UNOT at ICML 2025)
+- Daily work logs (personal notes from research journey)
+- Specific topics with rich categories (math_foundation, research_insight, etc.)
+- Collaborations and institutional affiliations
+- Methods, projects, and applications
+
+## Example Multi-Tool Approach
+For "Tell me about optimal transport":
+1. search_academic_papers("optimal transport") - find relevant papers
+2. find_research_topics("optimal transport") - find related concepts
+3. get_research_evolution("optimal transport") - see how it evolved
+4. search_chronicle_notes("optimal transport") - personal insights
+5. semantic_search_chunks("optimal transport") - find specific mentions
+
+REMEMBER: Use multiple tools, retry on failures, and build comprehensive answers from actual database content!"""
 
 
 # Define state structure
@@ -82,7 +113,6 @@ class InteractiveCVAgent:
             api_key=SecretStr(api_key),
             model=model_name,
             temperature=0.7,
-            max_tokens=8192 if "pro" in model_name else 4096,
             default_headers={
                 "HTTP-Referer": "http://localhost:3000",
                 "X-Title": "Interactive CV Agent",
@@ -108,7 +138,7 @@ class InteractiveCVAgent:
         
         @tool
         def search_academic_papers(query: str) -> str:
-            """Search for academic papers by topic or keywords. Returns papers with content preview."""
+            """Search for academic papers by topic or keywords. Returns basic paper info only."""
             results = cv_tools.search_academic_papers(query, limit=5)
             
             if not results:
@@ -118,34 +148,11 @@ class InteractiveCVAgent:
             for paper in results:
                 output.append(f"📄 {paper['title']} ({paper['date']})")
                 output.append(f"   Domain: {paper['domain']}")
-                output.append(f"   Preview: {paper['content_preview'][:500]}...")
+                # Remove content preview to level playing field
                 output.append("")
             
             return "\n".join(output)
         
-        @tool
-        def get_paper_content(paper_title: str) -> str:
-            """Get full or partial content of a specific paper by title."""
-            result = cv_tools.get_paper_content(paper_title, max_length=3000)
-            
-            if not result:
-                return f"Paper not found: {paper_title}"
-            
-            output = [
-                f"📄 {result['title']}",
-                f"Date: {result['date']}",
-                f"Domain: {result['domain']}",
-                "",
-                "Content:",
-                result['content']
-            ]
-            
-            # Also get authors
-            authors = cv_tools.get_paper_authors(paper_title)
-            if authors:
-                output.insert(3, f"Authors: {', '.join([a['name'] for a in authors])}")
-            
-            return "\n".join(output)
         
         @tool
         def search_chronicle_notes(query: str, start_date: str = None, end_date: str = None) -> str:
@@ -163,7 +170,7 @@ class InteractiveCVAgent:
             for note in results:
                 output.append(f"📝 {note['title']} ({note['date']})")
                 output.append(f"   Type: {note['note_type']}")
-                output.append(f"   Context: {note['context'][:600]}...")
+                # Remove detailed context to level playing field
                 output.append("")
             
             return "\n".join(output)
@@ -312,7 +319,6 @@ class InteractiveCVAgent:
         
         return [
             search_academic_papers,
-            get_paper_content,
             search_chronicle_notes,
             find_research_topics,
             find_methods,

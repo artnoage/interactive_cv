@@ -2,17 +2,13 @@
   "date": "2025-06-27",
   "note_type": "daily",
   "title": "Daily Note - 2025-06-27",
-  "summary": "A productive day focused on overhauling the Collapsi game logic, specifically fixing movement rules to allow direction changes using DFS pathfinding, updating the backend API, and significantly polishing the web UI with multiple themes and improved responsiveness.",
+  "summary": "A significant day was spent overhauling the core game logic for Collapsi due to a misunderstanding of movement rules, implementing proper DFS pathfinding and developing a robust theme system. This change made the game strategically richer.",
   "topics": [
     "game-development",
     "pathfinding",
     "dfs-algorithm",
     "ui-design",
-    "reinforcement-learning",
-    "game-design",
-    "algorithms",
-    "ux-design",
-    "user-experience"
+    "reinforcement-learning"
   ],
   "projects": [
     "collapsi-game",
@@ -21,8 +17,7 @@
   "people": [],
   "institutions": [],
   "methods": [
-    "DFS pathfinding",
-    "backtracking"
+    "DFS"
   ],
   "tools": [
     "python",
@@ -31,23 +26,25 @@
     "localStorage"
   ],
   "accomplishments": [
-    "Fixed core game logic by rewriting `get_valid_moves()` to use DFS pathfinding allowing orthogonal movement with direction changes",
-    "Updated backend API to work with destination-based moves",
-    "Implemented 5 themes (Cyberpunk, Classic Board, Neon Nights, Minimalist, Retro Arcade) with localStorage persistence",
-    "Polished UI by removing confusing path visualization, fixing layout to fit on one screen, and making it responsive"
+    "Fixed Core Game Logic: Rewrote get_valid_moves() to use DFS pathfinding allowing orthogonal movement with direction changes",
+    "Updated Backend API: Modified endpoints to work with destination-based moves instead of path-based",
+    "Created Theme System: Implemented 5 themes (Cyberpunk, Classic Board, Neon Nights, Minimalist, Retro Arcade) with localStorage persistence",
+    "UI Polish: Removed confusing path visualization, fixed layout to fit on one screen, made responsive design"
   ],
   "insights": [
     "Allowing direction changes during movement makes the game significantly more strategic",
     "DFS pathfinding is computationally manageable for 4x4 board with max 4 moves",
     "Simple click-to-destination UI is more intuitive than path building",
-    "Theme system adds nice personalization without complexity"
+    "Theme system adds nice personalization without complexity",
+    "A major breakthrough was fixing the movement rules, transforming the game from simple to strategically rich.",
+    "The \"aha\" moment about direction changes was crucial."
   ],
   "learning": [
-    "Game rules documentation (realized movement allows turns!)",
-    "DFS with backtracking is perfect for small board pathfinding"
+    "Read: Game rules documentation (realized movement allows turns!)",
+    "Discovered: DFS with backtracking is perfect for small board pathfinding"
   ],
   "challenges": [
-    "Initial misconception about Collapsi game movement rules"
+    "Started the day with a major misconception about the Collapsi game rules - thought movement was restricted to straight lines only. This led to a complete overhaul of the game logic."
   ],
   "future_work": [
     "Begin RL (Reinforcement Learning) implementation",
@@ -56,6 +53,8 @@
   ],
   "metrics": {},
   "papers": [],
-  "file_path": "raw_data/personal_notes/Daily Notes/2025-06-27.md",
-  "extracted_at": "2025-07-03T19:46:31.501068"
+  "file_path": "/home/artnoage/Projects/interactive_cv/raw_data/personal_notes/Daily Notes/2025-06-27.md",
+  "extraction_date": "2025-07-05T11:51:10.939133",
+  "extractor_version": "blueprint-v1.0",
+  "document_type": "personal"
 }
