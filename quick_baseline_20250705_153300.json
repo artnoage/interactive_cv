@@ -1,0 +1,284 @@
+{
+  "timestamp": "2025-07-05 15:33:00",
+  "agent_name": "Interactive CV Agent",
+  "test_set_metadata": {
+    "created_date": "2025-01-04",
+    "total_questions": 35,
+    "categories": {
+      "single_paper": 15,
+      "personal_notes": 14,
+      "cross_paper": 1,
+      "cross_domain": 5
+    },
+    "difficulty_distribution": {
+      "easy": 8,
+      "medium": 17,
+      "hard": 6,
+      "very_hard": 4
+    },
+    "sources": [
+      "Universal_Neural_Optimal_Transport_analysis_metadata.json",
+      "Training_GANs_arbitrary_OT_costs_analysis_metadata.json",
+      "Risk_sensitive_POMDP_utility_optimization_analysis_metadata.json",
+      "Cone_geometry_Hellinger_Kantorovich_analysis_metadata.json",
+      "EVI_Hellinger_Kantorovich_spaces_analysis_metadata.json",
+      "2025-06-26_metadata.json",
+      "2025-06-27_metadata.json",
+      "2025-06-28_metadata.json",
+      "2025-06-29_metadata.json",
+      "2025-06-30_metadata.json",
+      "2025-07-01_metadata.json",
+      "2025-W26_metadata.json"
+    ],
+    "notes": "This is the final merged test set combining original questions with valid questions from both geminis_pairs.json and geminis_pairs_2.json. The test set includes questions about papers that are confirmed to exist in the metadata files."
+  },
+  "summary": {
+    "total_questions": 10,
+    "average_score": 15.5,
+    "total_time": 71.25744199752808
+  },
+  "results": [
+    {
+      "question_id": 32,
+      "question": "What are the main innovations of 'Training Generative Networks with Arbitrary Optimal Transport costs.' and what is its primary limitation?",
+      "category": "single_paper",
+      "difficulty": "medium",
+      "source": "geminis_pairs_2",
+      "agent_answer": "The main innovation of 'Training Generative Networks with Arbitrary Optimal Transport costs' is the **generalization of GAN training to arbitrary optimal transport costs**.\n\nI cannot identify its primary limitation based on the provided information.",
+      "expected_answer": "The main innovations of 'Training Generative Networks with Arbitrary Optimal Transport costs.' are the 'Assignment Method' (a novel training framework for GANs based on balancing assignments), the generalization of GAN training to arbitrary optimal transport costs, and the 'Assignment Variance' metric for evaluating mode collapse. Its primary limitation is high computational complexity, making it impractical for large datasets.",
+      "judgment": {
+        "score": 45,
+        "quality": "poor",
+        "reasoning": "The answer correctly identifies one key innovation but misses two others. It also explicitly states it cannot identify the limitation, which is a significant omission.",
+        "key_points_covered": [
+          "generalization of GAN training to arbitrary optimal transport costs"
+        ],
+        "missing_points": [
+          "Assignment Method (novel training framework)",
+          "Assignment Variance metric for evaluating mode collapse",
+          "High computational complexity (primary limitation)"
+        ],
+        "has_hallucination": false
+      },
+      "answer_time": 7.422914266586304
+    },
+    {
+      "question_id": 14,
+      "question": "How do the computational trade-offs in Vaios's academic papers reflect in his practical implementations?",
+      "category": "cross_domain",
+      "difficulty": "very_hard",
+      "source": "original",
+      "agent_answer": "It looks like I found one academic paper by Vaios in which computational trade-offs are analyzed. However, I can not access his practical implementations or personal work notes. Would you like to know more about the paper \"Analysis of Risk-Sensitive Partially Observable Markov Decision Processes as Fully Observable Multivariate Utility Optimization problems\"?",
+      "expected_answer": "Vaios's papers consistently explore computational trade-offs: UNOT trades training time (35h) for fast inference, the Assignment Method trades flexibility for O(mN) complexity, and risk-sensitive POMDPs trade approximation accuracy (number of exponential terms) for tractability. This pattern appears in his Collapsi implementation where he chose DFS for the 4x4 board (manageable complexity) and used ONNX for 60-70% model size reduction, showing his consistent approach to balancing theoretical optimality with practical constraints.",
+      "judgment": {
+        "score": 10,
+        "quality": "poor",
+        "reasoning": "The answer only identifies one paper and states it cannot access practical implementations, which is a significant limitation. It fails to address the core of the question regarding how trade-offs in papers reflect in practical implementations, as it doesn't have information on the implementations.",
+        "key_points_covered": [],
+        "missing_points": [
+          "Specific examples of computational trade-offs from Vaios's papers (UNOT, Assignment Method, risk-sensitive POMDPs)",
+          "Quantification of these trade-offs (training time, complexity, approximation accuracy)",
+          "Connection of these trade-offs to practical implementations (Collapsi, DFS, ONNX)",
+          "Demonstration of consistent approach to balancing theoretical optimality with practical constraints."
+        ],
+        "has_hallucination": false
+      },
+      "answer_time": 4.028975486755371
+    },
+    {
+      "question_id": 21,
+      "question": "What were the key accomplishments related to the 'obsidian-mcp-setup' project on 2025-06-26?",
+      "category": "personal_notes",
+      "difficulty": "easy",
+      "source": "geminis_pairs",
+      "agent_answer": "On 2025-06-26, the key accomplishment related to the 'obsidian-mcp-setup' project was the installation and configuration of the mcp-obsidian server.",
+      "expected_answer": "On 2025-06-26, for the 'obsidian-mcp-setup' project, key accomplishments included installing and configuring the mcp-obsidian server, creating comprehensive guidance documentation, testing all 12 MCP tools, and creating a template system.",
+      "judgment": {
+        "score": 55,
+        "quality": "satisfactory",
+        "reasoning": "The given answer correctly identifies one key accomplishment but misses several others mentioned in the expected answer. It is factually accurate for what it states but incomplete.",
+        "key_points_covered": [
+          "Installation and configuration of the mcp-obsidian server"
+        ],
+        "missing_points": [
+          "Creating comprehensive guidance documentation",
+          "Testing all 12 MCP tools",
+          "Creating a template system"
+        ],
+        "has_hallucination": false
+      },
+      "answer_time": 3.469061851501465
+    },
+    {
+      "question_id": 7,
+      "question": "What pathfinding algorithm did Vaios implement for the Collapsi game and why?",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "original",
+      "agent_answer": "Error getting answer: Recursion limit of 25 reached without hitting a stop condition. You can increase the limit by setting the `recursion_limit` config key.\nFor troubleshooting, visit: https://python.langchain.com/docs/troubleshooting/errors/GRAPH_RECURSION_LIMIT",
+      "expected_answer": "Vaios implemented DFS (Depth-First Search) pathfinding with backtracking for the Collapsi game. He realized that DFS with backtracking is perfect for small board pathfinding on the 4x4 board with a maximum of 4 moves. This allowed the game to support orthogonal movement with direction changes, making it significantly more strategic than the initial implementation which had misconceptions about the movement rules.",
+      "judgment": {
+        "score": 0,
+        "quality": "incorrect",
+        "reasoning": "The given answer is an error message from the system, not an attempt to answer the question. Therefore, it provides no relevant information.",
+        "key_points_covered": [],
+        "missing_points": [
+          "Algorithm used (DFS with backtracking)",
+          "Reason for choosing DFS (small board, max 4 moves)",
+          "Impact on game strategy (orthogonal movement, direction changes)",
+          "Comparison to initial implementation (misconceptions about movement rules)"
+        ],
+        "has_hallucination": false
+      },
+      "answer_time": 22.413843870162964
+    },
+    {
+      "question_id": 27,
+      "question": "What was the primary focus of the daily note on 2025-06-30, and what was a key insight regarding AlphaZero training?",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "geminis_pairs",
+      "agent_answer": "The daily note on 2025-06-30 focused on web architecture and javascript. However, there is no information about AlphaZero training in that daily note. Please note that the `get_chronicle_documents_by_id` function returned a daily note for 2025-06-26, not 2025-06-30, when queried for id 9.",
+      "expected_answer": "The primary focus of the daily note on 2025-06-30 was refactoring the Collapsi project into a standalone web application, integrating AI with ONNX, improving code quality, and implementing AlphaZero-style training. A key insight regarding AlphaZero training was that AlphaZero policy loss can decrease while value loss remains high, suggesting policy might be memorizing MCTS patterns without true understanding.",
+      "judgment": {
+        "score": 0,
+        "quality": "incorrect",
+        "reasoning": "The given answer completely misses the primary focus of the daily note and incorrectly states there is no information about AlphaZero training. It also introduces irrelevant information about a function call and a different date.",
+        "key_points_covered": [],
+        "missing_points": [
+          "Primary focus of 2025-06-30 note: refactoring Collapsi into standalone web app, integrating AI with ONNX, improving code quality, implementing AlphaZero-style training.",
+          "Key insight regarding AlphaZero training: policy loss can decrease while value loss remains high, suggesting policy might be memorizing MCTS patterns without true understanding."
+        ],
+        "has_hallucination": true
+      },
+      "answer_time": 6.399537086486816
+    },
+    {
+      "question_id": 11,
+      "question": "What connection exists between Vaios's theoretical work and his practical game development?",
+      "category": "cross_domain",
+      "difficulty": "very_hard",
+      "source": "original",
+      "agent_answer": "I couldn't find any academic documents, chronicle documents, or topics related to \"Vaios\" or the specific terms you mentioned. This might be because:\n\n* **Name variations:** \"Vaios\" might be spelled differently or be a nickname.\n* **Limited scope:** My current tools might not have access to the specific databases that contain this information.\n* **Confidentiality:** Personal work and research might not be publicly accessible.\n\nIf you have more details about Vaios's work, such as publications, institutions, or specific project names, I might be able to find more relevant information.",
+      "expected_answer": "Vaios's game development work on Collapsi shows practical application of his theoretical expertise. He implemented Monte Carlo Tree Search (MCTS) and AlphaZero-style training, which connect to his research on POMDPs and reinforcement learning. His work on policy distillation from MCTS and temperature-based exploration in the Collapsi project reflects his deep understanding of decision-making under uncertainty, which is central to his academic work on risk-sensitive POMDPs and optimal transport in machine learning.",
+      "judgment": {
+        "score": 0,
+        "quality": "incorrect",
+        "reasoning": "The given answer states it could not find any information about 'Vaios' or the related terms, which directly contradicts the expected answer that provides specific details about Vaios's work. It fails to provide any relevant information.",
+        "key_points_covered": [],
+        "missing_points": [
+          "Practical application of theoretical expertise in game development (Collapsi)",
+          "Implementation of MCTS and AlphaZero-style training",
+          "Connection to research on POMDPs and reinforcement learning",
+          "Work on policy distillation from MCTS",
+          "Temperature-based exploration in Collapsi",
+          "Deep understanding of decision-making under uncertainty",
+          "Centrality of academic work on risk-sensitive POMDPs and optimal transport in machine learning"
+        ],
+        "has_hallucination": false
+      },
+      "answer_time": 4.353242874145508
+    },
+    {
+      "question_id": 34,
+      "question": "What are the key findings of 'Universal Neural Optimal Transport' regarding its performance and generalization capabilities?",
+      "category": "single_paper",
+      "difficulty": "medium",
+      "source": "geminis_pairs_2",
+      "agent_answer": "I couldn't retrieve the full content of the document to tell you about the key findings. I only have access to a snippet that mentions \"Analysis of Universal Neural Optimal Transport\" by Jonathan Geuter, Gregor Kornhardt, Ingimar Tomasson, and Vaios Laschos from 2025. It also mentions \"Optimal Transport Distance (Tc)\" as a mathematical concept.",
+      "expected_answer": "Key findings of 'Universal Neural Optimal Transport' are that UNOT can predict entropic OT distances with a relative error of only 1-3% after a single Sinkhorn iteration, vastly outperforming standard initializations, and that the use of Fourier Neural Operators (FNOs) allows UNOT to successfully generalize across measures of different resolutions.",
+      "judgment": {
+        "score": 0,
+        "quality": "incorrect",
+        "reasoning": "The agent explicitly states it cannot retrieve the full content and therefore cannot answer the question about key findings. It only provides bibliographic information and a general mathematical concept, which does not address the core of the question.",
+        "key_points_covered": [],
+        "missing_points": [
+          "UNOT's prediction accuracy (1-3% relative error)",
+          "Performance after a single Sinkhorn iteration",
+          "Outperformance of standard initializations",
+          "Use of Fourier Neural Operators (FNOs)",
+          "Generalization across measures of different resolutions"
+        ],
+        "has_hallucination": false
+      },
+      "answer_time": 4.304307699203491
+    },
+    {
+      "question_id": 13,
+      "question": "What performance improvements did Vaios discover while working on the Collapsi project?",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "original",
+      "agent_answer": "I couldn't find any specific information about performance improvements Vaios discovered while working on the Collapsi project in either academic papers or personal notes. The search results show some daily and weekly notes that mention \"Collapsi Web\" and related topics, but they don't detail any performance improvements.",
+      "expected_answer": "Vaios discovered that MCTS instantiation per move was a major performance bottleneck in the Collapsi project. He fixed this by extracting MCTS into a standalone module and ensuring proper instance management. He also extracted common evaluation logic, reducing approximately 40 lines of duplicate code, created a centralized state preparation helper function, and achieved 60-70% file size reduction through ONNX conversion for the AI models.",
+      "judgment": {
+        "score": 0,
+        "quality": "incorrect",
+        "reasoning": "The given answer states it could not find information, which is incorrect as the information is available. It fails to provide any of the expected performance improvements.",
+        "key_points_covered": [],
+        "missing_points": [
+          "MCTS instantiation per move as a bottleneck",
+          "Fixing MCTS by extracting it into a standalone module and proper instance management",
+          "Extracting common evaluation logic, reducing duplicate code",
+          "Creating a centralized state preparation helper function",
+          "Achieving 60-70% file size reduction through ONNX conversion for AI models"
+        ],
+        "has_hallucination": false
+      },
+      "answer_time": 5.807245969772339
+    },
+    {
+      "question_id": 33,
+      "question": "What is the core contribution of 'Universal Neural Optimal Transport' and what kind of neural network architecture does it use?",
+      "category": "single_paper",
+      "difficulty": "easy",
+      "source": "geminis_pairs_2",
+      "agent_answer": "The core contribution of 'Universal Neural Optimal Transport' is the development of a framework for training generative networks using arbitrary optimal transport costs. Unfortunately, the specific neural network architecture used is not mentioned in the provided information.",
+      "expected_answer": "The core contribution of 'Universal Neural Optimal Transport' is the development of UNOT, a universal neural OT solver that can accurately and rapidly predict entropic OT distances and plans for a given cost function, across different datasets and for discrete measures of variable resolutions. It uses a Fourier Neural Operator (FNO) as its neural network architecture.",
+      "judgment": {
+        "score": 45,
+        "quality": "poor",
+        "reasoning": "The answer correctly identifies the core contribution as related to optimal transport and generative networks, but it misses the key innovation of UNOT being a universal solver for entropic OT distances and plans across varying datasets and resolutions. It also incorrectly states that the neural network architecture is not mentioned, when it is a crucial detail.",
+        "key_points_covered": [
+          "Core contribution related to optimal transport"
+        ],
+        "missing_points": [
+          "UNOT as a universal neural OT solver",
+          "Prediction of entropic OT distances and plans",
+          "Applicability across different datasets and variable resolutions",
+          "Use of Fourier Neural Operator (FNO) as the architecture"
+        ],
+        "has_hallucination": true
+      },
+      "answer_time": 9.408549547195435
+    },
+    {
+      "question_id": 22,
+      "question": "Which tools were used for 'game-development' and 'pathfinding' across the daily notes from 2025-06-27 to 2025-06-30?",
+      "category": "personal_notes",
+      "difficulty": "medium",
+      "source": "geminis_pairs",
+      "agent_answer": "I'm sorry, I cannot fulfill this request. The available tools lack the ability to extract or infer which specific tools were used within the daily notes. I can only search for documents containing the specified keywords within the given date range.",
+      "expected_answer": "For 'game-development' and 'pathfinding' from 2025-06-27 to 2025-06-30, the tools used included Python, JavaScript, React, localStorage, PyTorch, ONNX, Tailscale, webstorage, and CUDA.",
+      "judgment": {
+        "score": 0,
+        "quality": "incorrect",
+        "reasoning": "The agent explicitly states it cannot fulfill the request, which is incorrect as the information is available within the provided context (daily notes). It fails to extract any of the requested information.",
+        "key_points_covered": [],
+        "missing_points": [
+          "Python",
+          "JavaScript",
+          "React",
+          "localStorage",
+          "PyTorch",
+          "ONNX",
+          "Tailscale",
+          "webstorage",
+          "CUDA"
+        ],
+        "has_hallucination": false
+      },
+      "answer_time": 3.649763345718384
+    }
+  ]
+}

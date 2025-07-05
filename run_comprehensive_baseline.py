@@ -236,7 +236,7 @@ def main():
         
         print(f"\n📊 Quick Baseline: {avg_score:.1f}/100")
         
-        if args.no_save:
+        if not args.no_save:
             evaluator.save_results(results, f"quick_baseline_{time.strftime('%Y%m%d_%H%M%S')}.json")
     else:
         print("🎯 Interactive CV Agent Baseline Testing")
