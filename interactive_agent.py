@@ -714,7 +714,7 @@ def sequential_reasoning(problem: str, domain: str = "general", use_alternatives
     META TOOL: Perform structured sequential reasoning on complex problems.
     
     This tool provides step-by-step analysis and structured reasoning 
-    for complex queries that require deep thinking.
+    for complex queries that require deep thinking using MCP Sequential Thinking.
     
     Use this tool when:
     - The query requires multi-step logical reasoning
@@ -730,11 +730,23 @@ def sequential_reasoning(problem: str, domain: str = "general", use_alternatives
     Returns structured step-by-step reasoning analysis.
     """
     try:
-        # Use simplified sequential reasoning to avoid subprocess issues
+        # For now, use simplified reasoning for reliability
+        # MCP Sequential Thinking can hang in agent context
+        print("Using simplified sequential reasoning for reliability")
         return _simple_sequential_reasoning(problem, domain, use_alternatives)
         
+        # TODO: Fix MCP integration hanging issue
+        # reasoning_agent = SequentialReasoningSync()
+        # if use_alternatives:
+        #     result = reasoning_agent.reason_alternatives(problem, domain)
+        # else:
+        #     result = reasoning_agent.reason(problem, domain, max_steps=5)
+        # return result
+        
     except Exception as e:
-        return f"Error in sequential reasoning: {str(e)}"
+        print(f"Sequential Thinking failed: {e}")
+        # Fallback to simplified reasoning
+        return _simple_sequential_reasoning(problem, domain, use_alternatives)
 
 
 def _simple_sequential_reasoning(problem: str, domain: str, use_alternatives: bool) -> str:
@@ -877,14 +889,33 @@ class InteractiveCVAgent:
                     "institution_", "institution 2", "institution 3"  # institution IDs
                 ]
                 
-                if any(pattern in content for pattern in bad_patterns):
+                # Check for complex questions that need sequential reasoning
+                sequential_thinking_triggers = [
+                    "connection between", "how does", "relates to", "connect",
+                    "theoretical work", "practical", "cross-domain", "bridges",
+                    "shared challenges", "what connects", "relationship between"
+                ]
+                
+                needs_sequential_thinking = any(trigger in content for trigger in sequential_thinking_triggers)
+                
+                if any(pattern in content for pattern in bad_patterns) or needs_sequential_thinking:
                     # Create a high-temperature LLM for creative pep talks
                     # Get the API key from environment instead of trying to access self.llm.api_key
                     api_key = os.getenv("OPENROUTER_API_KEY")
+                    # Get model name from the main agent
+                    current_model = os.getenv("AGENT_MODEL", "flash")
+                    models = {
+                        "flash": "google/gemini-2.5-flash",
+                        "pro": "google/gemini-2.5-pro",
+                        "claude": "anthropic/claude-sonnet-4",
+                        "deepseek": "deepseek/deepseek-r1-0528"
+                    }
+                    model_name = models.get(current_model, models["flash"])
+                    
                     pep_talk_llm = ChatOpenAI(
                         base_url="https://openrouter.ai/api/v1",
-                        api_key=api_key,
-                        model=model_name,  # Use the model_name from the outer scope
+                        api_key=SecretStr(api_key),
+                        model=model_name,
                         temperature=1.2,  # High temperature for creativity!
                         default_headers={
                             "HTTP-Referer": "http://localhost:3000",
@@ -902,8 +933,14 @@ Bad patterns to address:
 - Saying "I cannot find" instead of using profile fallback → Ask "Did you take into account the fallback info from the profile?"
 - Listing institution IDs instead of real names → Remind them to use the fallback answer
 - Being negative or giving up → Encourage them to use the comprehensive profile information
+- Complex questions without using sequential_reasoning → Suggest using structured thinking!
 
 IMPORTANT: If the agent is saying they can't find something or giving negative answers, specifically ask: "Did you take into account the fallback info from the profile?"
+
+SEQUENTIAL THINKING: If the question involves connections between concepts, cross-domain analysis, or "how does X relate to Y", remind them to use sequential_reasoning tool for structured analysis!
+
+CONTEXT: This question seems complex: "{last_message.content[:100]}..." 
+{f"→ DETECTED COMPLEX PATTERN! This needs sequential_reasoning tool for structured thinking!" if needs_sequential_thinking else ""}
 
 Make it different each time - be creative!"""
                     

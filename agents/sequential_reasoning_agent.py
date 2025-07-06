@@ -69,12 +69,11 @@ class SequentialReasoningAgent:
             await self.start()
         
         try:
-            # Step 1: Initial problem analysis
+            # Step 1: Initial problem analysis  
             result = await self.client.think(
-                f"Analyzing the problem: {problem}",
+                f"Analyzing the {domain} problem: {problem}",
                 next_thought_needed=True,
-                total_thoughts=max_steps,
-                domain=domain
+                total_thoughts=max_steps
             )
             
             thoughts = [result]
@@ -90,8 +89,7 @@ class SequentialReasoningAgent:
                 result = await self.client.think(
                     next_thought,
                     next_thought_needed=(step < max_steps),
-                    total_thoughts=max_steps,
-                    domain=domain
+                    total_thoughts=max_steps
                 )
                 
                 thoughts.append(result)
@@ -132,10 +130,21 @@ class SequentialReasoningAgent:
         result.append("")
         
         for i, thought in enumerate(thoughts, 1):
-            result.append(f"Step {i}: {thought.get('content', 'No content')}")
-            
-            if thought.get('progress'):
-                result.append(f"Progress: {thought['progress']}")
+            # Extract content from MCP response format
+            if isinstance(thought, dict) and 'content' in thought:
+                # Handle list of content blocks
+                if isinstance(thought['content'], list):
+                    content_text = ""
+                    for block in thought['content']:
+                        if isinstance(block, dict) and 'text' in block:
+                            content_text += block['text']
+                        elif isinstance(block, str):
+                            content_text += block
+                    result.append(f"Step {i}: {content_text}")
+                else:
+                    result.append(f"Step {i}: {thought['content']}")
+            else:
+                result.append(f"Step {i}: {str(thought)}")
             
             result.append("")
         
@@ -202,10 +211,9 @@ class SequentialReasoningAgent:
                 next_thought = f"Continuing alternative analysis - step {step}"
                 result = await self.client.think(
                     next_thought,
-                    branch_id="alternative_1",
+                    branch_id="alternative_1", 
                     next_thought_needed=(step < 3),
-                    total_thoughts=3,
-                    domain=domain
+                    total_thoughts=3
                 )
                 alt_thoughts.append(result)
             
