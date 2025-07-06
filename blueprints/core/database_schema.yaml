@@ -382,68 +382,6 @@ vector_tables:
         type: "UNIQUE"
         columns: ["entity_type", "entity_id", "model_name"]
         
-  graph_nodes:
-    description: "Pre-computed graph nodes for visualization"
-    columns:
-      id:
-        type: "INTEGER"
-        primary_key: true
-        auto_increment: true
-      node_id:
-        type: "TEXT"
-        unique: true
-        not_null: true
-        description: "Unique node identifier"
-      node_type:
-        type: "TEXT"
-        not_null: true
-        description: "Node type for visualization"
-      node_label:
-        type: "TEXT"
-        not_null: true
-        description: "Display label"
-      attributes:
-        type: "JSON"
-        description: "Additional node attributes"
-      pagerank_score:
-        type: "REAL"
-        description: "PageRank centrality score"
-      degree:
-        type: "INTEGER"
-        description: "Node degree (number of connections)"
-      created_at:
-        type: "TIMESTAMP"
-        default: "CURRENT_TIMESTAMP"
-        
-  graph_edges:
-    description: "Pre-computed graph edges for visualization"
-    columns:
-      id:
-        type: "INTEGER"
-        primary_key: true
-        auto_increment: true
-      source_node_id:
-        type: "TEXT"
-        not_null: true
-        description: "Source node ID"
-      target_node_id:
-        type: "TEXT"
-        not_null: true
-        description: "Target node ID"
-      edge_type:
-        type: "TEXT"
-        not_null: true
-        description: "Type of relationship"
-      weight:
-        type: "REAL"
-        default: 1.0
-        description: "Edge weight"
-      attributes:
-        type: "JSON"
-        description: "Additional edge attributes"
-      created_at:
-        type: "TIMESTAMP"
-        default: "CURRENT_TIMESTAMP"
 
 # Metadata and logging tables
 metadata_tables:
@@ -522,13 +460,3 @@ indexes:
     table: "embeddings"
     columns: ["entity_type", "entity_id"]
     
-  # Graph indexes
-  idx_graph_nodes_type:
-    table: "graph_nodes"
-    columns: ["node_type"]
-  idx_graph_edges_source:
-    table: "graph_edges"
-    columns: ["source_node_id"]
-  idx_graph_edges_target:
-    table: "graph_edges"
-    columns: ["target_node_id"]
