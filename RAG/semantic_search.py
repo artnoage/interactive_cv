@@ -98,6 +98,131 @@ def generate_embedding(text: str, model: str = "text-embedding-3-large") -> Opti
         return None
 
 
+class SemanticSearchEngine:
+    """Unified semantic search engine for all entity types."""
+    
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+    
+    def search_all_entities(self, query: str, limit: int = 20, 
+                           entity_types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+        """
+        Search across all entity types using semantic embeddings.
+        
+        Args:
+            query: Natural language search query
+            limit: Maximum results to return
+            entity_types: Optional list to filter by type
+            
+        Returns:
+            List of entities sorted by similarity score
+        """
+        if not OPENAI_AVAILABLE:
+            logger.warning("Semantic search not available - OpenAI client not initialized")
+            return []
+        
+        conn = None
+        try:
+            # Create connection for this search
+            conn = get_db_connection(self.db_path)
+            
+            # Generate query embedding
+            query_embedding = generate_embedding(query)
+            if query_embedding is None:
+                logger.error("Failed to generate query embedding")
+                return []
+            
+            results = []
+            
+            # Define entity type mappings
+            type_mappings = {
+                'document': [('academic_documents', 'academic'), ('chronicle_documents', 'chronicle')],
+                'topic': [('topics', None)],
+                'person': [('people', None)],
+                'method': [('methods', None)],
+                'institution': [('institutions', None)],
+                'application': [('applications', None)],
+                'project': [('projects', None)]
+            }
+            
+            # Filter types if specified
+            if entity_types:
+                type_mappings = {k: v for k, v in type_mappings.items() if k in entity_types}
+            
+            # Search each entity type
+            for entity_type, tables in type_mappings.items():
+                for table_name, id_prefix in tables:
+                    # Build query for this entity type
+                    query_sql = f"""
+                    SELECT 
+                        t.*,
+                        e.embedding
+                    FROM {table_name} t
+                    JOIN embeddings e ON 
+                        e.entity_type = ? AND 
+                        e.entity_id = CASE 
+                            WHEN ? IS NOT NULL THEN (? || '_' || CAST(t.id AS TEXT))
+                            ELSE (? || '_' || CAST(t.id AS TEXT))
+                        END
+                    WHERE e.embedding IS NOT NULL
+                    """
+                    
+                    # Execute query
+                    params = [
+                        entity_type if entity_type != 'document' else 'document',
+                        id_prefix,
+                        id_prefix,
+                        entity_type if entity_type != 'document' else table_name.replace('_documents', '')
+                    ]
+                    
+                    for row in conn.execute(query_sql, params):
+                        # Convert Row to dict
+                        row_dict = dict(row)
+                        
+                        # Load embedding
+                        entity_embedding = load_embedding_from_blob(row_dict['embedding'])
+                        if entity_embedding is None:
+                            continue
+                        
+                        # Calculate similarity
+                        similarity = cosine_similarity(query_embedding, entity_embedding)
+                        
+                        # Build result
+                        result = {
+                            'entity_type': entity_type,
+                            'entity_id': f"{id_prefix}_{row_dict['id']}" if id_prefix else f"{entity_type}_{row_dict['id']}",
+                            'name': row_dict.get('title', row_dict.get('name', 'Unknown')),
+                            'similarity': float(similarity)
+                        }
+                        
+                        # Add description if available
+                        if row_dict.get('description'):
+                            result['description'] = row_dict['description']
+                        elif row_dict.get('content'):
+                            result['description'] = row_dict['content'][:500]
+                        
+                        # Add date for documents
+                        if row_dict.get('date'):
+                            result['date'] = row_dict['date']
+                        
+                        # Add category if available
+                        if row_dict.get('category'):
+                            result['category'] = row_dict['category']
+                        
+                        results.append(result)
+            
+            # Sort by similarity and limit
+            results.sort(key=lambda x: x['similarity'], reverse=True)
+            return results[:limit]
+            
+        except Exception as e:
+            logger.error(f"Error in semantic search: {e}")
+            return []
+        finally:
+            if conn:
+                conn.close()
+
+
 def load_embedding_from_blob(blob: bytes) -> Optional[np.ndarray]:
     """
     Convert stored BLOB back to numpy array.

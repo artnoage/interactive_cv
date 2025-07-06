@@ -573,35 +573,6 @@ AGENT_MODEL=pro JUDGE_MODEL=pro python tests/test_agent_with_judge.py
 
 See [MODEL_USAGE_GUIDE.md](MODEL_USAGE_GUIDE.md) for detailed model configuration options.
 
-## Troubleshooting
-
-### Common Issues
-
-1. **Empty document_chunks table**
-   - **Cause**: Documents only containing summaries instead of full content
-   - **Fix**: Ensure populator loads full content from analysis files (fixed in latest version)
-
-2. **Personal notes not chunked**
-   - **Cause**: Personal notes are shorter than minimum chunk size (300 tokens)
-   - **Fix**: Adjust `min_chunk_size` in `build_database.py` or use different chunking strategy
-
-3. **Blueprint file not found errors**
-   - **Cause**: Relative path issues when running from different directories
-   - **Fix**: Always run scripts from project root or use absolute paths
-
-4. **Deduplication taking too long**
-   - **Cause**: Too many false positive pairs to check
-   - **Fix**: Increase similarity threshold or use `--no-deduplication` flag
-
-5. **Duplicate edge IDs in knowledge graph**
-   - **Cause**: Edge ID generation not ensuring uniqueness
-   - **Fix**: Updated in latest version; regenerate graph with `python KG/graph_builder.py`
-
-6. **Web UI panel sizes**
-   - **Issue**: Fixed panel widths may be too small for knowledge graph
-   - **Workaround**: Zoom out browser or use larger display
-   - **Fix**: Resizable panels planned for next update
-
 ## Documentation
 
 ### Core Documentation

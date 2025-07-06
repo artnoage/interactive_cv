@@ -2,8 +2,8 @@
 """
 Comprehensive Baseline Testing Script for Interactive CV Agent
 
-This script runs the blueprint-powered agent on the full test dataset 
-to establish performance baselines and identify optimization opportunities.
+This script tests the simplified embedding-first agent against the test dataset.
+The agent uses only 3 tools, relying on semantic search across all entities.
 """
 
 import os
@@ -20,14 +20,23 @@ sys.path.append(str(Path(__file__).parent))
 from test_agent_comprehensive import ComprehensiveAgentEvaluator
 
 
-def run_full_baseline(save_results=True, use_pro_model=False):
+def run_full_baseline(save_results=True, use_pro_model=False, use_claude_model=False):
     """Run comprehensive baseline evaluation on all questions."""
     
-    print("🚀 INTERACTIVE CV AGENT - COMPREHENSIVE BASELINE EVALUATION")
+    print("🚀 INTERACTIVE CV AGENT - TESTING NEW EMBEDDING-FIRST VERSION")
+    print("="*80)
+    print("🎯 This tests the NEW simplified agent with only 3 tools:")
+    print("   1. semantic_search - Unified embedding search across all entities")
+    print("   2. navigate_relationships - Graph traversal (forward/reverse)")
+    print("   3. get_entity_details - Get full entity information")
     print("="*80)
     
     # Set model if requested
-    if use_pro_model:
+    if use_claude_model:
+        os.environ["AGENT_MODEL"] = "claude"
+        os.environ["JUDGE_MODEL"] = "claude"
+        print("🤖 Using Claude models (Claude Sonnet 4) for superior instruction following")
+    elif use_pro_model:
         os.environ["AGENT_MODEL"] = "pro"
         os.environ["JUDGE_MODEL"] = "pro"
         print("🧠 Using Pro models (Gemini 2.5 Pro) for better performance")
@@ -35,12 +44,12 @@ def run_full_baseline(save_results=True, use_pro_model=False):
         print("⚡ Using Flash models (Gemini 2.5 Flash) for faster evaluation")
     
     # Initialize evaluator
-    print("\n🔧 Initializing evaluator...")
+    print("\n🔧 Initializing NEW embedding-first agent...")
     evaluator = ComprehensiveAgentEvaluator()
     
     # Run comprehensive evaluation
     print("\n🎯 Running FULL evaluation on all 35 questions...")
-    print("This will take approximately 10-15 minutes...")
+    print("This will test if 3 semantic tools can replace 83 specific tools...")
     
     start_time = time.time()
     results = evaluator.evaluate_all_questions()
@@ -131,8 +140,13 @@ def run_full_baseline(save_results=True, use_pro_model=False):
         # Save results
         if save_results:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            model_suffix = "pro" if use_pro_model else "flash"
-            filename = f"baseline_evaluation_{model_suffix}_{timestamp}.json"
+            if use_claude_model:
+                model_suffix = "claude"
+            elif use_pro_model:
+                model_suffix = "pro"
+            else:
+                model_suffix = "flash"
+            filename = f"embedding_agent_evaluation_{model_suffix}_{timestamp}.json"
             
             baseline_report = {
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -170,8 +184,8 @@ def run_full_baseline(save_results=True, use_pro_model=False):
 
 
 def compare_models():
-    """Compare Flash vs Pro model performance on a subset."""
-    print("🔄 FLASH vs PRO MODEL COMPARISON")
+    """Compare Flash vs Pro vs Claude model performance on a subset."""
+    print("🔄 FLASH vs PRO vs CLAUDE MODEL COMPARISON")
     print("="*50)
     
     # Test Flash model first
@@ -193,18 +207,33 @@ def compare_models():
     results_pro = evaluator_pro.evaluate_subset(same_questions)
     pro_avg = sum(r["judgment"]["score"] for r in results_pro) / len(results_pro)
     
+    # Test Claude model with same questions
+    print("\n🤖 Testing with Claude model (same questions)...")
+    os.environ["AGENT_MODEL"] = "claude"
+    os.environ["JUDGE_MODEL"] = "claude"
+    
+    evaluator_claude = ComprehensiveAgentEvaluator()
+    results_claude = evaluator_claude.evaluate_subset(same_questions)
+    claude_avg = sum(r["judgment"]["score"] for r in results_claude) / len(results_claude)
+    
     # Comparison
     print(f"\n📊 MODEL COMPARISON RESULTS:")
-    print(f"   • Flash Model: {flash_avg:.1f}/100")
-    print(f"   • Pro Model:   {pro_avg:.1f}/100")
-    print(f"   • Improvement: {pro_avg - flash_avg:+.1f} points")
+    print(f"   • Flash Model:  {flash_avg:.1f}/100")
+    print(f"   • Pro Model:    {pro_avg:.1f}/100")
+    print(f"   • Claude Model: {claude_avg:.1f}/100")
     
-    if pro_avg > flash_avg + 10:
-        print("   ✅ Pro model shows significant improvement - recommend for baseline")
-    elif pro_avg > flash_avg:
-        print("   📈 Pro model shows modest improvement")
+    # Find best model
+    models = [("Flash", flash_avg), ("Pro", pro_avg), ("Claude", claude_avg)]
+    best_model, best_score = max(models, key=lambda x: x[1])
+    
+    print(f"\n   🏆 Best: {best_model} ({best_score:.1f}/100)")
+    
+    if claude_avg > pro_avg and claude_avg > flash_avg:
+        print("   ✅ Claude model shows best performance - recommend for complex queries")
+    elif pro_avg > flash_avg + 10:
+        print("   ✅ Pro model shows significant improvement over Flash")
     else:
-        print("   ⚡ Flash model performs equally well - use for speed")
+        print("   ⚡ Flash model performs adequately - use for speed")
 
 
 def main():
@@ -213,6 +242,7 @@ def main():
     parser.add_argument("--full", action="store_true", help="Run full baseline on all 35 questions")
     parser.add_argument("--compare-models", action="store_true", help="Compare Flash vs Pro model performance")
     parser.add_argument("--pro", action="store_true", help="Use Pro model for evaluation")
+    parser.add_argument("--claude", action="store_true", help="Use Claude model for superior instruction following")
     parser.add_argument("--no-save", action="store_true", help="Don't save results to file")
     parser.add_argument("--quick", action="store_true", help="Quick baseline with 10 random questions")
     
@@ -221,12 +251,15 @@ def main():
     if args.compare_models:
         compare_models()
     elif args.full:
-        run_full_baseline(save_results=not args.no_save, use_pro_model=args.pro)
+        run_full_baseline(save_results=not args.no_save, use_pro_model=args.pro, use_claude_model=args.claude)
     elif args.quick:
         print("⚡ QUICK BASELINE EVALUATION (10 questions)")
         print("="*50)
         
-        if args.pro:
+        if args.claude:
+            os.environ["AGENT_MODEL"] = "claude"
+            os.environ["JUDGE_MODEL"] = "claude"
+        elif args.pro:
             os.environ["AGENT_MODEL"] = "pro"
             os.environ["JUDGE_MODEL"] = "pro"
         
@@ -245,8 +278,9 @@ def main():
         print("  --quick          Quick baseline (10 questions)")
         print("  --compare-models Compare Flash vs Pro model performance")
         print("  --pro            Use Pro model for better performance")
+        print("  --claude         Use Claude model for superior instruction following")
         print("  --no-save        Don't save results to file")
-        print("\nExample: python run_comprehensive_baseline.py --full --pro")
+        print("\nExample: python run_comprehensive_baseline.py --full --claude")
 
 
 if __name__ == "__main__":

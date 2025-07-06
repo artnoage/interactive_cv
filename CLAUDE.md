@@ -1,17 +1,33 @@
 # Interactive CV Project - CLAUDE.md
 
-## 🚀 Blueprint-Driven System Overview
+## 🚀 Embedding-First Agent Overview
 
-The Interactive CV has been transformed into a **blueprint-driven system** that automatically generates tools from YAML configurations.
+The Interactive CV uses a **simplified embedding-first agent** that leverages semantic search across all entities.
 
-**Key Achievement**: *83+ automatically generated tools from blueprints vs 13 manual tools (6.4x improvement)*
+**Key Achievement**: *3 unified tools with semantic search replace 83+ specific tools*
 
 ### System Architecture
 
-- **`interactive_agent.py`** - Main agent with blueprint-generated tools and semantic intelligence
-- **Blueprint Configuration** - YAML files define all domain knowledge and tool generation
+- **`interactive_agent.py`** - Main agent with 3 embedding-based tools and semantic intelligence
+- **Blueprint Configuration** - YAML files define all domain knowledge for database building
 - **Semantic Enhancement** - Hybrid SQL + embedding search for concept discovery
 - **Centralized Profile** - Consistent biography from Profile/ directory
+
+### The 3 Tools
+
+1. **`semantic_search`** - Search across ALL entity types using embeddings
+   - Finds documents, topics, people, methods, institutions, applications, projects
+   - Handles synonyms and name variations automatically
+   - Returns relevance scores
+
+2. **`navigate_relationships`** - Traverse the knowledge graph
+   - Forward mode: Find what an entity points to (e.g., paper → topics)
+   - Reverse mode: Find what points to an entity (e.g., person → papers)
+   - Critical for multi-hop queries (e.g., person → papers → institutions)
+
+3. **`get_entity_details`** - Get full information about any entity
+   - Returns all attributes and content
+   - Works with any entity type
 
 ### Usage
 
@@ -24,9 +40,6 @@ AGENT_MODEL=claude python interactive_agent.py
 
 # Use Pro model
 AGENT_MODEL=pro python interactive_agent.py
-
-# Validate blueprint configurations
-python RAG/blueprint_driven_loader.py
 ```
 
 ## 📂 Blueprint Structure
@@ -100,14 +113,14 @@ python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
    - Professional experience
    - Current focus areas
 
-2. Both agents automatically load this profile - no code changes needed
+2. The agent automatically loads this profile - no code changes needed
 
 ## 🔧 Technical Details
 
 ### Key Components
 
-- **`RAG/blueprint_driven_loader.py`** - Parses YAML blueprints
-- **`RAG/blueprint_driven_tools.py`** - Generates 83+ tools automatically
+- **`interactive_agent.py`** - Main agent with 3 embedding-based tools
+- **`RAG/semantic_search.py`** - Semantic search engine for all entities
 - **`DB/build_database.py`** - Database builder using blueprints
 - **`KG/graph_builder.py`** - Graph generator with rich node types
 - **`serve_ui.py`** - Flask server for unified web interface
@@ -124,17 +137,16 @@ OPENAI_API_KEY=your_key_here
 
 - Use `uv` for package management
 - Run scripts from project root
-- Validate blueprints before production builds
-- Keep domain knowledge in YAML, not code
+- Keep domain knowledge in YAML for database building
 - Use incremental updates for new documents
 
-## 🚀 Blueprint System Benefits
+## 🚀 Embedding-First Agent Benefits
 
-1. **Zero-Code Extension**: Add domains via YAML only
-2. **Universal Platform**: Works for any research field
-3. **Schema-Safe**: Tools match database automatically
+1. **Simple Tools**: Just 3 tools handle all queries
+2. **Semantic Search**: Finds concepts regardless of exact terms
+3. **Entity Resolution**: Handles name variations automatically
 4. **Rich Types**: 24+ entity categories with visualization
-5. **Collaborative**: Non-programmers can modify rules
+5. **Scalable**: Works with any number of entities
 
 ## 📈 Recent Improvements
 
@@ -146,8 +158,8 @@ OPENAI_API_KEY=your_key_here
 
 ## 🎯 Known Issues & Solutions
 
-### Multi-Tool Orchestration
-- Complex queries requiring tool chaining work better with Claude model
+### Complex Queries
+- Multi-hop queries (like finding author institutions) work better with Claude model
 - Use `AGENT_MODEL=claude` for superior instruction following
 
 ### Personal Notes Chunking
@@ -157,15 +169,14 @@ OPENAI_API_KEY=your_key_here
 ### Tips
 - For complex queries, use Claude model: `AGENT_MODEL=claude`
 - View SQL queries directly with datasette: `./view_database.sh`
-- Check tool generation: `python RAG/blueprint_driven_tools.py`
 
 ## Summary
 
-The Interactive CV is a **blueprint-driven knowledge platform** that:
-- Generates 83+ tools automatically from YAML configurations
-- Works universally across any research domain
+The Interactive CV is an **embedding-first knowledge platform** that:
+- Uses just 3 unified tools powered by semantic search
+- Works universally across any research domain  
 - Combines SQL queries with semantic embeddings
 - Provides both CLI and web interfaces
-- Maintains all domain knowledge in version-controlled blueprints
+- Uses blueprints for database building while keeping the agent simple
 
-*From manual coding to automatic tool generation - a 6.4x improvement in capabilities through configuration.*
+*From 83 specific tools to 3 intelligent tools - simplicity through semantic search.*

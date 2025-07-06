@@ -1,0 +1,39 @@
+{
+  "answers": [
+    {
+      "id": 36,
+      "expected_answer": "Vaios's deep theoretical work on Wasserstein gradient flows and Evolutionary Variational Inequalities (EVIs) directly prefigured and provides a rigorous foundation for understanding modern diffusion models (DDPMs, score-based models). His PhD thesis was specifically on Wasserstein gradient flows and thermodynamic limits, and he has expertise in gradient flow theory including De Giorgi and JKO schemes applied to spaces of measures. This mathematical foundation is crucial for diffusion models, which are fundamentally based on gradient flows in probability space.",
+      "category": "profile_research_fit",
+      "difficulty": "hard",
+      "source": "profile"
+    },
+    {
+      "id": 37,
+      "expected_answer": "Vaios has exceptional mathematical foundations perfectly suited for diffusion models: Optimal Transport Theory (Wasserstein, Hellinger-Kantorovich), Gradient Flows & Evolutionary Variational Inequalities, Stochastic Analysis & McKean-Vlasov Equations, PDEs & Variational Methods, and Metric Geometry on Non-smooth Spaces. His research evolution shows a deliberate progression from foundational geometric theory to dynamic & variational methods, culminating in computational AI innovation. This trajectory demonstrates his ability to bridge abstract mathematical theory with practical AI applications.",
+      "category": "profile_research_fit",
+      "difficulty": "medium",
+      "source": "profile"
+    },
+    {
+      "id": 38,
+      "expected_answer": "Vaios has a proven track record of translating theory to practice: he developed novel mathematical frameworks (Hellinger-Kantorovich spaces) and connected them to computational problems, applied optimal transport theory to train GANs with arbitrary transport costs, developed neural network solvers for OT (UNOT at ICML 2025), and has hands-on experience training and fine-tuning LLMs up to 32B parameters. His profile explicitly states he's 'now focused on translating this deep theoretical knowledge into building and training advanced agentic AI systems,' showing his commitment to practical implementation.",
+      "category": "profile_research_fit",
+      "difficulty": "hard",
+      "source": "profile"
+    },
+    {
+      "id": 39,
+      "expected_answer": "Vaios has demonstrated leadership in high-impact research through: leading research that resulted in ICML 2025 publication (UNOT), supervising 20+ Master's theses at TU Berlin, having extensive postdoctoral experience across four countries and top institutions (WIAS Berlin, TU Berlin, Brown University, Harvard, MPI Leipzig), achieving a Spherical Profile Score of 54/60 indicating exceptional balance across Breadth, Depth, Connectivity, Balance, Innovation, and Impact. His work style is described as mission-driven, thriving in passionate teams working on challenging problems at the intersection of mathematical beauty and practical impact.",
+      "category": "profile_research_fit",
+      "difficulty": "medium",
+      "source": "profile"
+    },
+    {
+      "id": 40,
+      "expected_answer": "Vaios combines deep expertise in Stochastic Analysis & McKean-Vlasov Equations with practical experience in Diffusion Models & Score-Based Methods. His research on Large Deviation Principles and Brownian Motion provides the probabilistic foundations essential for diffusion models, while his hands-on experience training LLMs, fine-tuning models up to 32B parameters, and developing generative models gives him the practical implementation skills. This rare combination of rigorous mathematical foundations in stochastic processes with cutting-edge ML implementation experience makes him uniquely positioned to advance both the theoretical understanding and practical applications of diffusion models.",
+      "category": "profile_research_fit",
+      "difficulty": "hard",
+      "source": "profile"
+    }
+  ]
+}

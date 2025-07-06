@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
 Comprehensive test of Interactive CV Agent using the full QA test set.
-Uses the blueprint-powered agent with semantic intelligence.
+Uses the embedding-first agent with 3 unified tools.
 """
 
 import json
 import random
 import sys
+import os
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 import time
@@ -25,10 +26,12 @@ class ComprehensiveAgentEvaluator:
     def __init__(self):
         """Initialize the evaluator with agent and judge."""
         print("🚀 Initializing Comprehensive Agent Evaluator...")
-        print("🔧 Using Interactive CV Agent (83+ blueprint-generated tools with semantic intelligence)")
+        
+        print("🎯 Using Embedding-First Agent (3 unified tools with semantic search)")
+        self.agent_name = "Embedding-First Agent"
         
         self.agent = InteractiveCVAgent()
-        self.agent_name = "Interactive CV Agent"
+        
         self.judge = JudgeAgent()
         
         # Load comprehensive test set

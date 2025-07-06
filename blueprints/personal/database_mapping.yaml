@@ -1,13 +1,14 @@
-# Personal Notes Database Mapping Blueprint
-# Defines how extracted personal note metadata maps to database entities and relationships
+# Personal Notes Database Mapping Blueprint - ENHANCED
+# Enhanced version with better temporal handling and search optimization
+# Version 2.0
 
 metadata:
-  name: "Personal Notes Database Mapping"
-  version: "1.0"
-  description: "Maps personal note metadata to database schema"
+  name: "Personal Notes Database Mapping - Enhanced"
+  version: "2.0"
+  description: "Enhanced mapping with temporal search optimization"
   document_type: "chronicle"
 
-# Document table mapping
+# Document table mapping with enhanced temporal fields
 document_mapping:
   table: "chronicle_documents"
   id_prefix: "chronicle"
@@ -16,6 +17,48 @@ document_mapping:
     title: "title"
     date: "date"
     note_type: "note_type"
+  
+  # NEW: Additional temporal indexes for better search
+  temporal_indexes:
+    - field: "date"
+      type: "DATE"
+      index: true
+    - field: "week_number"
+      type: "TEXT"
+      computed: "strftime('%Y-W%W', date)"
+      index: true
+    - field: "month"
+      type: "TEXT"
+      computed: "strftime('%Y-%m', date)"
+      index: true
+    - field: "year"
+      type: "INTEGER"
+      computed: "CAST(strftime('%Y', date) AS INTEGER)"
+      index: true
+  
+  # NEW: Date parsing rules
+  date_parsing:
+    daily_note_patterns:
+      - pattern: "\\d{4}-\\d{2}-\\d{2}"  # 2025-06-27
+        format: "YYYY-MM-DD"
+      - pattern: "Daily Note - (.+)"
+        extract: "date_from_title"
+    
+    weekly_note_patterns:
+      - pattern: "(\\d{4})-W(\\d{2})"  # 2025-W26
+        format: "YYYY-W##"
+        derive_dates:
+          week_start: "date of Monday in week"
+          week_end: "date of Sunday in week"
+      - pattern: "Weekly Note - Week (\\d+) (\\d{4})"
+        format: "Week ## YYYY"
+    
+    monthly_note_patterns:
+      - pattern: "(\\d{4})-(\\d{2})"  # 2025-06
+        format: "YYYY-MM"
+        derive_dates:
+          month_start: "first day of month"
+          month_end: "last day of month"
 
 # Entity mappings - how metadata fields map to database entities
 entity_mappings:
@@ -25,21 +68,35 @@ entity_mappings:
     entity_type: "topic"
     relationship_type: "discusses"
     category_override: "general"  # Generic topics
+    # NEW: Enable semantic search on topics
+    enable_embeddings: true
     
   projects:
     target_table: "projects"
     entity_type: "project"
     relationship_type: "part_of"
+    # NEW: Track project timelines
+    extract_dates: true
     
   people:
     target_table: "people"
     entity_type: "person"
     relationship_type: "mentions"
+    # NEW: Name normalization rules
+    normalization:
+      - trim_whitespace: true
+      - title_case: true
+      - remove_titles: ["Dr.", "Prof.", "Mr.", "Ms."]
     
   institutions:
     target_table: "institutions"
     entity_type: "institution"
     relationship_type: "affiliated_with"
+    # NEW: Institution name variations
+    aliases:
+      "TU Berlin": ["Technische Universität Berlin", "Technical University Berlin"]
+      "WIAS": ["Weierstrass Institute", "WIAS Berlin"]
+      "Harvard": ["Harvard University", "Harvard SEAS", "Kempner Institute"]
     
   methods:
     target_table: "methods"
@@ -52,6 +109,13 @@ entity_mappings:
     entity_type: "method"
     relationship_type: "uses_method"
     category_override: "tool"
+    # NEW: Common tool mappings
+    common_tools:
+      programming_languages: ["Python", "JavaScript", "TypeScript", "Rust", "Go"]
+      ml_frameworks: ["PyTorch", "TensorFlow", "JAX", "scikit-learn"]
+      web_frameworks: ["React", "Vue", "Django", "FastAPI", "Flask"]
+      databases: ["PostgreSQL", "MySQL", "SQLite", "MongoDB", "Redis"]
+      tools: ["Docker", "Kubernetes", "Git", "GitHub", "VS Code"]
     
   # Work activity mappings - all stored as topics with specific categories
   accomplishments:
@@ -59,12 +123,14 @@ entity_mappings:
     entity_type: "topic"
     relationship_type: "accomplished"
     category_override: "accomplishment"
+    # NEW: Extract metrics from accomplishments
+    extract_metrics: true
     
   insights:
     target_table: "topics"
     entity_type: "topic"
     relationship_type: "discovered"
-    category_override: "insight"
+    category_override: "research_insight"  # Align with academic schema
     
   learning:
     target_table: "topics"
@@ -83,13 +149,38 @@ entity_mappings:
     entity_type: "topic"
     relationship_type: "plans"
     category_override: "future_work"
+    # NEW: Track completion status
+    track_completion: true
     
   # Papers referenced
   papers:
     target_table: "topics"
     entity_type: "topic"
     relationship_type: "references"
-    category_override: "paper"
+    category_override: "paper_reference"
+    # NEW: Try to link to academic_documents
+    cross_reference: "academic_documents.title"
+
+# NEW: Temporal relationship mappings
+temporal_relationships:
+  # Projects often span multiple days/weeks
+  project_timeline:
+    source: "projects"
+    temporal_fields: ["start_date", "end_date"]
+    infer_from_mentions: true
+  
+  # Track when insights occurred
+  insight_timing:
+    source: "insights"
+    timestamp_field: "discovered_date"
+    default_to_document_date: true
+  
+  # Future work tracking
+  future_work_tracking:
+    source: "future_work"
+    planned_date_field: "planned_for"
+    completion_date_field: "completed_on"
+    status_field: "status"
 
 # Special handling rules
 special_handling:
@@ -108,11 +199,23 @@ special_handling:
     - "future_work"
     - "papers"
     
-  # Metrics are handled specially (not implemented yet)
-  metrics_handling:
-    target_table: "topics"
-    relationship_type: "measured"
-    category_override: "metric"
+  # NEW: Metrics extraction patterns
+  metrics_extraction:
+    patterns:
+      percentage: "(\\d+(?:\\.\\d+)?%)\\s+(.+)"
+      count: "(\\d+)\\s+(\\w+)\\s+(?:of|in|for)\\s+(.+)"
+      time: "(\\d+(?:\\.\\d+)?)\\s+(hours?|minutes?|days?)\\s+(.+)"
+      comparison: "(.+)\\s+(\\d+x|\\d+%)\\s+(?:faster|slower|better|worse)\\s+than\\s+(.+)"
+    
+    storage:
+      target_table: "topics"
+      relationship_type: "measured"
+      category_override: "metric"
+      metadata_fields:
+        - value
+        - unit
+        - context
+        - comparison_baseline
 
 # Relationship confidence scores
 relationship_confidence:
@@ -127,25 +230,54 @@ relationship_confidence:
   mentions: 0.5         # People mentions vary in importance
   references: 0.8       # Paper references are explicit
   affiliated_with: 0.6  # Institution affiliations
+  measured: 0.9         # Metrics are explicit
+
+# NEW: Search optimization hints
+search_optimization:
+  temporal_queries:
+    index_strategy: "Use date, week_number, month indexes"
+    fallback_order:
+      1: "Exact date match"
+      2: "Date range (±3 days)"
+      3: "Week containing date"
+      4: "Month containing date"
+    
+  project_queries:
+    index_strategy: "Use project name index with temporal join"
+    include_related: ["accomplishments", "challenges", "tools"]
+    
+  cross_domain_queries:
+    strategy: "Join on common topics between chronicle and academic documents"
+    weight_by: "relationship confidence and temporal proximity"
 
 # Category-specific instructions
 category_instructions:
   accomplishment:
     description: "Personal achievements and completed work items"
     focus: "Concrete deliverables and milestones"
+    search_keywords: ["completed", "finished", "achieved", "built", "implemented"]
     
-  insight:
+  research_insight:
     description: "Key discoveries, breakthroughs, and realizations"
     focus: "Novel understanding and connections"
+    search_keywords: ["discovered", "realized", "insight", "breakthrough", "found that"]
     
   learning:
     description: "New knowledge, skills, and concepts acquired"
     focus: "Educational and skill development progress"
+    search_keywords: ["learned", "studied", "understood", "mastered", "explored"]
     
   challenge:
     description: "Problems faced, obstacles encountered"
     focus: "Difficulties and their potential solutions"
+    search_keywords: ["challenge", "problem", "issue", "difficulty", "struggled with"]
     
   future_work:
     description: "Planned tasks and research directions"
     focus: "Next steps and future goals"
+    search_keywords: ["plan to", "will", "todo", "next", "future", "upcoming"]
+    
+  metric:
+    description: "Quantitative measurements and comparisons"
+    focus: "Numbers, percentages, and performance indicators"
+    search_keywords: ["measured", "achieved", "performance", "rate", "score"]

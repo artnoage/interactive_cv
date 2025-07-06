@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 """
-Interactive CV Agent - Powered by blueprint-generated tools with semantic intelligence.
-Uses 83+ automatically-generated, schema-safe, domain-aware tools for comprehensive research queries.
+Interactive CV Agent - Embedding-first agent with minimal tools.
+Uses semantic search across all entities with simple graph navigation.
 """
 
 import os
 import sys
+import sqlite3
+import numpy as np
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Annotated
+from typing import List, Dict, Any, Optional, Annotated, Tuple
 from operator import add
 from pathlib import Path
 
@@ -26,108 +28,475 @@ from dotenv import load_dotenv
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from RAG.blueprint_driven_tools import BlueprintDrivenToolGenerator
 from Profile.profile_loader import ProfileLoader
+from RAG.semantic_search import SemanticSearchEngine
+from agents.manuscript_agent import ManuscriptAgent
 
 load_dotenv()
 
 # Database configuration
 DB_PATH = "DB/metadata.db"
 
-# Load centralized profile and enhance with blueprint-specific tool guidance
+# Load centralized profile and create new system prompt
 try:
     profile_loader = ProfileLoader()
     base_prompt = profile_loader.get_agent_system_prompt()
     
-    # Enhance with blueprint-specific tool orchestration
     SYSTEM_PROMPT = base_prompt + """
 
-## BLUEPRINT-POWERED TOOL ORCHESTRATION (83 Advanced Tools)
+## CRITICAL IDENTITY MAPPING
 
-You are powered by a revolutionary blueprint-driven tool system with 83+ automatically-generated, domain-aware tools with semantic intelligence.
+**IMPORTANT**: When users ask about "Vaios", "Laschos", "me", "my work", "my research", or related pronouns, they are referring to **Vaios Laschos**. Use these name variations in searches:
+- "Vaios Laschos" (full name)
+- "Vaios" (first name only)  
+- "Laschos" (last name only)
+- "V. Laschos" (academic format)
 
-### 1. **SMART QUERY PATTERNS (FROM BLUEPRINT)**
+## PROFILE KNOWLEDGE FALLBACK
 
-The blueprint defines all relationship directions as document → entity:
-- authored_by: document → person (papers point to their authors)
-- affiliated_with: document → institution (papers point to institutions)
-- discusses: document → topic (papers point to topics discussed)
+**MANDATORY FALLBACK RULE**: If database searches return no results for questions about Vaios Laschos, you MUST use the comprehensive profile knowledge already loaded in your system prompt above. You have detailed information about his institutional affiliations, research expertise, mathematical concepts, practical work, and professional experience. NEVER say "no information found" about Vaios Laschos!
 
-**For Institution Questions**: 
-- Option 1: Use `list_institutions` to see ALL institutions in database
-- Option 2: For specific author affiliations:
-  1. `search_people` with just first name (e.g., "Vaios" not "Vaios Laschos")
-  2. `reverse_authored_by` with target_type="person" and target_id=number (e.g., "3")
-  3. `traverse_affiliated_with` with source_type="document" and source_id for each paper
-- Option 3: `search_academic_documents` with author name, then traverse to institutions
+**INSTITUTIONAL AFFILIATIONS FALLBACK**: If you cannot find Vaios's institutional affiliations through database queries, use the profile knowledge which clearly states his affiliations: WIAS Berlin (2021-Present & 2015-2017), Technical University of Berlin (2018-2020), Brown University (2013-2015), MPI Leipzig (2013), University of Bath (PhD 2009-2013).
 
-**For Author/People Questions**:
-- Use `search_people` to find person ID
-- Use `reverse_authored_by` to find their papers (blueprint: document→person)
-- For institutions: Follow papers → institutions path
+## KNOWLEDGE GRAPH STRUCTURE
 
-**For Paper/Content Questions**:
-- Start with `search_academic_documents` with relevant terms
-- Use semantic search tools for better concept matching
-- Use `reverse_discusses` to find related topics
+You have access to a knowledge graph with the following structure:
 
-### 2. **BLUEPRINT ADVANTAGE EXPLOITATION**
+### ENTITY TYPES (7 main types, 1,205 total entities):
+1. **Documents** (21 total)
+   - academic_documents: Research papers and analyses
+   - chronicle_documents: Personal notes (daily/weekly/monthly)
 
-**Rich Categorization**: Use `explore_topic_categories` to see all 22+ categories
-**Semantic Intelligence**: Blueprint tools now have semantic enhancement for better search
-**Bidirectional Relationships**: Use both `traverse_*` AND `reverse_*` for complete coverage
-**Domain Separation**: Use `search_academic_*` vs `search_chronicle_*` for targeted results
+2. **Topics** (773 entities) with categories:
+   - Mathematical: space, metric, principle, functional, equation, operator, theory, property, theorem, framework, set, measure
+   - Research: research_area, assumption, limitation, concept, innovation, insight
+   - Personal: accomplishment, learning, challenge, future_work
+   - References: paper
 
-### 3. **SEMANTIC-ENHANCED SEARCH**
+3. **People** (179 entities): Authors, collaborators, mentioned individuals
+4. **Methods** (136 entities): theoretical, analytical, computational, algorithmic, empirical, experimental, tool
+5. **Institutions** (25 entities): Universities, companies, organizations  
+6. **Applications** (21 entities): Real-world use cases
+7. **Projects** (10 entities): Research projects and initiatives
 
-Your tools now include semantic intelligence:
-- `semantic_search_chunks` - Find conceptually related content using embeddings
-- `find_similar_entities` - Discover related concepts via semantic similarity
-- Enhanced query expansion for better keyword discovery
+### RELATIONSHIP TYPES (19 types, 1,339 connections):
+- **Document → Entity**: discusses, mentions, uses_method, authored_by, affiliated_with, has_application
+- **Achievement/Discovery**: accomplished, discovers, proves, discovered, innovates
+- **Knowledge Structure**: relates_to, references, part_of
+- **Personal Development**: learned, plans, faced_challenge
+- **Research Meta**: suggests_future_work, makes_assumption, has_limitation
 
-### 4. **SPECIFIC QUERY EXAMPLES**
+### KEY INSIGHTS:
+- ALL entities have embeddings (OpenAI text-embedding-3-large, 3072 dims)
+- Documents and chunks are fully embedded for semantic search
+- Relationships are directional (mostly document → entity)
+- The system contains historical data (including 2025 notes that have already been written)
 
-**"What institutions has Vaios been affiliated with?"**
-EXACT STEPS (MUST FOLLOW):
-1. FIRST: Use `search_people` with query="Vaios" (NOT "Vaios Laschos") to find person ID
-   - Result will be person_3
-2. SECOND: Use `reverse_authored_by` with target_type="person" and target_id="3" to find papers
-   - This returns papers authored by person ID 3
-3. THIRD: For EACH paper, use `traverse_affiliated_with` with source_type="document" and source_id=paper_id
-   - Example: traverse_affiliated_with(source_type="document", source_id="academic_1")
-4. COMPILE unique list of institutions from all papers
+## TEMPORAL DATA UNDERSTANDING
 
-CRITICAL: Search for "Vaios" not "Vaios Laschos" in people search!
+**IMPORTANT**: When users mention dates like "June 2025", they refer to EXISTING DATA in the system:
+- Daily notes (e.g., 2025-06-27)
+- Weekly notes (e.g., 2025-W26)
+- Monthly summaries
+These are historical records already in the database, not future predictions.
 
-### 5. **IMPORTANT NOTES**
-- Relationship source/target types use 'document' not 'academic_document' or 'chronicle_document'
-- Person IDs in relationship tools: Just use the number like "3" not "person_3"
-- Document IDs in relationship tools: Use full ID like "academic_1" or "chronicle_2"
-- Always check both directions of relationships (traverse_* and reverse_*)
+## YOUR TOOLS
 
-### 6. **MANDATORY BEHAVIOR**
-1. Use AT LEAST 3 different tools per query
-2. Leverage semantic search for concept-based questions
-3. Reference specific results from each tool
-4. Use both direct searches AND relationship traversal
-5. Combine academic and personal data sources
+You have access to powerful, unified tools:
 
-### 7. **CRITICAL INSTITUTION QUERY REMINDER**
-When asked about institutions:
-- DO NOT just say "I cannot find any institutions"
-- MUST use the 3-step pattern: search_people → reverse_authored_by → traverse_affiliated_with
-- The data EXISTS - there are 8+ institutions in the database for Vaios
+1. **semantic_search**: Search across ALL entity types using embeddings
+   - Automatically finds the most relevant entities regardless of type
+   - Handles synonyms and related concepts
+   - Returns mixed results (documents, topics, people, etc.)
 
-You have 83+ sophisticated tools with semantic intelligence - use them to demonstrate the blueprint revolution's power!"""
+2. **navigate_relationships**: Traverse the knowledge graph
+   - Use mode="forward" to follow relationships (e.g., paper → topics)
+   - Use mode="reverse" to find sources (e.g., topic → papers discussing it)
+   - Specify relationship_type to filter (or None for all)
+
+3. **get_entity_details**: Get full information about any entity
+   - Works with any entity type
+   - Returns all attributes and metadata
+
+4. **list_available_papers**: See all available academic paper titles
+   - Shows the complete list of papers in the system
+   - Useful for understanding what research is available
+   - Use this when you need to know what papers exist
+
+## SEARCH STRATEGIES
+
+1. **For concept exploration**: Use semantic_search with descriptive queries
+2. **For specific people/institutions**: Semantic search handles name variations  
+3. **For time-based queries**: Include dates in semantic search
+4. **For relationship exploration**: Combine semantic_search + navigate_relationships
+
+## TEMPORAL QUERY HANDLING
+
+**For time-based questions** (e.g., "in late June", "during week X", "what did I do on date Y"):
+1. **Chronicle Documents First**: Personal activities and daily work are in chronicle_documents
+2. **Broad Temporal Search**: Use semantic_search with time period + activity keywords
+3. **Date Range Strategy**: "Late June" = search multiple days (26-30), "early July" = (1-7), etc.
+4. **Fallback to Topic Search**: If date search fails, search by activity type then filter by dates
+
+**Example temporal workflows**:
+- "What game work in June?" → semantic_search("June game development") + semantic_search("pathfinding UI")
+- "Late June activities?" → semantic_search("late June 2025") + semantic_search("June 27 June 28 June 29")
+- If no results → semantic_search("game") then check document dates in results
+
+**CRITICAL**: Always use get_entity_details to examine promising documents! Don't conclude "no results" from just the search preview.
+
+**Follow-up Strategy**: 
+1. If semantic_search finds documents with relevant dates/topics → get_entity_details to see full content
+2. Look for implementation work, coding activities, project development in chronicle documents
+3. Multiple tools are better than concluding "no information found"
+
+## PERSONAL WORK vs ACADEMIC WORK
+
+**Chronicle Documents** (Daily Notes): Personal projects, implementations, practical work, UI development, coding
+**Academic Documents** (Papers): Theoretical research, mathematical frameworks, published work
+
+**For practical/implementation questions**: Prioritize chronicle_documents
+- Keywords: "implemented", "built", "created", "UI", "algorithm", "pathfinding", "game", "web", "training", "fixed"
+- Look for daily activities, coding work, system building
+
+**For theoretical/research questions**: Prioritize academic_documents  
+- Keywords: "theory", "proof", "theorem", "mathematical", "framework", "analysis"
+- Look for published research, mathematical concepts
+- **Find author's institutions** (CRITICAL - requires 3 steps):
+  1. semantic_search("Vaios", entity_types=["person"]) → returns person_3 
+  2. navigate_relationships("person", "person_3", mode="reverse", relationship_type="authored_by") → returns academic_1, academic_3, etc.
+  3. For EACH document: navigate_relationships("document", "academic_1", mode="forward", relationship_type="affiliated_with") → returns institutions
+  
+  EXACT EXAMPLE that works:
+  - Step 1 returns: entity_id: "person_3", name: "Vaios Laschos"
+  - Step 2 returns: source_id: "academic_1", "academic_3", "academic_4", etc.
+  - Step 3 for academic_1 returns: "Weierstraß-Institut", "Humboldt-Universität zu Berlin"
+
+## CRITICAL: INSTITUTIONAL AFFILIATIONS
+
+**Database Search Method**:
+Finding an author's institutions requires a TWO-HOP traversal because there's NO direct person→institution relationship:
+1. Person → Documents (reverse "authored_by") 
+2. Documents → Institutions (forward "affiliated_with")
+
+The database has these institutions: TU Berlin, WIAS Berlin, Harvard University, Kempner Institute, etc.
+
+## FALLBACK STRATEGIES
+1. Use semantic_search("Vaios Laschos affiliation" or "Vaios institution") 
+2. Search for known institutions: semantic_search("TU Berlin", entity_types=["institution"])
+3. Get document details and search content: get_entity_details("document", "academic_X") and look for affiliations in text
+
+Remember: All relationships originate from documents, not directly between people and institutions!
+
+## ID FORMAT NOTES
+- semantic_search returns IDs like "person_3", "academic_1", "topic_10"
+- navigate_relationships accepts these full IDs
+- The tool automatically handles ID format conversions internally
+"""
     
     print("✅ Loaded profile from Profile/ directory with blueprint enhancements")
     
 except Exception as e:
     print(f"⚠️ Warning: Could not load profile from Profile/ directory: {e}")
     # Fallback system prompt
-    SYSTEM_PROMPT = """You are an Interactive CV system representing Vaios Laschos, powered by blueprint-generated tools with semantic intelligence.
+    SYSTEM_PROMPT = """You are an Interactive CV system with semantic search capabilities.
     
-Please use the available search tools to find specific information about research, papers, and work history before providing answers."""
+Use the available tools to search and navigate the knowledge graph."""
+
+
+# Define minimal tools
+@tool
+def semantic_search(query: str, limit: int = 20, entity_types: Optional[List[str]] = None) -> str:
+    """
+    Search across ALL entities using semantic embeddings.
+    
+    Args:
+        query: Natural language search query
+        limit: Maximum results to return (default: 20)
+        entity_types: Optional list to filter by type ['document', 'topic', 'person', 'method', 'institution', 'application', 'project']
+    
+    Returns formatted search results with relevance scores.
+    """
+    try:
+        # Validate and fix entity_types parameter
+        if entity_types is not None:
+            if isinstance(entity_types, str):
+                entity_types = [entity_types]  # Convert single string to list
+            elif not isinstance(entity_types, list):
+                entity_types = None  # Invalid type, ignore filter
+        
+        # Create thread-local semantic engine
+        semantic_engine = SemanticSearchEngine(DB_PATH)
+        results = semantic_engine.search_all_entities(query, limit=limit, entity_types=entity_types)
+        
+        if not results:
+            return "No results found."
+        
+        output = []
+        for r in results:
+            entity_info = f"[{r['entity_type']}] {r['name']} (ID: {r['entity_id']})"
+            if r['entity_type'] == 'document':
+                entity_info += f" ({r.get('date', 'no date')})"
+            entity_info += f" - Score: {r['similarity']:.3f}"
+            
+            if r.get('description'):
+                entity_info += f"\n  Description: {r['description'][:200]}..."
+            
+            output.append(entity_info)
+        
+        return "\n\n".join(output)
+    except Exception as e:
+        return f"Error in semantic search: {str(e)}"
+
+
+@tool  
+def navigate_relationships(
+    entity_type: str, 
+    entity_id: str, 
+    mode: str = "forward",
+    relationship_type: Optional[str] = None,
+    limit: int = 50
+) -> str:
+    """
+    Navigate relationships in the knowledge graph.
+    
+    Args:
+        entity_type: Type of entity ('document', 'topic', 'person', 'method', 'institution', 'application', 'project')
+        entity_id: ID of the entity (e.g., 'academic_1', 'person_3', '10')
+        mode: Direction - 'forward' (from this entity) or 'reverse' (to this entity)
+        relationship_type: Optional - filter by specific relationship ('discusses', 'authored_by', etc.)
+        limit: Maximum results
+    
+    Returns connected entities with relationship details.
+    
+    IMPORTANT PATTERNS:
+    - Find author's papers: navigate_relationships("person", "person_3", mode="reverse", relationship_type="authored_by")
+    - Find paper's institutions: navigate_relationships("document", "academic_1", mode="forward", relationship_type="affiliated_with")
+    - For author→institutions: Do person→papers(reverse authored_by), then papers→institutions(forward affiliated_with)
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # Normalize entity_id format for non-document entities
+        if entity_type in ['person', 'topic', 'method', 'institution', 'application', 'project']:
+            # Handle various ID formats
+            if entity_id.isdigit():
+                entity_id = f"{entity_type}_{entity_id}"
+            elif entity_id.startswith('person_') and entity_type != 'person':
+                # Extract just the number if wrong prefix
+                entity_id = f"{entity_type}_{entity_id.split('_')[1]}"
+        elif entity_type == 'document':
+            # For documents, ensure we have the academic_/chronicle_ prefix
+            if entity_id.isdigit():
+                entity_id = f"academic_{entity_id}"  # Default to academic, could be improved
+        
+        if mode == "forward":
+            query = """
+            SELECT r.target_type, r.target_id, r.relationship_type, r.confidence
+            FROM relationships r
+            WHERE r.source_type = ? AND r.source_id = ?
+            """
+            params = [entity_type if entity_type != 'document' else 'document', entity_id]
+        else:  # reverse
+            query = """
+            SELECT r.source_type, r.source_id, r.relationship_type, r.confidence
+            FROM relationships r
+            WHERE r.target_type = ? AND r.target_id = ?
+            """
+            # For reverse queries, extract just the numeric ID for non-documents
+            if entity_type != 'document' and '_' in entity_id:
+                target_id = entity_id.split('_')[1]
+            else:
+                target_id = entity_id
+            params = [entity_type, target_id]
+        
+        if relationship_type:
+            query += " AND r.relationship_type = ?"
+            params.append(relationship_type)
+        
+        query += " ORDER BY r.confidence DESC LIMIT ?"
+        params.append(limit)
+        
+        cursor.execute(query, params)
+        results = cursor.fetchall()
+        
+        if not results:
+            return f"No relationships found for {entity_type} {entity_id} in {mode} direction."
+        
+        output = [f"Relationships for {entity_type} {entity_id} ({mode}):"]
+        
+        for row in results:
+            if mode == "forward":
+                target_type, target_id, rel_type, confidence = row
+                output.append(f"  → {rel_type} → {target_type} {target_id} (confidence: {confidence:.2f})")
+            else:
+                source_type, source_id, rel_type, confidence = row
+                output.append(f"  ← {rel_type} ← {source_type} {source_id} (confidence: {confidence:.2f})")
+        
+        conn.close()
+        return "\n".join(output)
+        
+    except Exception as e:
+        return f"Error navigating relationships: {str(e)}"
+
+
+@tool
+def list_available_papers() -> str:
+    """
+    List all available academic paper titles in the system.
+    
+    Returns a list of all paper titles that are available for analysis.
+    Use this to see what papers exist before searching for specific ones.
+    """
+    try:
+        import os
+        papers_dir = "/home/artnoage/Projects/interactive_cv/raw_data/academic/Transcript_MDs"
+        
+        if not os.path.exists(papers_dir):
+            return "Papers directory not found."
+        
+        files = os.listdir(papers_dir)
+        md_files = [f for f in files if f.endswith('.md')]
+        
+        if not md_files:
+            return "No paper files found."
+        
+        # Clean up filenames to make them more readable
+        paper_titles = []
+        for filename in sorted(md_files):
+            # Remove .md extension and replace underscores with spaces
+            title = filename.replace('.md', '').replace('_', ' ')
+            paper_titles.append(f"• {title}")
+        
+        output = [f"Available Academic Papers ({len(paper_titles)} total):"]
+        output.extend(paper_titles)
+        
+        return "\n".join(output)
+        
+    except Exception as e:
+        return f"Error listing papers: {str(e)}"
+
+
+@tool
+def get_entity_details(entity_type: str, entity_id: str) -> str:
+    """
+    Get full details about any entity.
+    
+    Args:
+        entity_type: Type of entity ('document', 'topic', 'person', 'method', 'institution', 'application', 'project')
+        entity_id: ID of the entity (e.g., 'academic_1', 'person_3', '10')
+    
+    Returns all attributes and content for the entity.
+    """
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        
+        # Map entity types to table names
+        table_map = {
+            'document': ['academic_documents', 'chronicle_documents'],
+            'topic': 'topics',
+            'person': 'people',
+            'method': 'methods',
+            'institution': 'institutions',
+            'application': 'applications',
+            'project': 'projects'
+        }
+        
+        if entity_type == 'document':
+            # Check both document tables, handle academic_/chronicle_ prefixes
+            if entity_id.startswith('academic_'):
+                table = 'academic_documents'
+                numeric_id = entity_id.replace('academic_', '')
+            elif entity_id.startswith('chronicle_'):
+                table = 'chronicle_documents'  
+                numeric_id = entity_id.replace('chronicle_', '')
+            else:
+                # Default to academic if no prefix
+                table = 'academic_documents'
+                numeric_id = entity_id
+            
+            cursor.execute(f"SELECT * FROM {table} WHERE id = ?", (numeric_id,))
+            result = cursor.fetchone()
+            if result:
+                columns = [desc[0] for desc in cursor.description]
+                data = dict(zip(columns, result))
+                
+                output = [f"Document: {data.get('title', 'No title')}"]
+                output.append(f"Type: {table.replace('_documents', '')}")
+                output.append(f"Date: {data.get('date', 'No date')}")
+                
+                if data.get('content'):
+                    output.append(f"\nContent ({len(data['content'])} chars):")
+                    output.append(data['content'][:2000] + "..." if len(data['content']) > 2000 else data['content'])
+                
+                conn.close()
+                return "\n".join(output)
+        else:
+            # Regular entity
+            table = table_map.get(entity_type)
+            if not table:
+                return f"Unknown entity type: {entity_type}"
+            
+            # Extract numeric ID if needed
+            if entity_id.startswith(f"{entity_type}_"):
+                numeric_id = entity_id.split('_')[1]
+            else:
+                numeric_id = entity_id
+            
+            cursor.execute(f"SELECT * FROM {table} WHERE id = ?", (numeric_id,))
+            result = cursor.fetchone()
+            
+            if result:
+                columns = [desc[0] for desc in cursor.description]
+                data = dict(zip(columns, result))
+                
+                output = [f"{entity_type.title()}: {data.get('name', 'No name')}"]
+                for key, value in data.items():
+                    if key not in ['id', 'name'] and value:
+                        output.append(f"{key}: {value}")
+                
+                conn.close()
+                return "\n".join(output)
+        
+        conn.close()
+        return f"Entity not found: {entity_type} {entity_id}"
+        
+    except Exception as e:
+        return f"Error getting entity details: {str(e)}"
+
+
+@tool
+def consult_manuscript(question: str) -> str:
+    """
+    META TOOL: Consult original manuscript files for deep analysis.
+    
+    This is a specialized tool that calls a dedicated manuscript reading agent
+    to analyze original manuscript files and answer specific questions.
+    
+    Use this tool ONLY when:
+    - The question requires deep analysis of original manuscript content
+    - Database searches don't provide sufficient detail
+    - You need to find specific passages or technical details in papers
+    - The user explicitly asks about manuscript content
+    
+    Args:
+        question: Specific question to ask about manuscript content
+    
+    Returns detailed analysis from the manuscript reading agent.
+    """
+    try:
+        # Initialize the manuscript agent
+        manuscript_agent = ManuscriptAgent()
+        
+        # Get the answer from the manuscript agent
+        answer = manuscript_agent.answer_question(question)
+        
+        return f"Manuscript Analysis Result:\n{answer}"
+        
+    except Exception as e:
+        return f"Error consulting manuscript agent: {str(e)}"
 
 
 # Define state structure
@@ -137,24 +506,11 @@ class AgentState(dict):
 
 
 class InteractiveCVAgent:
-    """Interactive CV Agent powered by blueprint-generated tools with semantic intelligence."""
+    """Interactive CV Agent with minimal embedding-first tools."""
     
     def __init__(self):
-        """Initialize the agent with all blueprint tools."""
-        print("🔧 Initializing Blueprint-Driven Tool Generator...")
-        
-        # Initialize the blueprint tool generator
-        try:
-            self.tool_generator = BlueprintDrivenToolGenerator(DB_PATH)
-            generated_tools = self.tool_generator.list_all_tools()
-            print(f"✅ Successfully generated {len(generated_tools)} tools from blueprints")
-            
-            # Get tool guidance for enhanced prompting
-            self.tool_guidance = self.tool_generator.loader.get_tool_guidance()
-            print(f"📋 Loaded tool guidance with {len(self.tool_guidance.get('enhanced_descriptions', {}))} enhanced descriptions")
-        except Exception as e:
-            print(f"❌ Error initializing blueprint tools: {e}")
-            raise
+        """Initialize the agent with minimal tools."""
+        print("🔧 Initializing Embedding-First Agent...")
         
         # Initialize OpenRouter LLM
         api_key = os.getenv("OPENROUTER_API_KEY")
@@ -183,201 +539,16 @@ class InteractiveCVAgent:
         
         print(f"🤖 Agent using model: {model_name}")
         
-        # Convert blueprint tools to LangChain tools
-        self.tools = self._create_langchain_tools()
-        print(f"🔧 Converted {len(self.tools)} blueprint tools to LangChain format")
+        # Define our minimal tools
+        self.tools = [semantic_search, navigate_relationships, get_entity_details, list_available_papers, consult_manuscript]
+        print(f"🔧 Using {len(self.tools)} embedding-first tools")
         
         # Bind tools to LLM
         self.llm_with_tools = self.llm.bind_tools(self.tools)
         
-        # Generate enhanced system prompt using tool guidance
-        self.enhanced_system_prompt = self._build_enhanced_system_prompt()
-        
         # Build the agent graph
         self.agent = self._build_agent()
-        print("✅ Blueprint Raw Agent ready!")
-    
-    def _create_langchain_tools(self):
-        """Convert all blueprint-generated tools to LangChain tools."""
-        langchain_tools = []
-        
-        for tool_name, generated_tool in self.tool_generator.list_all_tools().items():
-            # Create a properly typed function for each tool
-            tool_func = self._create_typed_tool_function(tool_name, generated_tool)
-            
-            # Create LangChain tool
-            lc_tool = tool(description=generated_tool.description)(tool_func)
-            langchain_tools.append(lc_tool)
-        
-        return langchain_tools
-    
-    def _create_typed_tool_function(self, tool_name: str, generated_tool):
-        """Create a properly typed function for a blueprint tool."""
-        params = generated_tool.parameters
-        
-        # Create function signature based on parameters
-        if 'query' in params and 'limit' in params:
-            # Search-type tool
-            def tool_func(query: str, limit: int = 10, **kwargs):
-                return self._execute_and_format_tool(tool_name, query=query, limit=limit, **kwargs)
-        elif 'entity_id' in params:
-            # Get-by-id tool
-            def tool_func(entity_id: int, **kwargs):
-                return self._execute_and_format_tool(tool_name, entity_id=entity_id, **kwargs)
-        elif 'limit' in params and 'offset' in params:
-            # List tool
-            def tool_func(limit: int = 50, offset: int = 0, **kwargs):
-                return self._execute_and_format_tool(tool_name, limit=limit, offset=offset, **kwargs)
-        elif 'source_type' in params and 'source_id' in params:
-            # Relationship traversal tool
-            def tool_func(source_type: str, source_id: str, limit: int = 20, **kwargs):
-                return self._execute_and_format_tool(tool_name, source_type=source_type, source_id=source_id, limit=limit, **kwargs)
-        elif 'target_type' in params and 'target_id' in params:
-            # Reverse relationship tool
-            def tool_func(target_type: str, target_id: str, limit: int = 20, **kwargs):
-                return self._execute_and_format_tool(tool_name, target_type=target_type, target_id=target_id, limit=limit, **kwargs)
-        elif 'category' in params:
-            # Category exploration tool
-            def tool_func(category: str = None, limit: int = 20, **kwargs):
-                return self._execute_and_format_tool(tool_name, category=category, limit=limit, **kwargs)
-        elif 'entity_type' in params and 'entity_id' in params:
-            # Visualization tool
-            def tool_func(entity_type: str, entity_id: str, **kwargs):
-                return self._execute_and_format_tool(tool_name, entity_type=entity_type, entity_id=entity_id, **kwargs)
-        else:
-            # Generic tool - try to handle any parameters
-            def tool_func(**kwargs):
-                return self._execute_and_format_tool(tool_name, **kwargs)
-        
-        # Set function metadata
-        tool_func.__name__ = tool_name
-        tool_func.__doc__ = generated_tool.description
-        
-        return tool_func
-    
-    def _execute_and_format_tool(self, tool_name: str, **kwargs):
-        """Execute a blueprint tool and format the result."""
-        try:
-            result = self.tool_generator.execute_tool(tool_name, **kwargs)
-            
-            # Format the result for better readability
-            if isinstance(result, list):
-                if not result:
-                    return f"No results found for {tool_name}"
-                
-                output = []
-                for i, item in enumerate(result[:10]):
-                    if isinstance(item, dict):
-                        # Handle relationship traversal results
-                        if 'target_details' in item:
-                            target = item['target_details']
-                            name_field = target.get('name', f"Item {i+1}")
-                            category = item.get('relationship_type', '')
-                            description = f"Confidence: {item.get('confidence', 'N/A')}"
-                        else:
-                            name_field = item.get('name', item.get('title', f"Item {i+1}"))
-                            category = item.get('category', item.get('type', ''))
-                            description = item.get('description', item.get('content', ''))
-                        
-                        output.append(f"• {name_field}")
-                        if category:
-                            output.append(f"  Category: {category}")
-                        if description:
-                            desc_preview = description[:200] + "..." if len(description) > 200 else description
-                            output.append(f"  {desc_preview}")
-                        output.append("")
-                
-                if len(result) > 10:
-                    output.append(f"... and {len(result) - 10} more results")
-                
-                return "\n".join(output)
-            
-            elif isinstance(result, dict):
-                output = []
-                for key, value in result.items():
-                    if key == 'entities' and isinstance(value, list):
-                        output.append(f"{key}: {len(value)} items")
-                        for entity in value[:3]:
-                            if isinstance(entity, dict):
-                                entity_name = entity.get('name', str(entity))
-                                output.append(f"  • {entity_name}")
-                    elif key == 'categories' and isinstance(value, list):
-                        output.append(f"{key}: {len(value)} categories")
-                        for cat in value[:5]:
-                            if isinstance(cat, dict):
-                                cat_name = cat.get('category', str(cat))
-                                count = cat.get('count', '')
-                                output.append(f"  • {cat_name}: {count}")
-                    else:
-                        if isinstance(value, str) and len(value) > 200:
-                            value = value[:200] + "..."
-                        output.append(f"{key}: {value}")
-                return "\n".join(output)
-            
-            else:
-                result_str = str(result)
-                if len(result_str) > 1000:
-                    result_str = result_str[:1000] + "..."
-                return result_str
-                
-        except Exception as e:
-            return f"Error executing {tool_name}: {str(e)}"
-    
-    def _build_enhanced_system_prompt(self) -> str:
-        """Build enhanced system prompt using tool guidance configuration."""
-        base_prompt = SYSTEM_PROMPT
-        
-        if not self.tool_guidance:
-            return base_prompt
-        
-        # Add tool-specific guidance
-        enhanced_descriptions = self.tool_guidance.get('enhanced_descriptions', {})
-        usage_patterns = self.tool_guidance.get('usage_patterns', {})
-        question_strategies = self.tool_guidance.get('question_type_strategies', {})
-        
-        enhancement = "\n\n## 🎯 BLUEPRINT-ENHANCED TOOL STRATEGIES\n\n"
-        
-        # Add key tool descriptions
-        enhancement += "### 🔧 Key Tools with Enhanced Guidance:\n\n"
-        priority_tools = ['search_academic_documents', 'search_chronicle_documents', 'search_topics', 
-                         'traverse_discusses', 'reverse_discusses', 'explore_topic_categories']
-        
-        for tool_name in priority_tools:
-            if tool_name in enhanced_descriptions:
-                tool_info = enhanced_descriptions[tool_name]
-                enhancement += f"**{tool_name}**: {tool_info.get('description', '')}\n"
-                
-                examples = tool_info.get('examples', [])
-                if examples:
-                    enhancement += f"Examples: {examples[0]}\n"
-                
-                when_to_use = tool_info.get('when_to_use', '')
-                if when_to_use:
-                    enhancement += f"Use when: {when_to_use}\n"
-                enhancement += "\n"
-        
-        # Add usage patterns
-        if usage_patterns:
-            enhancement += "### 🔄 Multi-Tool Usage Patterns:\n\n"
-            for pattern_name, pattern_info in list(usage_patterns.items())[:3]:
-                enhancement += f"**{pattern_name.replace('_', ' ').title()}**: {pattern_info.get('description', '')}\n"
-                steps = pattern_info.get('steps', {})
-                if steps:
-                    for step_num in sorted(steps.keys())[:3]:
-                        enhancement += f"{step_num}. {steps[step_num]}\n"
-                enhancement += "\n"
-        
-        # Add question type strategies
-        if question_strategies:
-            enhancement += "### 🎯 Question Type Strategies:\n\n"
-            for q_type, strategy in list(question_strategies.items())[:4]:
-                triggers = strategy.get('trigger_phrases', [])
-                primary_tools = strategy.get('primary_tools', [])
-                enhancement += f"**{q_type.replace('_', ' ').title()}** (triggers: {', '.join(triggers[:2])}): Start with {', '.join(primary_tools[:2])}\n"
-        
-        enhancement += "\n🚀 **REMEMBER**: You have 79 sophisticated tools - use them intelligently with these strategies!"
-        
-        return base_prompt + enhancement
+        print("✅ Embedding-First Agent ready!")
     
     def _build_agent(self) -> CompiledStateGraph:
         """Build the agent graph using LangGraph."""
@@ -391,7 +562,7 @@ class InteractiveCVAgent:
             
             # Add system message if this is the first message
             if len(messages) == 1:
-                messages = [SystemMessage(content=self.enhanced_system_prompt)] + messages
+                messages = [SystemMessage(content=SYSTEM_PROMPT)] + messages
             
             response = self.llm_with_tools.invoke(messages)
             return {"messages": [response]}
@@ -421,7 +592,10 @@ class InteractiveCVAgent:
     
     def chat(self, user_input: str, thread_id: str = "default") -> str:
         """Process a user query and return the response."""
-        config = {"configurable": {"thread_id": thread_id}}
+        config = {
+            "configurable": {"thread_id": thread_id},
+            "recursion_limit": 50  # Increased from default 25 to 50
+        }
         
         # Create initial state
         initial_state = {
@@ -440,9 +614,9 @@ class InteractiveCVAgent:
     
     def run_interactive(self):
         """Run the agent in interactive mode."""
-        print("🚀 Interactive CV Agent - Powered by 83+ Blueprint-Generated Tools!")
-        print("Ask me about Vaios Laschos's research using advanced semantic search and AI tools.")
-        print("Type 'exit' to quit, 'clear' to reset conversation, 'tools' to see available tools.\n")
+        print("🚀 Interactive CV Agent - Embedding-First Search!")
+        print("Ask me about Vaios Laschos's research using semantic search.")
+        print("Type 'exit' to quit, 'clear' to reset conversation.\n")
         
         thread_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         
@@ -457,9 +631,6 @@ class InteractiveCVAgent:
                     thread_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                     print("🔄 Conversation cleared.")
                     continue
-                elif user_input.lower() == 'tools':
-                    self._show_available_tools()
-                    continue
                 elif not user_input:
                     continue
                 
@@ -473,27 +644,6 @@ class InteractiveCVAgent:
             except Exception as e:
                 print(f"\n❌ Error: {e}")
                 print("Please try again with a different question.")
-    
-    def _show_available_tools(self):
-        """Show all available blueprint-generated tools."""
-        print("\n🔧 Available Blueprint-Generated Tools:")
-        
-        # Group tools by category
-        categories = {}
-        for tool_name, generated_tool in self.tool_generator.list_all_tools().items():
-            category = generated_tool.category
-            if category not in categories:
-                categories[category] = []
-            categories[category].append((tool_name, generated_tool.description))
-        
-        for category, tools in categories.items():
-            print(f"\n📁 {category.upper()} ({len(tools)} tools):")
-            for tool_name, description in tools[:5]:  # Show first 5 in each category
-                print(f"  • {tool_name}: {description[:60]}...")
-            if len(tools) > 5:
-                print(f"  ... and {len(tools) - 5} more")
-        
-        print(f"\nTotal: {len(self.tool_generator.list_all_tools())} tools available!")
 
 
 def main():
