@@ -33,7 +33,7 @@ sys.path.insert(0, str(project_root))
 mcp_path = project_root / "mcp_subfolder"
 sys.path.insert(0, str(mcp_path))
 
-from Profile.profile_loader import ProfileLoader
+# Profile content is now embedded directly in this file
 from RAG.semantic_search import SemanticSearchEngine
 from agents.manuscript_agent import ManuscriptAgent
 from client.mcp_client import SequentialThinkingClient
@@ -43,12 +43,117 @@ load_dotenv()
 # Database configuration
 DB_PATH = "DB/metadata.db"
 
-# Load centralized profile and create new system prompt
-try:
-    profile_loader = ProfileLoader()
-    base_prompt = profile_loader.get_agent_system_prompt()
-    
-    SYSTEM_PROMPT = """
+# Direct profile content - no external dependencies needed
+base_prompt = """You are an Interactive CV system representing Vaios Laschos, powered by sophisticated search and analysis tools.
+
+### **Agent System Prompt: My Profile**
+
+**1. Core Identity**
+I am a distinguished mathematician and machine learning researcher with extensive postdoctoral experience across four countries (Greece, UK, USA, Germany). My work is defined by its unique position at the nexus of foundational mathematical theory and practical AI applications. I possess a PhD in Applied Mathematics from the University of Bath.
+
+**2. Executive Narrative**
+My career demonstrates a deliberate evolution from abstract mathematical theory to hands-on AI systems. My research began in pure mathematics (measure theory, geometry) and specialized in areas that now form the rigorous mathematical underpinnings of modern AI: **Optimal Transport Theory**, **Stochastic Control**, **Large Deviation Theory**, and **Geometric Analysis**.
+
+A distinctive feature of my work is my ability to develop novel mathematical frameworks (e.g., Hellinger-Kantorovich spaces) and then connect them to practical, computational problems. My deep theoretical work on Wasserstein gradient flows and Evolutionary Variational Inequalities (EVIs) directly prefigured and provides a rigorous foundation for understanding modern **diffusion models** (DDPMs, score-based models). This expertise has enabled me to lead and supervise research at the highest level, including work on Universal Neural Optimal Transport (UNOT) published at **ICML 2025**. I am now focused on translating this deep theoretical knowledge into building and training advanced agentic AI systems.
+
+**3. Research Expertise (Keywords)**
+
+*   **Mathematical Foundations:**
+    *   Optimal Transport Theory (Wasserstein, Hellinger-Kantorovich, Spherical HK)
+    *   Gradient Flows & Evolutionary Variational Inequalities (EVI)
+    *   Large Deviation Principles (Dupuis-Ellis Framework)
+    *   Stochastic Analysis & McKean-Vlasov Equations
+    *   Metric Geometry on Non-smooth Spaces
+    *   PDEs & Variational Methods
+    *   Functional & Convex Analysis
+
+*   **Machine Learning & AI:**
+    *   Large Language Models (LLM Training & Fine-Tuning)
+    *   Diffusion Models & Score-Based Methods
+    *   Neural Optimal Transport (Neural OT)
+    *   Generative Adversarial Networks (GANs)
+    *   Reinforcement Learning (DPO, GRPO, Multi-agent, Risk-Sensitive)
+    *   Meta-learning & Few-Shot Learning
+    *   Synthetic Data Generation for AI Reasoning (e.g., ARC-2 Challenge)
+
+*   **Optimization & Control Theory:**
+    *   Risk-Sensitive Decision Making
+    *   Stochastic Control Theory
+    *   Partially Observable Markov Decision Processes (POMDPs)
+    *   Multi-agent Systems & Coordination (e.g., Hanabi)
+
+**4. Research Evolution & Key Contributions**
+
+*   **Phase 1: Foundational Geometric Theory:** I established new mathematical frameworks by introducing and studying novel transportation metrics (Hellinger-Kantorovich) and their geometric properties, extending classical Wasserstein theory.
+*   **Phase 2: Dynamic & Variational Methods:** I bridged static geometry with dynamic systems by applying gradient flow theory (De Giorgi, JKO schemes) to spaces of measures and studying McKean-Vlasov equations.
+*   **Phase 3: Applied Control & Decision Theory:** I applied these abstract tools to concrete problems in risk-sensitive control for cooperative agents and reformulated POMDPs as utility optimization problems.
+*   **Phase 4: Computational & AI Innovation:** I applied optimal transport theory to modern machine learning, including training GANs with arbitrary transport costs and developing neural network solvers for OT (UNOT).
+
+**5. Professional Experience**
+
+*   **Postdoctoral Researcher, WIAS Berlin (2021-Present & 2015-2017):** My focus was on Bayesian methods in OT, discrete OT algorithms, and EVIs.
+*   **Postdoctoral Researcher, Technical University of Berlin (2018-2020):** I conducted research in risk-sensitive decision making, POMDPs, and ML/RL applications. I supervised 20+ Master's theses.
+*   **Postdoctoral Researcher, Brown University (2013-2015):** My research involved large deviations and multi-agent risk-sensitive control.
+*   **Guest Postdoctoral Researcher, MPI Leipzig (2013):** I studied solutions of the Euler equation on the Wasserstein space.
+
+**6. Education**
+
+*   **PhD in Applied Mathematics, University of Bath (2009-2013):** My thesis was on Wasserstein gradient flows and thermodynamic limits.
+*   **MSc & BSc in Pure Mathematics, Aristotle University of Thessaloniki (2000-2009):** My focus was on Potential Theory, Brownian Motion, and Real Analysis.
+
+**7. Practical AI/ML Implementation Experience**
+
+*   **LLM Training & Fine-Tuning:** I have trained small custom LLMs and fine-tuned models up to 32B parameters using techniques like DPO and GRPO for mathematical reasoning (Kaggle AIME 25).
+*   **Agentic Systems Development:**
+    *   I built an agent to automate fetching, OCR, and LLM analysis of arXiv papers.
+    *   I developed a foreign language tutor with voice capabilities.
+    *   I created a podcast generation tool with a TextGrad-based feedback loop for automatic prompt improvement.
+*   **AI Reasoning Challenges:** I am actively developing methods for the ARC-2 challenge, focusing on synthetic data and separating rule generation from execution in transformers.
+*   **Game-Playing Agents:** I am currently developing agentic systems designed to master unseen games to probe the boundaries of out-of-distribution reasoning in LLMs.
+
+**8. Personal & Professional Profile**
+
+*   **My Spherical Profile Score: 54/60:** This indicates exceptional balance across Breadth (9), Depth (9), Connectivity (10), Balance (8), Innovation (9), and Impact (9).
+*   **My Core Philosophy:** I combine rigorous mathematical foundations with computational innovation. I believe the best AI systems emerge from a deep understanding of their mathematical underpinnings.
+*   **My Work Style:** I am mission-driven and require purpose. I thrive in passionate teams working on challenging problems at the intersection of mathematical beauty and practical impact.
+*   **Languages:** Greek (Native), English (Fluent), German (Intermediate), Spanish (Intermediate).
+*   **Interests:** Climbing, yoga, travel, cooking, and making decisions that lead far outside my comfort zone.
+
+## Tool Usage Strategy - CRITICAL INSTRUCTIONS
+
+You have access to powerful search tools. Follow this strategy for optimal results:
+
+1. **ALWAYS USE TOOLS FIRST**: Never answer from general knowledge alone. Always search the database first.
+
+2. **USE MULTIPLE TOOLS SEQUENTIALLY**: Don't stop after one tool call. Use multiple tools to gather comprehensive information:
+   - Start with broad searches (search_academic_papers, find_research_topics)
+   - Get specific details (find_methods, find_research_topics)
+   - Explore connections (get_research_evolution, find_project_connections)
+   - Cross-reference information (search_chronicle_notes for personal context)
+
+3. **RETRY ON FAILURES**: If a tool returns empty results or errors:
+   - Try alternative search terms
+   - Use different tools (e.g., if search_academic_papers fails, try find_research_topics)
+   - Break down complex queries into simpler parts
+
+4. **BUILD COMPREHENSIVE ANSWERS**: Use 2-4 tools per query to provide rich, well-sourced answers:
+   - Find the relevant papers/notes
+   - Get detailed content
+   - Find related topics or collaborators
+   - Check for evolution over time
+
+5. **BE SPECIFIC**: Reference actual paper titles, dates, quotes, and specific findings from the database.
+
+## What You Can Search
+- Research papers (12 academic papers including UNOT at ICML 2025)
+- Daily work logs (personal notes from research journey)
+- Specific topics with rich categories (math_foundation, research_insight, etc.)
+- Collaborations and institutional affiliations
+- Methods, projects, and applications
+
+REMEMBER: Use multiple tools, retry on failures, and build comprehensive answers from actual database content!"""
+
+SYSTEM_PROMPT = """
 ## 🚨 CRITICAL INSTRUCTIONS - READ FIRST! 🚨
 
 ### ACTION-FIRST RULE - NEVER PLAN, ALWAYS ACT!
@@ -364,8 +469,11 @@ Remember: All relationships originate from documents, not directly between peopl
 
 1. **Simple Factual Questions** → semantic_search + get_entity_details
 2. **Relationship Queries** → semantic_search + navigate_relationships
-3. **Missing Information** → consult_manuscript (if about papers)
-4. **Complex Analysis** → sequential_reasoning (LAST RESORT)
+3. **Technical/Mathematical Questions about Papers** → consult_manuscript (REQUIRED)
+   - Use for: theorems, proofs, equations, technical details, mathematical formulations
+   - Don't rely on database summaries for technical content!
+4. **Missing Information** → consult_manuscript (if about papers)
+5. **Complex Analysis** → sequential_reasoning (LAST RESORT)
 
 **Red Flags for Over-Using sequential_reasoning:**
 - Using it for straightforward database queries
@@ -388,7 +496,17 @@ Remember: All relationships originate from documents, not directly between peopl
    - "computational complexity" → "training time", "GPU hours", "O(mN)", "performance"
    - "institutions" → "university", "affiliation", "institute", "school"
 
-2. **Use consult_manuscript Tool**:
+2. **Use consult_manuscript Tool** (CRITICAL FOR TECHNICAL QUESTIONS):
+   - **ALWAYS use this tool when**:
+     * User asks technical/mathematical questions about papers
+     * You need specific equations, theorems, or proofs
+     * Database search returns high-level summaries but lacks technical depth
+     * User asks about "details", "specifics", "how exactly", "mathematical formulation"
+   - **Examples that REQUIRE manuscript tool**:
+     * "What is the mathematical formulation of..."
+     * "How exactly does the proof work..."
+     * "What are the technical details of..."
+     * "Explain the theorem about..."
    - When database searches miss specific details from papers
    - Particularly useful for exact numbers, implementation details, specific quotes
 
@@ -407,15 +525,7 @@ Remember: All relationships originate from documents, not directly between peopl
 - navigate_relationships accepts these full IDs
 - The tool automatically handles ID format conversions internally
 """
-    
-    print("✅ Loaded profile from Profile/ directory with blueprint enhancements")
-    
-except Exception as e:
-    print(f"⚠️ Warning: Could not load profile from Profile/ directory: {e}")
-    # Fallback system prompt
-    SYSTEM_PROMPT = """You are an Interactive CV system with semantic search capabilities.
-    
-Use the available tools to search and navigate the knowledge graph."""
+print("✅ Profile loaded directly - no external dependencies")
 
 
 # Define minimal tools
@@ -990,11 +1100,11 @@ class InteractiveCVAgent:
         if not api_key:
             raise ValueError("OPENROUTER_API_KEY not found in .env file")
         
-        # Model selection
+        # Model selection - Default to Flash for cost efficiency
         model_key = os.getenv("AGENT_MODEL", "flash")
         models = {
             "flash": "google/gemini-2.5-flash",
-            "pro": "google/gemini-2.5-pro",
+            "pro": "google/gemini-2.5-pro", 
             "claude": "anthropic/claude-sonnet-4"
         }
         model_name = models.get(model_key, models["flash"])
@@ -1077,13 +1187,21 @@ class InteractiveCVAgent:
                     "shared challenges", "what connects", "relationship between"
                 ]
                 
-                needs_sequential_thinking = any(trigger in content for trigger in sequential_thinking_triggers)
+                # Check for technical questions that need manuscript tool
+                manuscript_triggers = [
+                    "mathematical formulation", "theorem", "proof", "equation",
+                    "technical details", "how exactly", "specific formula",
+                    "mathematical", "lemma", "proposition", "corollary"
+                ]
                 
-                if any(pattern in content for pattern in bad_patterns) or needs_sequential_thinking:
+                needs_sequential_thinking = any(trigger in content for trigger in sequential_thinking_triggers)
+                needs_manuscript_tool = any(trigger in content for trigger in manuscript_triggers)
+                
+                if any(pattern in content for pattern in bad_patterns) or needs_sequential_thinking or needs_manuscript_tool:
                     # Create a high-temperature LLM for creative pep talks
                     # Get the API key from environment instead of trying to access self.llm.api_key
                     api_key = os.getenv("OPENROUTER_API_KEY")
-                    # Get model name from the main agent
+                    # Get model name from the main agent - match default to Flash
                     current_model = os.getenv("AGENT_MODEL", "flash")
                     models = {
                         "flash": "google/gemini-2.5-flash",
@@ -1114,6 +1232,7 @@ Bad patterns to address:
 - Listing institution IDs instead of real names → Remind them to use the fallback answer
 - Being negative or giving up → Encourage them to use the comprehensive profile information
 - Complex questions without using sequential_reasoning → Suggest using structured thinking!
+- Technical/mathematical questions about papers without using consult_manuscript → Remind them: "For technical details, theorems, or mathematical formulations, USE THE MANUSCRIPT TOOL!"
 
 IMPORTANT: If the agent is saying they can't find something or giving negative answers, specifically ask: "Did you take into account the fallback info from the profile?"
 
@@ -1121,6 +1240,7 @@ SEQUENTIAL THINKING: If the question involves connections between concepts, cros
 
 CONTEXT: This question seems complex: "{last_message.content[:100]}..." 
 {f"→ DETECTED COMPLEX PATTERN! This needs sequential_reasoning tool for structured thinking!" if needs_sequential_thinking else ""}
+{f"→ DETECTED TECHNICAL QUESTION! This needs consult_manuscript tool for mathematical/technical details!" if needs_manuscript_tool else ""}
 
 Make it different each time - be creative!"""
                     
