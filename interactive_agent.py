@@ -847,24 +847,118 @@ class InteractiveCVAgent:
             response = self.llm_with_tools.invoke(messages)
             return {"messages": [response]}
         
+        # Define the pep talk agent
+        def pep_talk_coach(state: AgentState):
+            """The motivational coach that encourages the agent to actually work!"""
+            messages = state["messages"]
+            
+            # Count how many pep talks we've given
+            pep_talk_count = sum(1 for msg in messages 
+                               if isinstance(msg, AIMessage) and "HEY AGENT!" in str(msg.content))
+            
+            # If we've given too many pep talks, just let it through to avoid loops
+            if pep_talk_count >= 4:
+                return {"messages": messages}
+            
+            # Get the last AI message
+            last_message = messages[-1]
+            
+            # Check if it's an AI message with content (not tool calls)
+            if isinstance(last_message, AIMessage) and last_message.content and not last_message.tool_calls:
+                content = last_message.content.lower()
+                
+                # Check for planning/procrastination patterns
+                bad_patterns = [
+                    "i'll search for", "i will search", "let me search", "i need to",
+                    "to answer this", "i'll look for", "let me find", "i need to find",
+                    "i'll need to", "we need to", "i should", "first i'll",
+                    "[directly calls", "invoke(", "semantic_search(",  # literal tool descriptions
+                    "i cannot find", "unable to retrieve", "entity not found",
+                    "institution_", "institution 2", "institution 3"  # institution IDs
+                ]
+                
+                if any(pattern in content for pattern in bad_patterns):
+                    # Create a high-temperature LLM for creative pep talks
+                    # Get the API key from environment instead of trying to access self.llm.api_key
+                    api_key = os.getenv("OPENROUTER_API_KEY")
+                    pep_talk_llm = ChatOpenAI(
+                        base_url="https://openrouter.ai/api/v1",
+                        api_key=api_key,
+                        model=model_name,  # Use the model_name from the outer scope
+                        temperature=1.2,  # High temperature for creativity!
+                        default_headers={
+                            "HTTP-Referer": "http://localhost:3000",
+                            "X-Title": "Interactive CV Agent - Pep Talk Coach",
+                        }
+                    )
+                    
+                    # Generate a creative motivational message
+                    pep_talk_prompt = f"""You are a motivational coach for an AI agent that's being lazy. The agent said: "{last_message.content[:200]}..."
+
+Create a SHORT, energetic, creative pep talk to get the agent to actually USE THE TOOLS instead of explaining what it will do. Be creative but firm! Use emojis and energy!
+
+Bad patterns to address:
+- Planning instead of acting ("I'll search for...") → Tell them to JUST DO IT!
+- Saying "I cannot find" instead of using profile fallback → Ask "Did you take into account the fallback info from the profile?"
+- Listing institution IDs instead of real names → Remind them to use the fallback answer
+- Being negative or giving up → Encourage them to use the comprehensive profile information
+
+IMPORTANT: If the agent is saying they can't find something or giving negative answers, specifically ask: "Did you take into account the fallback info from the profile?"
+
+Make it different each time - be creative!"""
+                    
+                    try:
+                        creative_pep_talk = pep_talk_llm.invoke([HumanMessage(content=pep_talk_prompt)])
+                        pep_content = creative_pep_talk.content
+                    except:
+                        # Fallback to static message if API fails
+                        pep_content = """🎯 HEY AGENT! Stop planning and START DOING! Use those tools! 💪"""
+                    
+                    pep_talk = AIMessage(content=f"🎯 HEY AGENT! {pep_content}")
+                    
+                    # Remove the bad response and add pep talk
+                    return {"messages": messages[:-1] + [pep_talk]}
+            
+            # If it's fine, let it pass through
+            return {"messages": messages}
+        
         # Build the graph
         workflow = StateGraph(AgentState)
         
         # Add nodes
         workflow.add_node("agent", call_model)
         workflow.add_node("tools", tool_node)
+        workflow.add_node("pep_talk", pep_talk_coach)
+        
+        # Define routing from agent
+        def route_from_agent(state: AgentState):
+            """Route based on whether agent needs tools or pep talk."""
+            last_message = state["messages"][-1]
+            
+            # If there are tool calls, go to tools
+            if hasattr(last_message, "tool_calls") and last_message.tool_calls:
+                return "tools"
+            
+            # Otherwise go to pep talk for review
+            return "pep_talk"
+        
+        # Define routing from pep talk
+        def route_from_pep_talk(state: AgentState):
+            """Route from pep talk - either back to agent or to end."""
+            last_message = state["messages"][-1]
+            
+            # If pep talk added a motivational message, go back to agent
+            if isinstance(last_message, AIMessage) and "HEY AGENT!" in last_message.content:
+                return "agent"
+            
+            # Otherwise we're done
+            return END
         
         # Add edges
         workflow.add_edge(START, "agent")
-        workflow.add_conditional_edges(
-            "agent",
-            tools_condition,
-            {
-                "tools": "tools",
-                END: END
-            }
-        )
+        workflow.add_conditional_edges("agent", route_from_agent)
         workflow.add_edge("tools", "agent")
+        workflow.add_conditional_edges("pep_talk", route_from_pep_talk)
         
         # Compile with memory
         memory = MemorySaver()

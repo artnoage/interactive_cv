@@ -9,6 +9,7 @@ The Interactive CV uses a **simplified embedding-first agent** that leverages se
 ### System Architecture
 
 - **`interactive_agent.py`** - Main agent with 3 embedding-based tools and semantic intelligence
+- **Pep Talk Coach** - Motivational agent that prevents lazy responses and ensures tool usage
 - **Blueprint Configuration** - YAML files define all domain knowledge for database building
 - **Semantic Enhancement** - Hybrid SQL + embedding search for concept discovery
 - **Centralized Profile** - Consistent biography from Profile/ directory
@@ -29,14 +30,32 @@ The Interactive CV uses a **simplified embedding-first agent** that leverages se
    - Returns all attributes and content
    - Works with any entity type
 
+### The Pep Talk Coach 🎯
+
+A revolutionary **motivational coaching agent** that sits between the main agent and the user to ensure quality responses:
+
+- **Intercepts lazy responses** - Catches "I'll search for..." and "I cannot find..." patterns
+- **Provides motivational feedback** - Uses high-temperature generation for creative coaching
+- **Enforces tool usage** - Won't let planning statements through without actual tool calls
+- **Fallback reminders** - Specifically asks "Did you take into account the fallback info from the profile?"
+- **Loop prevention** - Allows up to 4 coaching attempts before giving up
+- **Dynamic messaging** - Each pep talk is contextually generated and unique
+
+**Workflow**: User → Agent → Tools → **Pep Talk Coach** → (Back to Agent if needed) → User
+
+This ensures the agent actually uses its tools instead of just talking about using them!
+
 ### Usage
 
 ```bash
 # Run the interactive agent
 python interactive_agent.py
 
-# Use Claude for better instruction following (recommended)
+# Use Claude for best instruction following (recommended)
 AGENT_MODEL=claude python interactive_agent.py
+
+# Use DeepSeek for cost-effective reasoning
+AGENT_MODEL=deepseek python interactive_agent.py
 
 # Use Pro model
 AGENT_MODEL=pro python interactive_agent.py
@@ -64,7 +83,8 @@ blueprints/
 - **Entities**: 745 topics, 181 people, 132 methods, 24 institutions
 - **Knowledge Graph**: 1,135 nodes with 24+ rich types, 1,249 relationships
 - **Semantic Search**: Integrated OpenAI embeddings with SQL queries
-- **Performance**: 90/100 on complex queries (vs 0/100 previously)
+- **Performance**: Best scores ever achieved with Pep Talk Coach system
+- **Quality Control**: Automated coaching prevents lazy responses and ensures tool usage
 
 ## 🛠️ Core Commands
 
@@ -147,9 +167,15 @@ OPENAI_API_KEY=your_key_here
 3. **Entity Resolution**: Handles name variations automatically
 4. **Rich Types**: 24+ entity categories with visualization
 5. **Scalable**: Works with any number of entities
+6. **Quality Assurance**: Pep Talk Coach prevents lazy responses and ensures proper tool usage
 
 ## 📈 Recent Improvements
 
+- **Pep Talk Coach**: Revolutionary motivational agent that ensures quality responses
+- **Action-First Prompting**: Eliminates "I'll search for..." lazy responses
+- **Fallback Reminders**: Automatic coaching to use profile information when searches fail
+- **Creative Coaching**: High-temperature LLM generates diverse motivational messages
+- **Loop Prevention**: Smart limits prevent infinite coaching cycles
 - **Semantic Intelligence**: Hybrid search with embeddings
 - **Unified UI**: Integrated chat and graph visualization
 - **Thread-Safe**: Fixed SQLite threading issues
@@ -172,11 +198,13 @@ OPENAI_API_KEY=your_key_here
 
 ## Summary
 
-The Interactive CV is an **embedding-first knowledge platform** that:
+The Interactive CV is an **embedding-first knowledge platform** with **motivational coaching** that:
 - Uses just 3 unified tools powered by semantic search
+- Features a revolutionary Pep Talk Coach that ensures quality responses
 - Works universally across any research domain  
 - Combines SQL queries with semantic embeddings
 - Provides both CLI and web interfaces
 - Uses blueprints for database building while keeping the agent simple
+- Automatically prevents lazy responses and enforces proper tool usage
 
-*From 83 specific tools to 3 intelligent tools - simplicity through semantic search.*
+*From 83 specific tools to 3 intelligent tools + 1 motivational coach - achieving best performance ever through semantic search and quality assurance.*

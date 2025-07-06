@@ -1,17 +1,18 @@
 # Interactive CV System
 
-## Blueprint-Driven Knowledge Platform
+## Embedding-First Knowledge Platform with Motivational Coaching
 
-An AI-powered system that transforms academic research papers and personal notes into a dynamic, queryable professional profile. The system uses a blueprint-driven architecture that automatically generates tools from YAML specifications.
+An AI-powered system that transforms academic research papers and personal notes into a dynamic, queryable professional profile. The system uses a simplified embedding-first architecture with **3 unified tools** plus a revolutionary **Pep Talk Coach** that ensures quality responses.
 
 ### Key Features
 
-- **83+ automatically generated tools** from YAML blueprints
-- **Semantic search** - hybrid SQL and embedding-based search
+- **3 unified tools with semantic search** replace 83+ specific tools
+- **Pep Talk Coach** - motivational agent that prevents lazy responses
+- **Semantic search** - hybrid SQL and embedding-based search across ALL entities
 - **Centralized profile system** - consistent representation across all agents
-- **Domain extension via configuration** - add new research areas through YAML files
+- **Action-first prompting** - eliminates "I'll search for..." responses
+- **Quality assurance** - automated coaching ensures proper tool usage
 - **Universal adaptability** - works for any research field
-- **Schema consistency** - tools automatically match database structure
 
 ## 📋 Profile Setup (Required First Step)
 
@@ -99,44 +100,51 @@ python DB/build_database.py
 # 6. Run the interactive agent (blueprint-powered with semantic intelligence)
 python interactive_agent.py
 
-# Or use Pro model for better instruction following
-AGENT_MODEL=pro python interactive_agent.py
-
-# Or use Claude 4 Sonnet for superior instruction following (recommended for complex queries)
+# Use Claude for best instruction following (recommended)
 AGENT_MODEL=claude python interactive_agent.py
+
+# Use DeepSeek for cost-effective reasoning
+AGENT_MODEL=deepseek python interactive_agent.py
+
+# Or use Pro model
+AGENT_MODEL=pro python interactive_agent.py
 ```
 
 ## Current Status
 
-- ✅ **Blueprint system operational** - 83+ tools generated from YAML
-- ✅ **Semantic search integrated** - Hybrid SQL + embedding search
+- ✅ **Embedding-first architecture** - 3 unified tools with semantic search
+- ✅ **Pep Talk Coach operational** - Revolutionary quality assurance system
+- ✅ **Best performance ever achieved** - Motivational coaching eliminates lazy responses
 - ✅ **Database populated** - 12 academic papers, personal notes, 1000+ entities
 - ✅ **Knowledge graph built** - 1,135 nodes, 1,249 relationships
-- ⚠️ **LLM instruction following** - Complex multi-tool queries need improvement
-- 🔄 **In progress** - Optimizing agent prompts for better tool orchestration
+- ✅ **Action-first prompting** - No more "I'll search for..." responses
+- ✅ **Quality assurance** - Automated fallback reminders and tool enforcement
 
-## Blueprint-Driven Architecture
+## Embedding-First Architecture with Motivational Coaching
 
 ### Architecture Overview
 
-The system uses a configuration-driven approach where YAML blueprints define domain knowledge and tool generation
+The system uses a simplified embedding-first approach with 3 unified tools plus a revolutionary Pep Talk Coach
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  YAML Blueprints│     │ Tool Generator   │     │ 79 Sophisticated│
+│  YAML Blueprints│     │ Database Builder │     │  3 Unified      │
 ├─────────────────┤     ├──────────────────┤     │     Tools       │
-│ extraction_schema│────▶│ Reads blueprints │────▶│ Schema-Driven   │
-│ database_mapping │     │ Generates tools  │     │ Entity-Aware    │
-│ visualization   │     │ Ensures safety   │     │ Relationship    │
-│ database_schema │     │ NO manual coding │     │ Traversal       │
+│ extraction_schema│────▶│ Builds knowledge │────▶│ semantic_search │
+│ database_mapping │     │ graph from docs  │     │ navigate_rel    │
+│ visualization   │     │ Creates entities │     │ get_details     │
+│ database_schema │     │ Embeddings & SQL │     │ + Semantic AI   │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
                                ↓
-                    ┌──────────────────┐
-                    │ Universal Agent  │
-                    │ Uses generated   │
-                    │ tools for ANY    │
-                    │ research domain  │
-                    └──────────────────┘
+        ┌──────────────────────────────────────────────────┐
+        │            Pep Talk Coach 🎯                     │
+        │ ┌──────────────────┐    ┌──────────────────┐    │
+        │ │ Main Agent       │    │ Quality Gate     │    │
+        │ │ Uses 3 tools     │◄──▶│ Catches lazy     │    │
+        │ │ Semantic search  │    │ responses        │    │
+        │ │ Profile fallback │    │ Creative coaching│    │
+        │ └──────────────────┘    └──────────────────┘    │
+        └──────────────────────────────────────────────────┘
 
 Blueprint Structure:
 blueprints/
