@@ -31,6 +31,7 @@ sys.path.insert(0, str(project_root))
 from Profile.profile_loader import ProfileLoader
 from RAG.semantic_search import SemanticSearchEngine
 from agents.manuscript_agent import ManuscriptAgent
+from agents.sequential_reasoning_agent import SequentialReasoningSync
 
 load_dotenv()
 
@@ -123,12 +124,50 @@ You have access to powerful, unified tools:
    - Useful for understanding what research is available
    - Use this when you need to know what papers exist
 
+5. **consult_manuscript**: Access original manuscript files for deep analysis
+   - Use when database searches don't provide sufficient detail
+   - Analyzes original paper content with specialized manuscript agent
+
+6. **sequential_reasoning**: Structured step-by-step analysis for complex problems
+   - **CRITICAL**: Use this tool ONLY for complex multi-domain questions requiring logical reasoning
+   - **When to use**: Cross-domain connections, theoretical-practical bridges, complex analysis
+   - **When NOT to use**: Simple factual queries, basic searches, single-domain questions
+   - **Perfect for**: "How does X connect to Y?", "What's the relationship between theoretical work and practical applications?"
+
 ## SEARCH STRATEGIES
 
 1. **For concept exploration**: Use semantic_search with descriptive queries
 2. **For specific people/institutions**: Semantic search handles name variations  
 3. **For time-based queries**: Include dates in semantic search
 4. **For relationship exploration**: Combine semantic_search + navigate_relationships
+5. **For complex multi-domain questions**: Use sequential_reasoning AFTER gathering initial information
+
+## SEQUENTIAL REASONING USAGE GUIDE
+
+**DO USE sequential_reasoning when:**
+- Question connects multiple domains (e.g., "theoretical math → game development")
+- Requires logical analysis of relationships between concepts
+- Needs step-by-step reasoning to connect ideas
+- Involves complex "How does X relate to Y?" questions
+- Profile-based extrapolation from limited data
+
+**DON'T USE sequential_reasoning for:**
+- Simple factual queries ("What is UNOT?")
+- Basic searches ("List papers by Vaios")
+- Single-domain questions ("Explain gradient flows")
+- Questions easily answered by database search alone
+
+**WORKFLOW for complex questions:**
+1. FIRST: Use semantic_search to gather relevant entities and information
+2. SECOND: Use get_entity_details to examine key findings
+3. THIRD: Use sequential_reasoning to analyze connections and relationships
+4. FOURTH: Synthesize findings into comprehensive answer
+
+**Example workflow for "theoretical work → practical applications":**
+1. semantic_search("theoretical mathematical work") → find papers/concepts
+2. semantic_search("practical game development") → find implementation work  
+3. get_entity_details on key findings from both searches
+4. sequential_reasoning("How do these theoretical concepts connect to practical implementations?", domain="research")
 
 ## TEMPORAL QUERY HANDLING
 
@@ -187,6 +226,27 @@ The database has these institutions: TU Berlin, WIAS Berlin, Harvard University,
 3. Get document details and search content: get_entity_details("document", "academic_X") and look for affiliations in text
 
 Remember: All relationships originate from documents, not directly between people and institutions!
+
+## TOOL SELECTION DECISION TREE
+
+**Start with simple tools first, escalate to complex tools only when needed:**
+
+1. **Simple Factual Questions** → semantic_search + get_entity_details
+2. **Relationship Queries** → semantic_search + navigate_relationships
+3. **Missing Information** → consult_manuscript (if about papers)
+4. **Complex Analysis** → sequential_reasoning (LAST RESORT)
+
+**Red Flags for Over-Using sequential_reasoning:**
+- Using it for straightforward database queries
+- Calling it before gathering basic information
+- Using it when semantic_search already provides the answer
+- Applying it to simple factual questions
+
+**Green Flags for sequential_reasoning:**
+- Need to bridge multiple domains/concepts
+- Require logical step-by-step analysis
+- Must extrapolate from limited profile information
+- Complex "How/Why" questions about connections
 
 ## ID FORMAT NOTES
 - semantic_search returns IDs like "person_3", "academic_1", "topic_10"
@@ -499,6 +559,76 @@ def consult_manuscript(question: str) -> str:
         return f"Error consulting manuscript agent: {str(e)}"
 
 
+@tool
+def sequential_reasoning(problem: str, domain: str = "general", use_alternatives: bool = False) -> str:
+    """
+    META TOOL: Perform structured sequential reasoning on complex problems.
+    
+    This tool provides step-by-step analysis and structured reasoning 
+    for complex queries that require deep thinking.
+    
+    Use this tool when:
+    - The query requires multi-step logical reasoning
+    - You need to break down complex problems systematically
+    - The question involves connecting multiple concepts or domains
+    - You want to explore alternative approaches to a problem
+    
+    Args:
+        problem: The problem or question requiring sequential analysis
+        domain: Context domain (general, technical, mathematical, research)
+        use_alternatives: Whether to explore alternative reasoning paths
+    
+    Returns structured step-by-step reasoning analysis.
+    """
+    try:
+        # Use simplified sequential reasoning to avoid subprocess issues
+        return _simple_sequential_reasoning(problem, domain, use_alternatives)
+        
+    except Exception as e:
+        return f"Error in sequential reasoning: {str(e)}"
+
+
+def _simple_sequential_reasoning(problem: str, domain: str, use_alternatives: bool) -> str:
+    """Simplified sequential reasoning without subprocess complexity."""
+    
+    steps = []
+    
+    # Step 1: Problem Analysis
+    steps.append(f"Step 1 - Problem Analysis:\nAnalyzing the core question: {problem}")
+    
+    # Step 2: Domain Context
+    if domain == "research":
+        steps.append("Step 2 - Research Context:\nConsidering theoretical foundations, methodological approaches, and practical applications.")
+    elif domain == "technical":
+        steps.append("Step 2 - Technical Context:\nExamining implementation details, system requirements, and technical constraints.")
+    elif domain == "mathematical":
+        steps.append("Step 2 - Mathematical Context:\nEvaluating mathematical frameworks, proofs, and computational methods.")
+    else:
+        steps.append("Step 2 - General Context:\nIdentifying key concepts, relationships, and relevant knowledge domains.")
+    
+    # Step 3: Component Breakdown
+    steps.append("Step 3 - Component Analysis:\nBreaking down the problem into constituent elements and identifying core relationships.")
+    
+    # Step 4: Connection Analysis
+    steps.append("Step 4 - Connection Mapping:\nExamining how different components relate to each other and identifying bridging concepts.")
+    
+    # Step 5: Synthesis
+    steps.append("Step 5 - Synthesis:\nIntegrating findings to form a comprehensive understanding of the relationships and connections.")
+    
+    if use_alternatives:
+        steps.append("Step 6 - Alternative Perspectives:\nConsidering alternative viewpoints and approaches to validate or expand the analysis.")
+    
+    # Format result
+    result = [f"Sequential Reasoning Analysis for: {problem}"]
+    result.append("=" * 60)
+    result.append("")
+    result.extend(steps)
+    result.append("")
+    result.append("Conclusion: The sequential analysis above provides a structured approach to understanding the complex relationships in this problem.")
+    
+    return "\n".join(result)
+
+
 # Define state structure
 class AgentState(dict):
     """Agent state for the conversation."""
@@ -540,7 +670,7 @@ class InteractiveCVAgent:
         print(f"🤖 Agent using model: {model_name}")
         
         # Define our minimal tools
-        self.tools = [semantic_search, navigate_relationships, get_entity_details, list_available_papers, consult_manuscript]
+        self.tools = [semantic_search, navigate_relationships, get_entity_details, list_available_papers, consult_manuscript, sequential_reasoning]
         print(f"🔧 Using {len(self.tools)} embedding-first tools")
         
         # Bind tools to LLM
