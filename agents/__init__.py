@@ -14,11 +14,8 @@ try:
 except ImportError:
     __all__ = []
 
-# Add other imports as available
-try:
-    from .extractor import *
-except ImportError:
-    pass
+# Note: extractor.py uses blueprint_loader which is legacy
+# Only import if needed for specific database building operations
 
 try:
     from .entity_deduplicator import *
