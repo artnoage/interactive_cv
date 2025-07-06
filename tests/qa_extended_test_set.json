@@ -5,140 +5,160 @@
       "question": "What is UNOT and who developed it?",
       "expected_answer": "UNOT (Universal Neural Optimal Transport) is a universal neural OT solver that can accurately and rapidly predict entropic optimal transport distances and plans for a given cost function, across different datasets and for discrete measures of variable resolutions. It was developed by Jonathan Geuter, Gregor Kornhardt, Ingimar Tomasson, and Vaios Laschos, and was presented at ICML 2025.",
       "category": "single_paper",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "original"
     },
     {
       "id": 2,
       "question": "How does the Assignment Method for training GANs differ from traditional WGANs?",
       "expected_answer": "The Assignment Method, developed by Vaios Laschos, Jan Tinapp, and Klaus Obermayer, enables generative networks to be trained by minimizing the optimal transport distance for any arbitrary, user-specified cost function, not just the Wasserstein-1 metric used in traditional WGANs. It uses an auxiliary 'assigner' network that learns the dual potential by balancing assignments between generated and real data, effectively decoupling the training process from the constraints of the Wasserstein-1 metric. This allows for more flexible, domain-specific cost functions like SSIM for better perceptual quality.",
       "category": "single_paper",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "original"
     },
     {
       "id": 3,
       "question": "What game development work did Vaios do in late June 2025?",
       "expected_answer": "In late June 2025, Vaios worked extensively on the Collapsi game. On June 27, he fixed the core game logic by rewriting get_valid_moves() to use DFS pathfinding allowing orthogonal movement with direction changes, updated the backend API, and implemented 5 themes (Cyberpunk, Classic Board, Neon Nights, Minimalist, Retro Arcade). On June 30, he refactored Collapsi into a standalone web application, created a complete JavaScript port, integrated AI with ONNX, and built a complete AlphaZero-style training system with policy distillation from MCTS.",
       "category": "personal_notes",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "original"
     },
     {
       "id": 4,
       "question": "What institutions has Vaios been affiliated with according to his papers?",
       "expected_answer": "Based on his papers, Vaios has been affiliated with: Technische Universit\u00e4t Berlin (Germany), Weierstrass Institute (WIAS) Berlin (Germany), Harvard John A. Paulson School of Engineering and Applied Sciences, and the Kempner Institute at Harvard University. His work has also been supported by the Deutsche Forschungsgemeinschaft (DFG).",
       "category": "cross_paper",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "original"
     },
     {
       "id": 5,
       "question": "How does Vaios's work on risk-sensitive POMDPs relate to utility functions and what was the core innovation?",
       "expected_answer": "In the paper with Arsham Afsardeir, Andreas Kapetanis, and Klaus Obermayer, Vaios developed a novel framework that transforms a risk-sensitive POMDP with a general utility function into a computationally tractable, fully observable multivariate utility optimization problem. The core innovation was approximating the utility function as a sum of exponentials and introducing a multivariate information state vector, where each component corresponds to an exponential term. This bridges the gap between the restrictive but solvable exponential utility case and the general but intractable arbitrary utility case.",
       "category": "single_paper",
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "source": "original"
     },
     {
       "id": 6,
       "question": "What computational complexity challenges are shared between UNOT and the Assignment Method for GANs?",
       "expected_answer": "Both methods face significant computational challenges but of different natures. UNOT's training is computationally expensive (35 hours on an H100 GPU) due to the large number of samples and forward/backward passes through the Fourier Neural Operator, though inference is extremely fast. The Assignment Method has O(mN) complexity per assigner step, requiring finding the minimum cost assignment over all N real points for each of m generated points, making it impractical for large datasets. Both represent trade-offs between flexibility/generality and computational cost.",
       "category": "cross_paper",
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "source": "original"
     },
     {
       "id": 7,
       "question": "What pathfinding algorithm did Vaios implement for the Collapsi game and why?",
       "expected_answer": "Vaios implemented DFS (Depth-First Search) pathfinding with backtracking for the Collapsi game. He realized that DFS with backtracking is perfect for small board pathfinding on the 4x4 board with a maximum of 4 moves. This allowed the game to support orthogonal movement with direction changes, making it significantly more strategic than the initial implementation which had misconceptions about the movement rules.",
       "category": "personal_notes",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "original"
     },
     {
       "id": 8,
       "question": "What are the key mathematical concepts that appear across multiple papers by Vaios?",
       "expected_answer": "Key mathematical concepts that appear across Vaios's papers include: Optimal Transport (appearing in both UNOT and GAN training papers), Wasserstein distances (W1 and W2 metrics), dual formulations and Kantorovich duality, push-forward measures, cost functions, and measure theory. These reflect his deep expertise in optimal transport theory and its applications to machine learning, spanning from theoretical foundations to practical implementations in neural networks and generative models.",
       "category": "cross_paper",
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "source": "original"
     },
     {
       "id": 9,
       "question": "What specific UI improvements did Vaios make to the Collapsi game?",
       "expected_answer": "Vaios made several UI improvements to Collapsi: removed confusing path visualization, fixed layout to fit on one screen, made it responsive, implemented a three-column layout with enlarged game board, added 5 themes with localStorage persistence (Cyberpunk, Classic Board, Neon Nights, Minimalist, Retro Arcade), changed to simple click-to-destination UI which is more intuitive than path building, and added creator attribution with tutorial video by Mark S. Ball.",
       "category": "personal_notes",
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "source": "original"
     },
     {
       "id": 10,
       "question": "How does the bootstrapping approach in UNOT work and what theoretical guarantee does it provide?",
       "expected_answer": "UNOT uses a self-supervised bootstrapping technique where the model generates its own targets. The solver network predicts a dual potential, then a target is created by running a few Sinkhorn iterations initialized with the solver's own prediction. Proposition 5 proves that minimizing the L2 loss between the predicted potential and the k-step bootstrapped target provides an upper bound for the L2 loss against the true ground truth potential, using the contraction property of the Sinkhorn operator in the Hilbert projective metric. This avoids needing pre-computed ground-truth solutions.",
       "category": "single_paper",
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "source": "original"
     },
     {
       "id": 11,
       "question": "What connection exists between Vaios's theoretical work and his practical game development?",
       "expected_answer": "Vaios's game development work on Collapsi shows practical application of his theoretical expertise. He implemented Monte Carlo Tree Search (MCTS) and AlphaZero-style training, which connect to his research on POMDPs and reinforcement learning. His work on policy distillation from MCTS and temperature-based exploration in the Collapsi project reflects his deep understanding of decision-making under uncertainty, which is central to his academic work on risk-sensitive POMDPs and optimal transport in machine learning.",
       "category": "cross_domain",
-      "difficulty": "very_hard"
+      "difficulty": "very_hard",
+      "source": "original"
     },
     {
       "id": 12,
       "question": "What are Fourier Neural Operators and why were they chosen for UNOT?",
       "expected_answer": "Fourier Neural Operators (FNOs) are neural network architectures that learn mappings between function spaces. They are discretization-invariant because they perform key operations in Fourier space, making them suitable for learning to solve problems on grids of varying resolutions. UNOT uses FNOs as the solver network S_phi because they can generalize across measures of different resolutions (from 10x10 to 64x64 in experiments), which was a key requirement for creating a universal solver that works across different datasets and resolutions.",
       "category": "single_paper",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "original"
     },
     {
       "id": 13,
       "question": "What performance improvements did Vaios discover while working on the Collapsi project?",
       "expected_answer": "Vaios discovered that MCTS instantiation per move was a major performance bottleneck in the Collapsi project. He fixed this by extracting MCTS into a standalone module and ensuring proper instance management. He also extracted common evaluation logic, reducing approximately 40 lines of duplicate code, created a centralized state preparation helper function, and achieved 60-70% file size reduction through ONNX conversion for the AI models.",
       "category": "personal_notes",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "original"
     },
     {
       "id": 14,
       "question": "How do the computational trade-offs in Vaios's academic papers reflect in his practical implementations?",
       "expected_answer": "Vaios's papers consistently explore computational trade-offs: UNOT trades training time (35h) for fast inference, the Assignment Method trades flexibility for O(mN) complexity, and risk-sensitive POMDPs trade approximation accuracy (number of exponential terms) for tractability. This pattern appears in his Collapsi implementation where he chose DFS for the 4x4 board (manageable complexity) and used ONNX for 60-70% model size reduction, showing his consistent approach to balancing theoretical optimality with practical constraints.",
       "category": "cross_domain",
-      "difficulty": "very_hard"
+      "difficulty": "very_hard",
+      "source": "original"
     },
     {
       "id": 15,
       "question": "What evidence of collaborative work appears across Vaios's papers and projects?",
       "expected_answer": "Vaios frequently collaborates with researchers from TU Berlin and WIAS Berlin, including Klaus Obermayer (appearing in multiple papers), Andreas Kapetanis, Jan Tinapp, and Arsham Afsardeir. In the UNOT paper, he worked with Jonathan Geuter, Gregor Kornhardt, and Ingimar Tomasson at Harvard. His personal notes also mention Mark S. Ball's Collapsi tutorial, showing he engages with the broader community. This demonstrates his collaborative approach across both theoretical research and practical development.",
       "category": "cross_domain",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "original"
     },
     {
       "id": 16,
       "question": "What specific insights about AlphaZero training did Vaios document in his personal notes?",
       "expected_answer": "Vaios documented important insights about AlphaZero training: the policy loss can decrease while value loss remains high, suggesting the policy might be memorizing MCTS patterns without true understanding. He noted that if the policy truly understands good moves, it should implicitly understand position values, and a persistent gap indicates potential for improvement. He implemented policy distillation from MCTS and temperature-based exploration to address these issues.",
       "category": "personal_notes",
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "source": "original"
     },
     {
       "id": 17,
       "question": "How does the concept of 'assignment' appear differently in Vaios's GAN paper versus his game development work?",
       "expected_answer": "In the GAN paper, 'assignment' refers to the mathematical concept of assigning generated data points to real data points to minimize transport cost, with the assigner network learning optimal assignments for the dual OT problem. In his game development, assignment appears more practically - he assigns themes to UI elements, assigns moves to valid positions via DFS pathfinding, and assigns policies to game states via MCTS. Both contexts involve optimization and finding optimal mappings, reflecting his consistent mathematical thinking across domains.",
       "category": "cross_domain",
-      "difficulty": "very_hard"
+      "difficulty": "very_hard",
+      "source": "original"
     },
     {
       "id": 18,
       "question": "What are the main limitations of UNOT according to the paper?",
       "expected_answer": "The main limitations of UNOT are: 1) The model must be retrained for each new cost function, limiting its universality, 2) The model does not extrapolate well to resolutions significantly higher than those seen during training, 3) The current implementation is designed for measures on uniform grids and does not directly apply to unstructured point clouds, and 4) The performance on higher-dimensional domains (d > 3) is not explored.",
       "category": "single_paper",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "original"
     },
     {
       "id": 19,
       "question": "What software engineering practices did Vaios demonstrate in his June 2025 work?",
       "expected_answer": "Vaios demonstrated strong software engineering practices including: refactoring to standalone architecture (removing backend dependencies), creating modular code (extracting MCTS into standalone module), implementing proper abstraction (centralized state preparation), comprehensive documentation (README and CLAUDE.md updates), version control with proper session-based checkpoint management, performance optimization (ONNX conversion, fixing instance-per-move bottleneck), and implementing save/load systems with localStorage. He also set up Tailscale for secure networking.",
       "category": "personal_notes",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "original"
     },
     {
       "id": 20,
       "question": "How does Vaios's work demonstrate the evolution from pure mathematics to practical AI applications?",
       "expected_answer": "Vaios's work shows a clear evolution from theoretical foundations to practical applications. His papers on optimal transport and risk-sensitive POMDPs represent deep mathematical theory (measure theory, Kantorovich duality, functional analysis). The GAN training paper bridges theory and practice by applying OT theory to neural network training. His Collapsi project represents full practical implementation, using reinforcement learning concepts (MCTS, AlphaZero) in a working game. Throughout, he maintains mathematical rigor while addressing real computational constraints, demonstrating how strong theoretical foundations enable better practical solutions.",
       "category": "cross_domain",
-      "difficulty": "very_hard"
+      "difficulty": "very_hard",
+      "source": "original"
     },
     {
       "id": 21,
@@ -265,67 +285,64 @@
       "question": "How does Vaios's theoretical work on Wasserstein gradient flows directly relate to modern diffusion models?",
       "expected_answer": "Vaios's deep theoretical work on Wasserstein gradient flows and Evolutionary Variational Inequalities (EVIs) directly prefigured and provides a rigorous foundation for understanding modern diffusion models (DDPMs, score-based models). His PhD thesis was specifically on Wasserstein gradient flows and thermodynamic limits, and he has expertise in gradient flow theory including De Giorgi and JKO schemes applied to spaces of measures. This mathematical foundation is crucial for diffusion models, which are fundamentally based on gradient flows in probability space.",
       "category": "profile_research_fit",
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "source": "profile"
     },
     {
       "id": 37,
       "question": "What mathematical foundations does Vaios possess that make him ideal for advancing diffusion model theory?",
       "expected_answer": "Vaios has exceptional mathematical foundations perfectly suited for diffusion models: Optimal Transport Theory (Wasserstein, Hellinger-Kantorovich), Gradient Flows & Evolutionary Variational Inequalities, Stochastic Analysis & McKean-Vlasov Equations, PDEs & Variational Methods, and Metric Geometry on Non-smooth Spaces. His research evolution shows a deliberate progression from foundational geometric theory to dynamic & variational methods, culminating in computational AI innovation. This trajectory demonstrates his ability to bridge abstract mathematical theory with practical AI applications.",
       "category": "profile_research_fit",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "profile"
     },
     {
       "id": 38,
       "question": "How does Vaios's track record demonstrate his ability to translate theoretical advances into practical ML implementations for diffusion models?",
       "expected_answer": "Vaios has a proven track record of translating theory to practice: he developed novel mathematical frameworks (Hellinger-Kantorovich spaces) and connected them to computational problems, applied optimal transport theory to train GANs with arbitrary transport costs, developed neural network solvers for OT (UNOT at ICML 2025), and has hands-on experience training and fine-tuning LLMs up to 32B parameters. His profile explicitly states he's 'now focused on translating this deep theoretical knowledge into building and training advanced agentic AI systems,' showing his commitment to practical implementation.",
       "category": "profile_research_fit",
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "source": "profile"
     },
     {
       "id": 39,
       "question": "What evidence shows Vaios can lead high-impact research teams in cutting-edge AI development?",
       "expected_answer": "Vaios has demonstrated leadership in high-impact research through: leading research that resulted in ICML 2025 publication (UNOT), supervising 20+ Master's theses at TU Berlin, having extensive postdoctoral experience across four countries and top institutions (WIAS Berlin, TU Berlin, Brown University, Harvard, MPI Leipzig), achieving a Spherical Profile Score of 54/60 indicating exceptional balance across Breadth, Depth, Connectivity, Balance, Innovation, and Impact. His work style is described as mission-driven, thriving in passionate teams working on challenging problems at the intersection of mathematical beauty and practical impact.",
       "category": "profile_research_fit",
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "source": "profile"
     },
     {
       "id": 40,
       "question": "Why is Vaios's combination of stochastic analysis and practical AI experience uniquely valuable for diffusion model research?",
       "expected_answer": "Vaios combines deep expertise in Stochastic Analysis & McKean-Vlasov Equations with practical experience in Diffusion Models & Score-Based Methods. His research on Large Deviation Principles and Brownian Motion provides the probabilistic foundations essential for diffusion models, while his hands-on experience training LLMs, fine-tuning models up to 32B parameters, and developing generative models gives him the practical implementation skills. This rare combination of rigorous mathematical foundations in stochastic processes with cutting-edge ML implementation experience makes him uniquely positioned to advance both the theoretical understanding and practical applications of diffusion models.",
       "category": "profile_research_fit",
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "source": "profile"
     }
   ],
   "metadata": {
-    "created_date": "2025-01-04",
+    "created_date": "2025-07-06",
     "total_questions": 40,
     "categories": {
-      "single_paper": 15,
-      "personal_notes": 14,
-      "cross_paper": 1,
+      "single_paper": 12,
+      "personal_notes": 15,
+      "cross_paper": 3,
       "cross_domain": 5,
       "profile_research_fit": 5
     },
     "difficulty_distribution": {
       "easy": 8,
-      "medium": 19,
-      "hard": 9,
+      "medium": 18,
+      "hard": 10,
       "very_hard": 4
     },
     "sources": [
-      "Universal_Neural_Optimal_Transport_analysis_metadata.json",
-      "Training_GANs_arbitrary_OT_costs_analysis_metadata.json",
-      "Risk_sensitive_POMDP_utility_optimization_analysis_metadata.json",
-      "Cone_geometry_Hellinger_Kantorovich_analysis_metadata.json",
-      "EVI_Hellinger_Kantorovich_spaces_analysis_metadata.json",
-      "2025-06-26_metadata.json",
-      "2025-06-27_metadata.json",
-      "2025-06-28_metadata.json",
-      "2025-06-29_metadata.json",
-      "2025-06-30_metadata.json",
-      "2025-07-01_metadata.json",
-      "2025-W26_metadata.json"
+      "geminis_pairs",
+      "geminis_pairs_2",
+      "original",
+      "profile"
     ],
-    "notes": "This is the final merged test set combining original questions with valid questions from both geminis_pairs.json and geminis_pairs_2.json. The test set includes questions about papers that are confirmed to exist in the metadata files."
+    "notes": "Extended test set combining qa_test_set.json (IDs 1-35) with additional questions from chunk 8 (IDs 36-40). Includes profile-related questions for comprehensive testing."
   }
 }
