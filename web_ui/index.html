@@ -638,7 +638,7 @@
         }
 
         async function loadGraphData() {
-            const response = await fetch('/knowledge_graph.json');
+            const response = await fetch('./knowledge_graph.json');
             if (!response.ok) {
                 throw new Error(`Failed to load graph data: ${response.status}`);
             }
@@ -1057,7 +1057,7 @@
                 console.log('Sending message to chat API:', message);
                 
                 // Send to backend
-                const response = await fetch('/api/chat', {
+                const response = await fetch('./api/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -179,6 +179,14 @@
       "date": "2025-07-01"
     },
     {
+      "id": "chronicle_10",
+      "type": "personal_note",
+      "label": "Daily Note - 2025-01-05",
+      "color": "#ff6666",
+      "size": 18,
+      "date": "2025-01-05"
+    },
+    {
       "id": "topic_1",
       "type": "general_topic",
       "label": "game-development",
@@ -7271,6 +7279,231 @@
       "category": "innovation"
     },
     {
+      "id": "topic_870",
+      "type": "general_topic",
+      "label": "blueprint-system",
+      "original_category": "general",
+      "color": "#999999",
+      "size": 8,
+      "category": "general"
+    },
+    {
+      "id": "topic_871",
+      "type": "general_topic",
+      "label": "multi-tool-orchestration",
+      "original_category": "general",
+      "color": "#999999",
+      "size": 8,
+      "category": "general"
+    },
+    {
+      "id": "topic_872",
+      "type": "general_topic",
+      "label": "relationship-traversal",
+      "original_category": "general",
+      "color": "#999999",
+      "size": 8,
+      "category": "general"
+    },
+    {
+      "id": "topic_874",
+      "type": "general_topic",
+      "label": "llm-agents",
+      "original_category": "general",
+      "color": "#999999",
+      "size": 8,
+      "category": "general"
+    },
+    {
+      "id": "topic_875",
+      "type": "personal_achievement",
+      "label": "Added `relationship_direction` field to all entity mappings in blueprints.",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_876",
+      "type": "personal_achievement",
+      "label": "Documented relationship flow: document \u2192 entity (e.g., document \u2192 person, document \u2192 institution).",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_877",
+      "type": "personal_achievement",
+      "label": "Updated tool guidance blueprint with relationship direction mappings.",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_878",
+      "type": "personal_achievement",
+      "label": "Enhanced `interactive_agent.py` with explicit multi-step guidance.",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_879",
+      "type": "personal_achievement",
+      "label": "Added specific examples for institution queries in agent.",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_880",
+      "type": "personal_achievement",
+      "label": "Added Claude 4 Sonnet support (`AGENT_MODEL=claude` using `anthropic/claude-sonnet-4`).",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_881",
+      "type": "personal_achievement",
+      "label": "Improved prompts to guide correct tool usage patterns.",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_882",
+      "type": "personal_achievement",
+      "label": "Updated README.md with current system status.",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_883",
+      "type": "personal_achievement",
+      "label": "Fixed CLAUDE.md to reflect actual agent files.",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_884",
+      "type": "personal_achievement",
+      "label": "Added comprehensive action plan for next steps.",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_885",
+      "type": "personal_achievement",
+      "label": "Updated .gitignore to exclude personal_notes/ and academic/ directories.",
+      "original_category": "accomplishment",
+      "color": "#44ff88",
+      "size": 11,
+      "category": "accomplishment"
+    },
+    {
+      "id": "topic_886",
+      "type": "general_topic",
+      "label": "The blueprint architecture for generating tools is solid and all data is properly connected with correct relationships, with 83+ tools generated correctly.",
+      "original_category": "research_insight",
+      "color": "#999999",
+      "size": 8,
+      "category": "research_insight"
+    },
+    {
+      "id": "topic_887",
+      "type": "general_topic",
+      "label": "Multi-tool orchestration is the bottleneck for LLMs, not the system design; Gemini struggles with chaining 3 tools in sequence.",
+      "original_category": "research_insight",
+      "color": "#999999",
+      "size": 8,
+      "category": "research_insight"
+    },
+    {
+      "id": "topic_888",
+      "type": "general_topic",
+      "label": "A clear solution path involves creating combined query tools, leveraging better LLM models like Claude 4 for superior instruction following, and using structured agent frameworks like ReAct or Chain-of-Thought.",
+      "original_category": "research_insight",
+      "color": "#999999",
+      "size": 8,
+      "category": "research_insight"
+    },
+    {
+      "id": "topic_889",
+      "type": "personal_learning",
+      "label": "Thoroughly read Interactive CV codebase and blueprint architecture, gaining a deep understanding.",
+      "original_category": "learning",
+      "color": "#66ff66",
+      "size": 11,
+      "category": "learning"
+    },
+    {
+      "id": "topic_890",
+      "type": "personal_learning",
+      "label": "Discovered that LLM instruction following varies significantly between models for complex multi-step tasks.",
+      "original_category": "learning",
+      "color": "#66ff66",
+      "size": 11,
+      "category": "learning"
+    },
+    {
+      "id": "topic_891",
+      "type": "challenge",
+      "label": "LLM agents struggle with multi-step orchestration.",
+      "original_category": "challenge",
+      "color": "#ff8888",
+      "size": 11,
+      "category": "challenge"
+    },
+    {
+      "id": "topic_892",
+      "type": "challenge",
+      "label": "Gemini struggles with chaining 3 tools in sequence (multi-tool orchestration bottleneck).",
+      "original_category": "challenge",
+      "color": "#ff8888",
+      "size": 11,
+      "category": "challenge"
+    },
+    {
+      "id": "topic_893",
+      "type": "future_direction",
+      "label": "Test institution query with Claude 4 model.",
+      "original_category": "future_work",
+      "color": "#8888ff",
+      "size": 11,
+      "category": "future_work"
+    },
+    {
+      "id": "topic_894",
+      "type": "future_direction",
+      "label": "If needed, implement `special_queries.yaml` blueprint for combined tools.",
+      "original_category": "future_work",
+      "color": "#8888ff",
+      "size": 11,
+      "category": "future_work"
+    },
+    {
+      "id": "topic_895",
+      "type": "future_direction",
+      "label": "Document successful patterns for other complex queries.",
+      "original_category": "future_work",
+      "color": "#8888ff",
+      "size": 11,
+      "category": "future_work"
+    },
+    {
       "id": "person_1",
       "type": "person",
       "label": "Mark S. Ball",
@@ -10246,6 +10479,32 @@
       "size": 10,
       "description": "To compute the optimal value function for the transformed, fully observable multivariate utility MDP.",
       "category": "algorithmic"
+    },
+    {
+      "id": "method_174",
+      "type": "general_method",
+      "label": "Chain-of-Thought",
+      "original_category": null,
+      "color": "#cc44cc",
+      "size": 10
+    },
+    {
+      "id": "method_180",
+      "type": "tool",
+      "label": "claude-4",
+      "original_category": "tool",
+      "color": "#ee44ee",
+      "size": 10,
+      "category": "tool"
+    },
+    {
+      "id": "method_181",
+      "type": "tool",
+      "label": "gemini",
+      "original_category": "tool",
+      "color": "#ee44ee",
+      "size": 10,
+      "category": "tool"
     },
     {
       "id": "application_1",
@@ -22509,21 +22768,345 @@
       "color": "#999999",
       "width": 1,
       "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_870",
+      "type": "discusses",
+      "confidence": 0.7,
+      "color": "#4444ff",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_871",
+      "type": "discusses",
+      "confidence": 0.7,
+      "color": "#4444ff",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_872",
+      "type": "discusses",
+      "confidence": 0.7,
+      "color": "#4444ff",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_241",
+      "type": "discusses",
+      "confidence": 0.7,
+      "color": "#4444ff",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_874",
+      "type": "discusses",
+      "confidence": 0.7,
+      "color": "#4444ff",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "project_3",
+      "type": "part_of",
+      "confidence": 1.0,
+      "color": "#ff8800",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "method_9",
+      "type": "uses_method",
+      "confidence": 0.8,
+      "color": "#cc44cc",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "method_174",
+      "type": "uses_method",
+      "confidence": 0.8,
+      "color": "#cc44cc",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "method_6",
+      "type": "uses_method",
+      "confidence": 0.8,
+      "color": "#cc44cc",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "method_59",
+      "type": "uses_method",
+      "confidence": 0.8,
+      "color": "#cc44cc",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "method_60",
+      "type": "uses_method",
+      "confidence": 0.8,
+      "color": "#cc44cc",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "method_57",
+      "type": "uses_method",
+      "confidence": 0.8,
+      "color": "#cc44cc",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "method_62",
+      "type": "uses_method",
+      "confidence": 0.8,
+      "color": "#cc44cc",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "method_180",
+      "type": "uses_method",
+      "confidence": 0.8,
+      "color": "#cc44cc",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "method_181",
+      "type": "uses_method",
+      "confidence": 0.8,
+      "color": "#cc44cc",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_875",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_876",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_877",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_878",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_879",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_880",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_881",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_882",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_883",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_884",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_885",
+      "type": "accomplished",
+      "confidence": 0.9,
+      "color": "#44ff44",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_886",
+      "type": "discovered",
+      "confidence": 0.9,
+      "color": "#44ffaa",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_887",
+      "type": "discovered",
+      "confidence": 0.9,
+      "color": "#44ffaa",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_888",
+      "type": "discovered",
+      "confidence": 0.9,
+      "color": "#44ffaa",
+      "width": 2,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_889",
+      "type": "learned",
+      "confidence": 0.8,
+      "color": "#999999",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_890",
+      "type": "learned",
+      "confidence": 0.8,
+      "color": "#999999",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_891",
+      "type": "faced_challenge",
+      "confidence": 0.7,
+      "color": "#999999",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_892",
+      "type": "faced_challenge",
+      "confidence": 0.7,
+      "color": "#999999",
+      "width": 1,
+      "style": "solid"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_893",
+      "type": "plans",
+      "confidence": 0.6,
+      "color": "#8888ff",
+      "width": 1,
+      "style": "dashed"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_894",
+      "type": "plans",
+      "confidence": 0.6,
+      "color": "#8888ff",
+      "width": 1,
+      "style": "dashed"
+    },
+    {
+      "source": "chronicle_10",
+      "target": "topic_895",
+      "type": "plans",
+      "confidence": 0.6,
+      "color": "#8888ff",
+      "width": 1,
+      "style": "dashed"
     }
   ],
   "metadata": {
     "version": "blueprint-v1.0",
-    "total_nodes": 1165,
-    "total_edges": 1339,
+    "total_nodes": 1194,
+    "total_edges": 1375,
     "node_types": {
       "paper": 12,
-      "personal_note": 9,
-      "general_topic": 45,
-      "personal_achievement": 87,
+      "personal_note": 10,
+      "general_topic": 52,
+      "personal_achievement": 98,
       "research_insight": 99,
-      "personal_learning": 27,
-      "challenge": 6,
-      "future_direction": 81,
+      "personal_learning": 29,
+      "challenge": 8,
+      "future_direction": 84,
       "math_foundation": 194,
       "research_area": 47,
       "assumption": 48,
@@ -22533,8 +23116,8 @@
       "person": 179,
       "project": 10,
       "institution": 25,
-      "general_method": 31,
-      "tool": 33,
+      "general_method": 32,
+      "tool": 35,
       "theoretical_method": 25,
       "analytical_method": 22,
       "algorithmic_method": 23,
@@ -22542,16 +23125,16 @@
       "application": 21
     },
     "relationship_types": {
-      "discusses": 289,
-      "part_of": 21,
+      "discusses": 294,
+      "part_of": 22,
       "mentions": 197,
       "affiliated_with": 28,
-      "uses_method": 169,
-      "accomplished": 92,
-      "discovered": 43,
-      "learned": 34,
-      "faced_challenge": 7,
-      "plans": 32,
+      "uses_method": 178,
+      "accomplished": 103,
+      "discovered": 46,
+      "learned": 36,
+      "faced_challenge": 9,
+      "plans": 35,
       "authored_by": 32,
       "has_application": 24,
       "makes_assumption": 48,
