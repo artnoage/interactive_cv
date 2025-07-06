@@ -1,8 +1,44 @@
 # Interactive CV System
 
-## Blueprint-Driven Knowledge Platform with AI Agents
+> ⚠️ **WARNING: UNDER ACTIVE DEVELOPMENT** ⚠️  
+> This project is experimental and rapidly evolving. Do not install unless you are a glutton for punishment and enjoy debugging complex AI systems. Expect breaking changes, incomplete documentation, and the occasional digital meltdown. You have been warned! 🔥
 
-An intelligent system that transforms academic research papers and personal notes into a dynamic, queryable professional profile using **blueprint-driven architecture** and **AI agent orchestration**.
+## Why This Project Exists: The Problem
+
+Traditional CVs are static documents that fail to capture the dynamic interconnections of modern research and professional work. Academic profiles scatter across multiple platforms, personal insights get buried in notes, and the rich relationships between ideas, people, and projects remain invisible.
+
+**The Vision**: Transform scattered professional knowledge into an intelligent, queryable system that understands the deep connections between your work, research, and ideas.
+
+## What This Actually Does
+
+**Interactive CV** is a blueprint-driven knowledge platform that:
+
+1. **Ingests** your academic papers and personal notes
+2. **Extracts** structured knowledge using AI agents and configurable YAML blueprints
+3. **Builds** a rich knowledge graph with semantic search capabilities
+4. **Provides** an intelligent conversational agent that can answer complex questions about your work
+
+**Example queries it can handle:**
+- "What's the connection between my work on optimal transport and machine learning?"
+- "Which collaborators have I worked with on reinforcement learning projects?"
+- "How do my personal learning goals align with my published research?"
+- "What institutions are associated with my stochastic control work?"
+
+## How Blueprints Make It Universal
+
+The key innovation is **configuration over code**. Instead of hardcoding extraction rules for specific domains, the system uses YAML blueprints that define:
+
+- **What to extract** from documents (fields, entities, relationships)
+- **How to structure** the knowledge (database schema, entity types)
+- **How to visualize** connections (node colors, graph layouts)
+
+This means the same codebase can work for:
+- **Academic researchers** (papers, citations, collaborations)
+- **Software engineers** (projects, technologies, contributions)  
+- **Business professionals** (initiatives, partnerships, outcomes)
+- **Creative professionals** (works, influences, techniques)
+
+Just swap out the blueprints, and the entire system adapts to your domain.
 
 ## 🏗️ System Architecture Overview
 
@@ -402,14 +438,24 @@ The blueprint-driven architecture makes contributions easy:
 4. **Extend database schema** via `database_schema.yaml`
 5. **Train agents on new domains** using blueprint configurations
 
-## 🔮 Future Enhancements
+## 🔮 Future Possibilities
 
-- **Multi-language blueprint support** for international research
-- **Citation network analysis** with academic graph exploration  
-- **Automated paper discovery** and import from academic databases
-- **Blueprint marketplace** for sharing domain configurations
-- **Real-time collaborative editing** of knowledge graphs
-- **Export capabilities** to various CV formats (PDF, JSON, LaTeX)
+### Domain Expansion
+- **Blueprint library** for different professions (engineering, medicine, law, arts)
+- **Industry-specific templates** with pre-configured extraction schemas
+- **Cross-domain blueprint mixing** for interdisciplinary professionals
+
+### Application Ideas
+- **"Chat with Your Documents" app** - Use the same semantic search and agent system for any document collection
+- **Team knowledge bases** - Multiple people contributing to shared knowledge graphs
+- **Research collaboration networks** - Connect researchers with similar interests across institutions
+- **Personal learning assistants** - Track learning progress and suggest connections
+
+### Technical Enhancements  
+- **Citation network analysis** with academic graph exploration
+- **Automated content discovery** from academic databases and repositories
+- **Multi-modal support** for images, presentations, and videos
+- **Real-time synchronization** with external platforms (ORCID, Google Scholar, LinkedIn)
 
 ---
 
