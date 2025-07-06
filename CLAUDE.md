@@ -54,8 +54,6 @@ python interactive_agent.py
 # Use Claude for best instruction following (recommended)
 AGENT_MODEL=claude python interactive_agent.py
 
-# Use DeepSeek for cost-effective reasoning
-AGENT_MODEL=deepseek python interactive_agent.py
 
 # Use Pro model
 AGENT_MODEL=pro python interactive_agent.py

@@ -324,7 +324,7 @@
 
         .chat-input {
             flex: 1;
-            padding: 0.75rem 1rem;
+            padding: 0.625rem 0.875rem;
             background: var(--bg-tertiary);
             border: 1px solid var(--border-soft);
             border-radius: 8px;
@@ -332,8 +332,8 @@
             font-size: 0.875rem;
             font-family: inherit;
             resize: none;
-            min-height: 44px;
-            max-height: 120px;
+            min-height: 36px;
+            max-height: 80px;
             transition: all 0.2s ease;
         }
 
@@ -344,8 +344,31 @@
         }
 
         .chat-send {
-            padding: 0.75rem 1.5rem;
+            padding: 0.625rem 1rem;
             align-self: flex-end;
+        }
+
+        .chat-clear {
+            padding: 0.625rem;
+            align-self: flex-end;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-soft);
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+
+        .chat-clear:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .chat-footer {
+            padding: 0.5rem 1rem;
+            border-top: 1px solid var(--border-soft);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-style: italic;
         }
 
         /* Graph Panel (Right) */
@@ -517,7 +540,12 @@
                 <textarea class="chat-input" id="chat-input" 
                     placeholder="Type your question..." 
                     rows="1"></textarea>
+                <button class="btn chat-clear" id="clear-chat" title="Clear chat history">🗑️</button>
                 <button class="btn btn-primary chat-send" id="send-message">Send</button>
+            </div>
+            
+            <div class="chat-footer">
+                💚 Keep your chats short... it's good for the environment! 🌱 and for my pocket.
             </div>
         </main>
 
@@ -634,15 +662,13 @@
                     l.source === node.id || l.target === node.id
                 ).length;
                 
-                // Create detailed tooltip
-                let tooltip = `<div style="padding: 8px; max-width: 300px;">`;
-                tooltip += `<strong style="color: #c9d1d9; font-size: 14px;">${cleanLabel}</strong><br/>`;
-                tooltip += `<span style="color: #8b949e; font-size: 12px;">Type: ${nodeType.replace(/_/g, ' ')}</span><br/>`;
+                // Create detailed tooltip as plain text (vis.js doesn't render HTML in tooltips properly)
+                let tooltip = `${cleanLabel}\n`;
+                tooltip += `Type: ${nodeType.replace(/_/g, ' ')}\n`;
                 if (node.description) {
-                    tooltip += `<span style="color: #8b949e; font-size: 12px; line-height: 1.4;">${node.description}</span><br/>`;
+                    tooltip += `${node.description}\n`;
                 }
-                tooltip += `<span style="color: #6e7681; font-size: 11px;">Connections: ${edgeCount}</span>`;
-                tooltip += `</div>`;
+                tooltip += `Connections: ${edgeCount}`;
                 
                 return {
                     id: node.id,
@@ -681,15 +707,13 @@
                     const targetLabel = targetNode ? (targetNode.label || targetNode.id).replace(/_/g, ' ') : link.target;
                     const edgeType = (link.type || 'related').replace(/_/g, ' ');
                     
-                    // Create tooltip
-                    let tooltip = `<div style="padding: 8px;">`;
-                    tooltip += `<strong style="color: #c9d1d9;">${sourceLabel}</strong><br/>`;
-                    tooltip += `<span style="color: #8b949e;">↓ ${edgeType} ↓</span><br/>`;
-                    tooltip += `<strong style="color: #c9d1d9;">${targetLabel}</strong>`;
+                    // Create tooltip as plain text
+                    let tooltip = `${sourceLabel}\n`;
+                    tooltip += `↓ ${edgeType} ↓\n`;
+                    tooltip += `${targetLabel}`;
                     if (link.description) {
-                        tooltip += `<br/><span style="color: #6e7681; font-size: 11px;">${link.description}</span>`;
+                        tooltip += `\n${link.description}`;
                     }
-                    tooltip += `</div>`;
                     
                     edgeMap.set(edgeId, {
                         id: edgeId,
@@ -969,12 +993,13 @@
         function setupChat() {
             const chatInput = document.getElementById('chat-input');
             const sendButton = document.getElementById('send-message');
+            const clearButton = document.getElementById('clear-chat');
             const chatMessages = document.getElementById('chat-messages');
 
-            // Auto-resize textarea
+            // Auto-resize textarea (reduced max height)
             chatInput.addEventListener('input', function() {
                 this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                this.style.height = Math.min(this.scrollHeight, 80) + 'px';
             });
 
             // Send message on Enter (Shift+Enter for new line)
@@ -986,6 +1011,28 @@
             });
 
             sendButton.addEventListener('click', sendMessage);
+            clearButton.addEventListener('click', clearChat);
+        }
+
+        function clearChat() {
+            const chatMessages = document.getElementById('chat-messages');
+            
+            // Keep only the welcome message
+            chatMessages.innerHTML = `
+                <div class="message message-bot">
+                    Welcome! I'm here to help you explore Vaios Laschos's research journey. You can ask me about:
+                    <br><br>
+                    • His papers on optimal transport and mathematical theory
+                    <br>• Recent work in machine learning and AI
+                    <br>• Research evolution from pure math to applied ML
+                    <br>• Specific projects or collaborations
+                    <br><br>
+                    As we chat, I'll highlight relevant nodes in the knowledge graph on the right!
+                </div>
+            `;
+            
+            // Reset thread ID for new conversation
+            threadId = 'web-session-' + Date.now();
         }
 
         async function sendMessage() {

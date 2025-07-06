@@ -8,6 +8,7 @@ import os
 import sys
 import sqlite3
 import numpy as np
+import asyncio
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Annotated, Tuple
 from operator import add
@@ -28,10 +29,14 @@ from dotenv import load_dotenv
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
+# Add MCP path for sequential thinking
+mcp_path = project_root / "mcp_subfolder"
+sys.path.insert(0, str(mcp_path))
+
 from Profile.profile_loader import ProfileLoader
 from RAG.semantic_search import SemanticSearchEngine
 from agents.manuscript_agent import ManuscriptAgent
-from agents.sequential_reasoning_agent import SequentialReasoningSync
+from client.mcp_client import SequentialThinkingClient
 
 load_dotenv()
 
@@ -730,21 +735,18 @@ def sequential_reasoning(problem: str, domain: str = "general", use_alternatives
     Returns structured step-by-step reasoning analysis.
     """
     try:
-        # For now, use simplified reasoning for reliability
-        # MCP Sequential Thinking can hang in agent context
-        print("Using simplified sequential reasoning for reliability")
-        return _simple_sequential_reasoning(problem, domain, use_alternatives)
+        # Use MCP Sequential Thinking
+        print("Starting MCP Sequential Reasoning...")
         
-        # TODO: Fix MCP integration hanging issue
-        # reasoning_agent = SequentialReasoningSync()
-        # if use_alternatives:
-        #     result = reasoning_agent.reason_alternatives(problem, domain)
-        # else:
-        #     result = reasoning_agent.reason(problem, domain, max_steps=5)
-        # return result
+        if use_alternatives:
+            result = _run_mcp_reasoning_with_alternatives(problem, domain)
+        else:
+            result = _run_mcp_reasoning(problem, domain, max_steps=5)
+        
+        return result
         
     except Exception as e:
-        print(f"Sequential Thinking failed: {e}")
+        print(f"MCP Sequential Thinking failed: {e}")
         # Fallback to simplified reasoning
         return _simple_sequential_reasoning(problem, domain, use_alternatives)
 
@@ -790,6 +792,186 @@ def _simple_sequential_reasoning(problem: str, domain: str, use_alternatives: bo
     return "\n".join(result)
 
 
+def _run_mcp_reasoning(problem: str, domain: str, max_steps: int = 5) -> str:
+    """Run MCP sequential reasoning synchronously."""
+    try:
+        return asyncio.run(_async_mcp_reasoning(problem, domain, max_steps))
+    except Exception as e:
+        raise RuntimeError(f"MCP reasoning failed: {e}")
+
+
+def _run_mcp_reasoning_with_alternatives(problem: str, domain: str) -> str:
+    """Run MCP reasoning with alternatives synchronously."""
+    try:
+        return asyncio.run(_async_mcp_reasoning_with_alternatives(problem, domain))
+    except Exception as e:
+        raise RuntimeError(f"MCP alternative reasoning failed: {e}")
+
+
+async def _async_mcp_reasoning(problem: str, domain: str, max_steps: int) -> str:
+    """Async MCP sequential reasoning implementation."""
+    client = None
+    try:
+        # Start MCP client
+        server_command = ["python", str(mcp_path / "server" / "sequential_thinking_server.py")]
+        client = SequentialThinkingClient(server_command)
+        await client.start()
+        
+        # Step 1: Initial analysis
+        result = await client.think(
+            f"Analyzing the {domain} problem: {problem}",
+            next_thought_needed=True,
+            total_thoughts=max_steps
+        )
+        
+        thoughts = [result]
+        
+        # Continue sequential thinking
+        for step in range(2, max_steps + 1):
+            if not result.get("next_thought_needed", False):
+                break
+            
+            # Generate next thought
+            next_thought = _generate_next_thought(thoughts, problem, domain, step)
+            
+            result = await client.think(
+                next_thought,
+                next_thought_needed=(step < max_steps),
+                total_thoughts=max_steps
+            )
+            
+            thoughts.append(result)
+        
+        # Format result
+        return _format_mcp_reasoning_result(thoughts, problem)
+        
+    finally:
+        if client and hasattr(client, 'mcp_client'):
+            try:
+                await client.mcp_client.stop_server()
+            except:
+                pass
+
+
+async def _async_mcp_reasoning_with_alternatives(problem: str, domain: str) -> str:
+    """Async MCP reasoning with alternatives."""
+    client = None
+    try:
+        # Start MCP client
+        server_command = ["python", str(mcp_path / "server" / "sequential_thinking_server.py")]
+        client = SequentialThinkingClient(server_command)
+        await client.start()
+        
+        # Main reasoning path
+        main_result = await client.think(
+            f"Primary analysis of {domain} problem: {problem}",
+            next_thought_needed=True,
+            total_thoughts=3
+        )
+        
+        # Alternative reasoning path
+        alt_result = await client.think(
+            f"Alternative approach to: {problem}",
+            next_thought_needed=True,
+            total_thoughts=3,
+            branch_from_thought=1,
+            branch_id="alternative_1"
+        )
+        
+        # Format both paths
+        return _format_alternative_reasoning_result([main_result], [alt_result], problem)
+        
+    finally:
+        if client and hasattr(client, 'mcp_client'):
+            try:
+                await client.mcp_client.stop_server()
+            except:
+                pass
+
+
+def _generate_next_thought(previous_thoughts: List[Dict], problem: str, domain: str, step: int) -> str:
+    """Generate the next thought in the reasoning chain."""
+    if step == 2:
+        return f"Breaking down the key components and relationships in this {domain} problem"
+    elif step == 3:
+        return "Identifying the core concepts and connections that need to be analyzed"
+    elif step == 4:
+        return "Evaluating the available information and identifying any gaps"
+    elif step == 5:
+        return "Synthesizing insights and drawing connections"
+    else:
+        return "Finalizing the analysis and providing a comprehensive conclusion"
+
+
+def _format_mcp_reasoning_result(thoughts: List[Dict], problem: str) -> str:
+    """Format MCP reasoning result into readable output."""
+    result = [f"MCP Sequential Reasoning Analysis for: {problem}"]
+    result.append("=" * 60)
+    result.append("")
+    
+    for i, thought in enumerate(thoughts, 1):
+        # Extract content from MCP response format
+        if isinstance(thought, dict) and 'content' in thought:
+            if isinstance(thought['content'], list):
+                content_text = ""
+                for block in thought['content']:
+                    if isinstance(block, dict) and 'text' in block:
+                        content_text += block['text']
+                    elif isinstance(block, str):
+                        content_text += block
+                result.append(f"Step {i}: {content_text}")
+            else:
+                result.append(f"Step {i}: {thought['content']}")
+        else:
+            result.append(f"Step {i}: {str(thought)}")
+        
+        result.append("")
+    
+    return "\n".join(result)
+
+
+def _format_alternative_reasoning_result(main_thoughts: List[Dict], alt_thoughts: List[Dict], problem: str) -> str:
+    """Format alternative reasoning result."""
+    result = [f"Multi-Path MCP Reasoning Analysis for: {problem}"]
+    result.append("=" * 60)
+    result.append("")
+    
+    result.append("PRIMARY APPROACH:")
+    result.append("-" * 20)
+    for i, thought in enumerate(main_thoughts, 1):
+        content = _extract_thought_content(thought)
+        result.append(f"Step {i}: {content}")
+    
+    result.append("")
+    result.append("ALTERNATIVE APPROACH:")
+    result.append("-" * 20)
+    for i, thought in enumerate(alt_thoughts, 1):
+        content = _extract_thought_content(thought)
+        result.append(f"Alt {i}: {content}")
+    
+    result.append("")
+    result.append("SYNTHESIS:")
+    result.append("Both approaches provide complementary insights for comprehensive understanding.")
+    
+    return "\n".join(result)
+
+
+def _extract_thought_content(thought: Dict) -> str:
+    """Extract content from MCP thought response."""
+    if isinstance(thought, dict) and 'content' in thought:
+        if isinstance(thought['content'], list):
+            content_text = ""
+            for block in thought['content']:
+                if isinstance(block, dict) and 'text' in block:
+                    content_text += block['text']
+                elif isinstance(block, str):
+                    content_text += block
+            return content_text
+        else:
+            return str(thought['content'])
+    return str(thought)
+
+
 # Define state structure
 class AgentState(dict):
     """Agent state for the conversation."""
@@ -813,8 +995,7 @@ class InteractiveCVAgent:
         models = {
             "flash": "google/gemini-2.5-flash",
             "pro": "google/gemini-2.5-pro",
-            "claude": "anthropic/claude-sonnet-4",
-            "deepseek": "deepseek/deepseek-r1-0528"
+            "claude": "anthropic/claude-sonnet-4"
         }
         model_name = models.get(model_key, models["flash"])
         
@@ -907,8 +1088,7 @@ class InteractiveCVAgent:
                     models = {
                         "flash": "google/gemini-2.5-flash",
                         "pro": "google/gemini-2.5-pro",
-                        "claude": "anthropic/claude-sonnet-4",
-                        "deepseek": "deepseek/deepseek-r1-0528"
+                        "claude": "anthropic/claude-sonnet-4"
                     }
                     model_name = models.get(current_model, models["flash"])
                     
