@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Comprehensive test of Interactive CV Agent using the full QA test set.
-Uses the embedding-first agent with 3 unified tools.
+Uses the embedding-first agent with 6 unified tools + MCP integration.
+Includes baseline evaluation, model comparison, and detailed performance analysis.
 """
 
 import json
@@ -12,6 +13,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 import time
 import argparse
+from datetime import datetime
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent))
@@ -322,30 +324,267 @@ class ComprehensiveAgentEvaluator:
         with open(filename, "w") as f:
             json.dump(output, f, indent=2)
         print(f"\n💾 Results saved to {filename}")
+    
+    def run_baseline_evaluation(self, model_name: str = "flash") -> List[Dict[str, Any]]:
+        """Run comprehensive baseline evaluation with enhanced reporting."""
+        print(f"\n🚀 INTERACTIVE CV AGENT - BASELINE EVALUATION")
+        print("="*80)
+        print(f"🎯 Testing agent with 6 unified tools + MCP integration:")
+        print("   1. semantic_search - Unified embedding search across all entities")
+        print("   2. navigate_relationships - Graph traversal (forward/reverse)")
+        print("   3. get_entity_details - Get full entity information")
+        print("   4. list_available_papers - Paper catalog access")
+        print("   5. consult_manuscript - Deep document analysis (META TOOL)")
+        print("   6. sequential_reasoning - Structured analysis (META TOOL)")
+        print("="*80)
+        
+        start_time = time.time()
+        results = self.evaluate_all_questions()
+        total_time = time.time() - start_time
+        
+        if results:
+            self.print_baseline_analysis(results, total_time, model_name)
+        
+        return results
+    
+    def print_baseline_analysis(self, results: List[Dict[str, Any]], total_time: float, model_name: str):
+        """Print detailed baseline analysis."""
+        print("\n" + "="*80)
+        print("🎯 BASELINE PERFORMANCE REPORT")
+        print("="*80)
+        
+        total_questions = len(results)
+        total_score = sum(r["judgment"]["score"] for r in results)
+        avg_score = total_score / total_questions
+        
+        print(f"\n📊 OVERALL BASELINE METRICS:")
+        print(f"   • Total Questions: {total_questions}")
+        print(f"   • Average Score: {avg_score:.1f}/100")
+        print(f"   • Total Time: {total_time:.1f}s ({total_time/total_questions:.1f}s per question)")
+        print(f"   • Model Used: {model_name}")
+        
+        # Performance categorization
+        excellent = len([r for r in results if r["judgment"]["score"] >= 90])
+        good = len([r for r in results if 70 <= r["judgment"]["score"] < 90])
+        satisfactory = len([r for r in results if 50 <= r["judgment"]["score"] < 70])
+        poor = len([r for r in results if 20 <= r["judgment"]["score"] < 50])
+        incorrect = len([r for r in results if r["judgment"]["score"] < 20])
+        
+        print(f"\n🎯 PERFORMANCE BREAKDOWN:")
+        print(f"   • Excellent (90-100): {excellent:2d} ({excellent/total_questions*100:4.1f}%)")
+        print(f"   • Good (70-89):       {good:2d} ({good/total_questions*100:4.1f}%)")
+        print(f"   • Satisfactory (50-69): {satisfactory:2d} ({satisfactory/total_questions*100:4.1f}%)")
+        print(f"   • Poor (20-49):       {poor:2d} ({poor/total_questions*100:4.1f}%)")
+        print(f"   • Incorrect (0-19):   {incorrect:2d} ({incorrect/total_questions*100:4.1f}%)")
+        
+        # Top and bottom performers
+        sorted_results = sorted(results, key=lambda r: r["judgment"]["score"])
+        print(f"\n❌ WORST PERFORMING QUESTIONS (optimization focus):")
+        for i, result in enumerate(sorted_results[:5], 1):
+            score = result["judgment"]["score"]
+            question = result["question"][:60] + "..." if len(result["question"]) > 60 else result["question"]
+            print(f"   {i}. Q{result['question_id']:2d} ({score:3d}/100): {question}")
+        
+        print(f"\n✅ BEST PERFORMING QUESTIONS:")
+        for i, result in enumerate(sorted_results[-5:], 1):
+            score = result["judgment"]["score"]
+            question = result["question"][:60] + "..." if len(result["question"]) > 60 else result["question"]
+            print(f"   {i}. Q{result['question_id']:2d} ({score:3d}/100): {question}")
+        
+        # Optimization recommendations
+        print(f"\n🔧 OPTIMIZATION RECOMMENDATIONS:")
+        if avg_score < 30:
+            print("   🚨 CRITICAL: Agent performance is very poor (<30/100)")
+            print("   • Check if tools are accessing the right data")
+            print("   • Verify semantic search is working correctly")
+            print("   • Review agent prompting and tool guidance")
+        elif avg_score < 50:
+            print("   ⚠️  NEEDS IMPROVEMENT: Agent performance is below acceptable (30-50/100)")
+            print("   • Optimize tool selection strategies")
+            print("   • Improve semantic search thresholds")
+            print("   • Enhance system prompting")
+        elif avg_score < 70:
+            print("   📈 MODERATE: Agent performance is acceptable (50-70/100)")
+            print("   • Fine-tune semantic search parameters")
+            print("   • Optimize tool orchestration")
+            print("   • Consider using Pro model for better reasoning")
+        else:
+            print("   ✅ GOOD: Agent performance is solid (>70/100)")
+            print("   • Fine-tune edge cases")
+            print("   • Optimize response time")
+    
+    def compare_models(self, question_count: int = 5) -> Dict[str, float]:
+        """Compare Flash vs Pro vs Claude model performance."""
+        print(f"\n🔄 FLASH vs PRO vs CLAUDE MODEL COMPARISON")
+        print("="*50)
+        
+        results = {}
+        
+        # Test Flash model
+        print(f"\n⚡ Testing with Flash model ({question_count} questions)...")
+        os.environ["AGENT_MODEL"] = "flash"
+        os.environ["JUDGE_MODEL"] = "flash"
+        
+        flash_results = self.evaluate_random_questions(question_count)
+        results["flash"] = sum(r["judgment"]["score"] for r in flash_results) / len(flash_results)
+        flash_questions = [r["question_id"] for r in flash_results]
+        
+        # Test Pro model with same questions
+        print(f"\n🧠 Testing with Pro model (same questions)...")
+        os.environ["AGENT_MODEL"] = "pro"
+        os.environ["JUDGE_MODEL"] = "pro"
+        
+        pro_results = self.evaluate_subset(flash_questions)
+        results["pro"] = sum(r["judgment"]["score"] for r in pro_results) / len(pro_results)
+        
+        # Test Claude model with same questions
+        print(f"\n🤖 Testing with Claude model (same questions)...")
+        os.environ["AGENT_MODEL"] = "claude"
+        os.environ["JUDGE_MODEL"] = "claude"
+        
+        claude_results = self.evaluate_subset(flash_questions)
+        results["claude"] = sum(r["judgment"]["score"] for r in claude_results) / len(claude_results)
+        
+        # Print comparison
+        print(f"\n📊 MODEL COMPARISON RESULTS:")
+        print(f"   • Flash Model:  {results['flash']:.1f}/100")
+        print(f"   • Pro Model:    {results['pro']:.1f}/100")
+        print(f"   • Claude Model: {results['claude']:.1f}/100")
+        
+        best_model = max(results, key=results.get)
+        print(f"\n   🏆 Best: {best_model.capitalize()} ({results[best_model]:.1f}/100)")
+        
+        return results
+    
+    def save_baseline_report(self, results: List[Dict[str, Any]], model_name: str, filename: str = None):
+        """Save comprehensive baseline report."""
+        if filename is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"baseline_evaluation_{model_name}_{timestamp}.json"
+        
+        # Calculate category performance
+        category_scores = {}
+        for r in results:
+            cat = r["category"]
+            if cat not in category_scores:
+                category_scores[cat] = []
+            category_scores[cat].append(r["judgment"]["score"])
+        
+        # Performance breakdown
+        total_questions = len(results)
+        excellent = len([r for r in results if r["judgment"]["score"] >= 90])
+        good = len([r for r in results if 70 <= r["judgment"]["score"] < 90])
+        satisfactory = len([r for r in results if 50 <= r["judgment"]["score"] < 70])
+        poor = len([r for r in results if 20 <= r["judgment"]["score"] < 50])
+        incorrect = len([r for r in results if r["judgment"]["score"] < 20])
+        
+        baseline_report = {
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "model_used": model_name,
+            "evaluation_type": "comprehensive_baseline",
+            "agent_description": "6 unified tools + MCP integration",
+            "summary": {
+                "total_questions": total_questions,
+                "average_score": sum(r["judgment"]["score"] for r in results) / total_questions,
+                "total_time": sum(r["answer_time"] for r in results),
+                "performance_breakdown": {
+                    "excellent": excellent,
+                    "good": good,
+                    "satisfactory": satisfactory,
+                    "poor": poor,
+                    "incorrect": incorrect
+                },
+                "category_performance": {cat: sum(scores)/len(scores) for cat, scores in category_scores.items()}
+            },
+            "detailed_results": results
+        }
+        
+        with open(filename, 'w') as f:
+            json.dump(baseline_report, f, indent=2)
+        
+        print(f"\n💾 Baseline report saved to: {filename}")
+        return filename
 
 
 def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Comprehensive Evaluation of Interactive CV Agent")
-    parser.add_argument("--all", action="store_true", help="Evaluate all 35 questions")
-    parser.add_argument("--random", type=int, default=5, help="Evaluate N random questions (default: 5)")
-    parser.add_argument("--category", choices=["single_paper", "personal_notes", "cross_paper", "cross_domain"], 
-                       help="Evaluate questions from specific category")
-    parser.add_argument("--difficulty", choices=["easy", "medium", "hard", "very_hard"], 
-                       help="Evaluate questions of specific difficulty")
-    parser.add_argument("--questions", nargs="+", type=int, help="Question IDs to evaluate (1-35)")
+    parser = argparse.ArgumentParser(
+        description="Comprehensive Evaluation of Interactive CV Agent",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python test_agent_comprehensive.py --all --baseline --claude --save
+  python test_agent_comprehensive.py --random 10 --pro --verbose
+  python test_agent_comprehensive.py --category cross_domain --baseline
+  python test_agent_comprehensive.py --compare-models --questions 5
+  python test_agent_comprehensive.py --quick --flash
+        """
+    )
+    
+    # Evaluation scope
+    eval_group = parser.add_mutually_exclusive_group()
+    eval_group.add_argument("--all", action="store_true", help="Evaluate all 35 questions")
+    eval_group.add_argument("--random", type=int, default=5, help="Evaluate N random questions (default: 5)")
+    eval_group.add_argument("--quick", action="store_true", help="Quick test with 3 random questions")
+    eval_group.add_argument("--category", choices=["single_paper", "personal_notes", "cross_paper", "cross_domain"], 
+                           help="Evaluate questions from specific category")
+    eval_group.add_argument("--difficulty", choices=["easy", "medium", "hard", "very_hard"], 
+                           help="Evaluate questions of specific difficulty")
+    eval_group.add_argument("--questions", nargs="+", type=int, help="Question IDs to evaluate (1-35)")
+    eval_group.add_argument("--compare-models", action="store_true", help="Compare Flash vs Pro vs Claude models")
+    
+    # Model selection
+    model_group = parser.add_mutually_exclusive_group()
+    model_group.add_argument("--flash", action="store_true", help="Use Flash model (default, fastest)")
+    model_group.add_argument("--pro", action="store_true", help="Use Pro model (better performance)")
+    model_group.add_argument("--claude", action="store_true", help="Use Claude model (best instruction following)")
+    
+    # Reporting options
+    parser.add_argument("--baseline", action="store_true", help="Run baseline evaluation with enhanced reporting")
     parser.add_argument("--save", action="store_true", help="Save results to file")
-    parser.add_argument("--quick", action="store_true", help="Quick test with 3 random questions")
+    parser.add_argument("--no-save", action="store_true", help="Don't save results to file")
+    parser.add_argument("--output-file", type=str, help="Specify output filename")
+    parser.add_argument("--verbose", action="store_true", help="Verbose output with detailed analysis")
+    parser.add_argument("--summary-only", action="store_true", help="Show only summary, skip individual question details")
     
     args = parser.parse_args()
+    
+    # Set model environment variables
+    model_name = "flash"  # default
+    if args.claude:
+        os.environ["AGENT_MODEL"] = "claude"
+        os.environ["JUDGE_MODEL"] = "claude"
+        model_name = "claude"
+        print("🤖 Using Claude models (best instruction following)")
+    elif args.pro:
+        os.environ["AGENT_MODEL"] = "pro"
+        os.environ["JUDGE_MODEL"] = "pro"
+        model_name = "pro"
+        print("🧠 Using Pro models (better performance)")
+    elif args.flash:
+        os.environ["AGENT_MODEL"] = "flash"
+        os.environ["JUDGE_MODEL"] = "flash"
+        model_name = "flash"
+        print("⚡ Using Flash models (fastest)")
     
     # Initialize evaluator
     evaluator = ComprehensiveAgentEvaluator()
     
+    # Handle model comparison
+    if args.compare_models:
+        question_count = args.questions[0] if args.questions else 5
+        evaluator.compare_models(question_count)
+        return
+    
     # Run evaluation based on arguments
+    results = []
+    
     if args.all:
-        print("\n🎯 Evaluating ALL 35 questions...")
-        results = evaluator.evaluate_all_questions()
+        if args.baseline:
+            results = evaluator.run_baseline_evaluation(model_name)
+        else:
+            print("\n🎯 Evaluating ALL 35 questions...")
+            results = evaluator.evaluate_all_questions()
     elif args.category:
         print(f"\n📂 Evaluating {args.category} questions...")
         results = evaluator.evaluate_by_category(args.category)
@@ -360,16 +599,35 @@ def main():
         results = evaluator.evaluate_random_questions(3)
     else:
         # Default: random questions
-        count = args.random if not args.all else 5
+        count = args.random
         print(f"\n🎲 Evaluating {count} random questions...")
         results = evaluator.evaluate_random_questions(count)
     
-    # Print summary
-    evaluator.print_summary(results)
+    # Print summary (unless summary-only and baseline was already run)
+    if not (args.baseline and args.all):
+        if args.baseline and results:
+            # Print baseline analysis for non-full evaluations
+            total_time = sum(r["answer_time"] for r in results)
+            evaluator.print_baseline_analysis(results, total_time, model_name)
+        elif not args.summary_only:
+            evaluator.print_summary(results)
+        else:
+            # Summary only
+            if results:
+                avg_score = sum(r["judgment"]["score"] for r in results) / len(results)
+                print(f"\n📊 SUMMARY: {len(results)} questions, Average: {avg_score:.1f}/100")
     
-    # Save if requested
-    if args.save:
-        evaluator.save_results(results)
+    # Save results
+    save_results = args.save or (not args.no_save and (args.baseline or args.all))
+    
+    if save_results and results:
+        if args.baseline:
+            evaluator.save_baseline_report(results, model_name, args.output_file)
+        else:
+            if args.output_file:
+                evaluator.save_results(results, args.output_file)
+            else:
+                evaluator.save_results(results)
     
     print("\n✅ Comprehensive evaluation complete!")
 
