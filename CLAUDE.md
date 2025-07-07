@@ -60,6 +60,11 @@ A **quality assurance agent** that intervenes ONLY when the agent provides truly
 - Eliminates coaching loops that could block good answers
 - Maintains high quality scoring (e.g., risk-sensitive POMDP question scores 95/100)
 
+**Evolution from v1 to v2**:
+- **v1**: Intervened too frequently, sometimes blocking good answers
+- **v2**: Smarter detection - only intervenes for truly non-informative responses
+- **Result**: Better performance on complex questions without unnecessary interruptions
+
 **Workflow**: User → Agent → Tools → **Quality Check** → (Pep Talk if needed) → User
 
 This ensures quality responses without blocking legitimate answers that contain real information!
@@ -150,13 +155,13 @@ python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
 
 ## 🎯 Profile Setup
 
-1. Edit `Profile/Profile_Prompt.md` with your information:
-   - Core identity and background
-   - Research expertise
-   - Professional experience
-   - Current focus areas
+1. The system includes a **built-in profile** for Vaios Laschos:
+   - Profile is embedded in `Profile/profile_loader.py` for reliability
+   - No manual setup required - works out of the box
+   - Includes complete identity, research expertise, and professional experience
+   - To customize: Edit the `prompt_content` in `ProfileLoader._load_agent_prompt()`
 
-2. The agent automatically loads this profile - no code changes needed
+2. The agent automatically loads this built-in profile - fully self-contained
 
 ## 🔧 Technical Details
 
@@ -174,8 +179,11 @@ python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
 
 ```bash
 # Required API keys in .env:
-OPENROUTER_API_KEY=your_key_here
-OPENAI_API_KEY=your_key_here
+OPENROUTER_API_KEY=your_key_here    # For LLM agents (Gemini, Claude models)
+OPENAI_API_KEY=your_key_here        # For embeddings (text-embedding-3-large)
+
+# Optional environment variables:
+AGENT_MODEL=claude                  # Model selection (claude, flash, pro)
 ```
 
 ### Best Practices

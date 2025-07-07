@@ -187,6 +187,11 @@ The agent uses **LangGraph** for sophisticated workflow orchestration with two m
 - Step-by-step reasoning for complex cross-domain questions
 - JSON-RPC communication with dedicated MCP server subprocess
 - Handles multi-domain connections and theoretical-practical bridges
+- **Implementation**: Spawns a subprocess running `sequential_thinking_server.py` that:
+  - Accepts structured reasoning requests via JSON-RPC
+  - Performs systematic step-by-step analysis using LLM
+  - Returns structured insights with evidence chains
+  - Particularly effective for "connection between X and Y" questions
 
 #### **The Pep Talk Coach v2: Smart Quality Assurance** 🎯
 
@@ -251,22 +256,21 @@ The Pep Talk Coach democratizes access to high-quality AI interactions regardles
 
 ## 🚀 Quick Start
 
-### 1. Profile Setup (Required)
-```bash
-# Edit your profile with personal/professional information
-nano Profile/Profile_Prompt.md
-```
+### 1. Profile Setup (Built-in)
+The system includes a comprehensive built-in profile for Vaios Laschos. No manual profile setup is required - the profile is embedded in the code for reliability and consistency.
 
 ### 2. Environment Setup
 ```bash
-# Install dependencies
+# Install dependencies (recommended: use uv for faster installation)
 pip install -r requirements.txt
+# or with uv:
+uv pip install -r requirements.txt
 
 # Set up API keys
 cp .env.example .env
-# Add your keys:
-# OPENROUTER_API_KEY=your_key_here  
-# OPENAI_API_KEY=your_key_here
+# Edit .env and add your keys:
+# OPENROUTER_API_KEY=your_key_here  # Required for LLM agents
+# OPENAI_API_KEY=your_key_here      # Required for embeddings
 ```
 
 ### 3. Build Knowledge Base
@@ -368,14 +372,26 @@ python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
 ./start_ui.sh --with-datasette
 ```
 
-### **Chronicle Sync (Personal Notes)**
+### **Chronicle Sync (Personal Notes from Obsidian)**
+
+Chronicle is a custom synchronization system that pulls personal notes from Obsidian:
+
 ```bash
 chronicle              # Regular sync with metadata extraction
 chronicle-dry          # Preview changes
 chronicle-force        # Force re-extraction
+chronicle-status       # Check sync configuration
 ```
 
-**Note**: In my case, I also sync my daily notes with Obsidian. The system automatically pulls from my Obsidian Chronicles folder (`/home/artnoage/OneDrive/Second_Mind/Second Mind/Chronicles`) and processes them alongside academic papers, creating a unified knowledge base that spans both research and personal insights.
+**Setup** (Optional - only if you use Obsidian for personal notes):
+1. Configure your Obsidian vault path in `.sync/chronicle_sync.py`
+2. The sync script will:
+   - Pull notes from your Obsidian Chronicles folder
+   - Copy them to `personal_notes/` directory
+   - Extract metadata using the personal blueprint configuration
+   - Update the database with new personal insights
+
+**Note**: This feature is optional. You can manually add markdown files to `personal_notes/` instead.
 
 ## 📁 Project Structure
 
@@ -389,9 +405,9 @@ interactive_cv/
 │   ├── extractor.py             # Generic blueprint-driven extractor
 │   ├── manuscript_agent.py       # Deep document analysis agent
 │   └── entity_deduplicator.py    # LLM-powered deduplication
-├── mcp_subfolder/                # MCP Sequential Thinking system
-│   ├── client/mcp_client.py     # MCP client implementation
-│   └── server/sequential_thinking_server.py  # MCP server
+├── mcp_subfolder/                # Model Context Protocol for structured reasoning
+│   ├── client/mcp_client.py     # JSON-RPC client for agent communication
+│   └── server/sequential_thinking_server.py  # Subprocess server for step-by-step analysis
 ├── DB/                           # Database management system
 │   ├── build_database.py        # Complete blueprint-driven builder
 │   ├── update_database.py       # Incremental updates
