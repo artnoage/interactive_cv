@@ -29,8 +29,8 @@ class ComprehensiveAgentEvaluator:
         """Initialize the evaluator with agent and judge."""
         print("🚀 Initializing Comprehensive Agent Evaluator...")
         
-        print("🎯 Using Embedding-First Agent (3 unified tools with semantic search)")
-        self.agent_name = "Embedding-First Agent"
+        print("🎯 Testing Interactive CV Agent (6 unified tools + MCP integration)")
+        self.agent_name = "Interactive CV Agent"
         
         self.agent = InteractiveCVAgent()
         
@@ -504,6 +504,160 @@ class ComprehensiveAgentEvaluator:
         
         print(f"\n💾 Baseline report saved to: {filename}")
         return filename
+    
+    def test_mcp_server(self) -> Dict[str, Any]:
+        """Test MCP server connectivity and sequential reasoning."""
+        print("\n🔧 Testing MCP Server Connectivity...")
+        
+        test_question = "What is optimal transport?"
+        
+        try:
+            # Test sequential reasoning tool directly
+            start_time = time.time()
+            thread_id = "mcp_test"
+            response = self.agent.chat(f"Use sequential reasoning to analyze: {test_question}", thread_id)
+            test_time = time.time() - start_time
+            
+            # Check if response indicates MCP was used
+            mcp_used = "sequential reasoning" in response.lower() or "step-by-step" in response.lower()
+            
+            return {
+                "test_type": "mcp_server",
+                "success": len(response) > 100 and mcp_used,
+                "response_length": len(response),
+                "test_time": test_time,
+                "mcp_indicators": mcp_used,
+                "response_preview": response[:200] + "..." if len(response) > 200 else response
+            }
+            
+        except Exception as e:
+            return {
+                "test_type": "mcp_server", 
+                "success": False,
+                "error": str(e),
+                "test_time": 0
+            }
+    
+    def test_manuscript_consultation(self) -> Dict[str, Any]:
+        """Test manuscript consultation functionality."""
+        print("\n📄 Testing Manuscript Consultation...")
+        
+        test_question = "Find details about optimal transport methods in the papers."
+        
+        try:
+            start_time = time.time()
+            thread_id = "manuscript_test"
+            response = self.agent.chat(test_question, thread_id)
+            test_time = time.time() - start_time
+            
+            # Check if response indicates manuscript consultation was used
+            manuscript_used = any(indicator in response.lower() for indicator in 
+                                ["manuscript", "document", "paper content", "detailed analysis"])
+            
+            return {
+                "test_type": "manuscript_consultation",
+                "success": len(response) > 100 and manuscript_used,
+                "response_length": len(response),
+                "test_time": test_time,
+                "manuscript_indicators": manuscript_used,
+                "response_preview": response[:200] + "..." if len(response) > 200 else response
+            }
+            
+        except Exception as e:
+            return {
+                "test_type": "manuscript_consultation",
+                "success": False,
+                "error": str(e),
+                "test_time": 0
+            }
+    
+    def test_semantic_search_quality(self) -> Dict[str, Any]:
+        """Test semantic search quality across different entity types."""
+        print("\n🔍 Testing Semantic Search Quality...")
+        
+        test_cases = [
+            ("optimal transport", "mathematical concept search"),
+            ("Vaios Laschos", "person search"),
+            ("POMDP", "method search")
+        ]
+        
+        results = []
+        total_time = 0
+        
+        for query, test_type in test_cases:
+            try:
+                start_time = time.time()
+                thread_id = f"search_test_{hash(query)}"
+                response = self.agent.chat(f"Search for information about: {query}", thread_id)
+                test_time = time.time() - start_time
+                total_time += test_time
+                
+                # Simple quality checks
+                has_relevant_info = query.lower() in response.lower()
+                response_quality = len(response) > 50 and has_relevant_info
+                
+                results.append({
+                    "query": query,
+                    "test_type": test_type,
+                    "success": response_quality,
+                    "response_length": len(response),
+                    "test_time": test_time,
+                    "relevance": has_relevant_info
+                })
+                
+            except Exception as e:
+                results.append({
+                    "query": query,
+                    "test_type": test_type,
+                    "success": False,
+                    "error": str(e),
+                    "test_time": 0
+                })
+        
+        success_rate = sum(r["success"] for r in results) / len(results)
+        
+        return {
+            "test_type": "semantic_search_quality",
+            "overall_success_rate": success_rate,
+            "total_time": total_time,
+            "individual_results": results,
+            "summary": f"{success_rate*100:.1f}% success rate across {len(test_cases)} entity types"
+        }
+    
+    def run_tool_functionality_tests(self) -> Dict[str, Any]:
+        """Run comprehensive tool functionality tests."""
+        print("\n🧪 TOOL FUNCTIONALITY TESTING")
+        print("="*60)
+        
+        tests = [
+            self.test_mcp_server(),
+            self.test_manuscript_consultation(),
+            self.test_semantic_search_quality()
+        ]
+        
+        # Print results
+        for test in tests:
+            test_type = test["test_type"].replace("_", " ").title()
+            if test["success"]:
+                print(f"✅ {test_type}: PASSED")
+                if "test_time" in test:
+                    print(f"   Time: {test['test_time']:.2f}s")
+                if "summary" in test:
+                    print(f"   {test['summary']}")
+            else:
+                print(f"❌ {test_type}: FAILED")
+                if "error" in test:
+                    print(f"   Error: {test['error']}")
+        
+        overall_success = sum(t["success"] for t in tests if isinstance(t["success"], bool)) / len([t for t in tests if isinstance(t["success"], bool)])
+        
+        print(f"\n📊 Overall Tool Functionality: {overall_success*100:.1f}% ({sum(t['success'] for t in tests if isinstance(t['success'], bool))}/{len([t for t in tests if isinstance(t['success'], bool)])} tests passed)")
+        
+        return {
+            "overall_success_rate": overall_success,
+            "individual_tests": tests,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
 
 
 def main():
@@ -517,6 +671,7 @@ Examples:
   python test_agent_comprehensive.py --random 10 --pro --verbose
   python test_agent_comprehensive.py --category cross_domain --baseline
   python test_agent_comprehensive.py --compare-models --questions 5
+  python test_agent_comprehensive.py --test-tools --claude --save
   python test_agent_comprehensive.py --quick --flash
         """
     )
@@ -532,6 +687,7 @@ Examples:
                            help="Evaluate questions of specific difficulty")
     eval_group.add_argument("--questions", nargs="+", type=int, help="Question IDs to evaluate (1-35)")
     eval_group.add_argument("--compare-models", action="store_true", help="Compare Flash vs Pro vs Claude models")
+    eval_group.add_argument("--test-tools", action="store_true", help="Test tool functionality (MCP, manuscript, semantic search)")
     
     # Model selection
     model_group = parser.add_mutually_exclusive_group()
@@ -574,6 +730,18 @@ Examples:
     if args.compare_models:
         question_count = args.questions[0] if args.questions else 5
         evaluator.compare_models(question_count)
+        return
+    
+    # Handle tool functionality testing
+    if args.test_tools:
+        tool_results = evaluator.run_tool_functionality_tests()
+        if args.save:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"tool_functionality_test_{model_name}_{timestamp}.json"
+            with open(filename, 'w') as f:
+                json.dump(tool_results, f, indent=2)
+            print(f"\n💾 Tool test results saved to: {filename}")
+        print("\n✅ Tool functionality testing complete!")
         return
     
     # Run evaluation based on arguments

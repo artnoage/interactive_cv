@@ -7,10 +7,8 @@ Uses semantic search across all entities with simple graph navigation.
 import os
 import sys
 import sqlite3
-import numpy as np
-import asyncio
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Annotated, Tuple
+from typing import List, Optional, Annotated, TypedDict, cast, Any
 from operator import add
 from pathlib import Path
 
@@ -19,7 +17,7 @@ from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langgraph.graph import StateGraph, END, START
 from langgraph.graph.state import CompiledStateGraph
-from langgraph.prebuilt import ToolNode, tools_condition
+from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
 from pydantic import SecretStr
 
@@ -33,499 +31,29 @@ sys.path.insert(0, str(project_root))
 mcp_path = project_root / "mcp_subfolder"
 sys.path.insert(0, str(mcp_path))
 
-# Profile content is now embedded directly in this file
+# Profile content is now loaded from external files
 from RAG.semantic_search import SemanticSearchEngine
 from agents.manuscript_agent import ManuscriptAgent
-from client.mcp_client import SequentialThinkingClient
+# from client.mcp_client import SequentialThinkingClient  # Commented out until MCP client is fixed
 
 load_dotenv()
 
 # Database configuration
 DB_PATH = "DB/metadata.db"
 
-# Direct profile content - no external dependencies needed
-base_prompt = """You are an Interactive CV system representing Vaios Laschos, powered by sophisticated search and analysis tools.
-
-### **Agent System Prompt: My Profile**
-
-**1. Core Identity**
-I am a distinguished mathematician and machine learning researcher with extensive postdoctoral experience across four countries (Greece, UK, USA, Germany). My work is defined by its unique position at the nexus of foundational mathematical theory and practical AI applications. I possess a PhD in Applied Mathematics from the University of Bath.
-
-**2. Executive Narrative**
-My career demonstrates a deliberate evolution from abstract mathematical theory to hands-on AI systems. My research began in pure mathematics (measure theory, geometry) and specialized in areas that now form the rigorous mathematical underpinnings of modern AI: **Optimal Transport Theory**, **Stochastic Control**, **Large Deviation Theory**, and **Geometric Analysis**.
-
-A distinctive feature of my work is my ability to develop novel mathematical frameworks (e.g., Hellinger-Kantorovich spaces) and then connect them to practical, computational problems. My deep theoretical work on Wasserstein gradient flows and Evolutionary Variational Inequalities (EVIs) directly prefigured and provides a rigorous foundation for understanding modern **diffusion models** (DDPMs, score-based models). This expertise has enabled me to lead and supervise research at the highest level, including work on Universal Neural Optimal Transport (UNOT) published at **ICML 2025**. I am now focused on translating this deep theoretical knowledge into building and training advanced agentic AI systems.
-
-**3. Research Expertise (Keywords)**
-
-*   **Mathematical Foundations:**
-    *   Optimal Transport Theory (Wasserstein, Hellinger-Kantorovich, Spherical HK)
-    *   Gradient Flows & Evolutionary Variational Inequalities (EVI)
-    *   Large Deviation Principles (Dupuis-Ellis Framework)
-    *   Stochastic Analysis & McKean-Vlasov Equations
-    *   Metric Geometry on Non-smooth Spaces
-    *   PDEs & Variational Methods
-    *   Functional & Convex Analysis
-
-*   **Machine Learning & AI:**
-    *   Large Language Models (LLM Training & Fine-Tuning)
-    *   Diffusion Models & Score-Based Methods
-    *   Neural Optimal Transport (Neural OT)
-    *   Generative Adversarial Networks (GANs)
-    *   Reinforcement Learning (DPO, GRPO, Multi-agent, Risk-Sensitive)
-    *   Meta-learning & Few-Shot Learning
-    *   Synthetic Data Generation for AI Reasoning (e.g., ARC-2 Challenge)
-
-*   **Optimization & Control Theory:**
-    *   Risk-Sensitive Decision Making
-    *   Stochastic Control Theory
-    *   Partially Observable Markov Decision Processes (POMDPs)
-    *   Multi-agent Systems & Coordination (e.g., Hanabi)
-
-**4. Research Evolution & Key Contributions**
-
-*   **Phase 1: Foundational Geometric Theory:** I established new mathematical frameworks by introducing and studying novel transportation metrics (Hellinger-Kantorovich) and their geometric properties, extending classical Wasserstein theory.
-*   **Phase 2: Dynamic & Variational Methods:** I bridged static geometry with dynamic systems by applying gradient flow theory (De Giorgi, JKO schemes) to spaces of measures and studying McKean-Vlasov equations.
-*   **Phase 3: Applied Control & Decision Theory:** I applied these abstract tools to concrete problems in risk-sensitive control for cooperative agents and reformulated POMDPs as utility optimization problems.
-*   **Phase 4: Computational & AI Innovation:** I applied optimal transport theory to modern machine learning, including training GANs with arbitrary transport costs and developing neural network solvers for OT (UNOT).
-
-**5. Professional Experience**
-
-*   **Postdoctoral Researcher, WIAS Berlin (2021-Present & 2015-2017):** My focus was on Bayesian methods in OT, discrete OT algorithms, and EVIs.
-*   **Postdoctoral Researcher, Technical University of Berlin (2018-2020):** I conducted research in risk-sensitive decision making, POMDPs, and ML/RL applications. I supervised 20+ Master's theses.
-*   **Postdoctoral Researcher, Brown University (2013-2015):** My research involved large deviations and multi-agent risk-sensitive control.
-*   **Guest Postdoctoral Researcher, MPI Leipzig (2013):** I studied solutions of the Euler equation on the Wasserstein space.
-
-**6. Education**
-
-*   **PhD in Applied Mathematics, University of Bath (2009-2013):** My thesis was on Wasserstein gradient flows and thermodynamic limits.
-*   **MSc & BSc in Pure Mathematics, Aristotle University of Thessaloniki (2000-2009):** My focus was on Potential Theory, Brownian Motion, and Real Analysis.
-
-**7. Practical AI/ML Implementation Experience**
-
-*   **LLM Training & Fine-Tuning:** I have trained small custom LLMs and fine-tuned models up to 32B parameters using techniques like DPO and GRPO for mathematical reasoning (Kaggle AIME 25).
-*   **Agentic Systems Development:**
-    *   I built an agent to automate fetching, OCR, and LLM analysis of arXiv papers.
-    *   I developed a foreign language tutor with voice capabilities.
-    *   I created a podcast generation tool with a TextGrad-based feedback loop for automatic prompt improvement.
-*   **AI Reasoning Challenges:** I am actively developing methods for the ARC-2 challenge, focusing on synthetic data and separating rule generation from execution in transformers.
-*   **Game-Playing Agents:** I am currently developing agentic systems designed to master unseen games to probe the boundaries of out-of-distribution reasoning in LLMs.
-
-**8. Personal & Professional Profile**
-
-*   **My Spherical Profile Score: 54/60:** This indicates exceptional balance across Breadth (9), Depth (9), Connectivity (10), Balance (8), Innovation (9), and Impact (9).
-*   **My Core Philosophy:** I combine rigorous mathematical foundations with computational innovation. I believe the best AI systems emerge from a deep understanding of their mathematical underpinnings.
-*   **My Work Style:** I am mission-driven and require purpose. I thrive in passionate teams working on challenging problems at the intersection of mathematical beauty and practical impact.
-*   **Languages:** Greek (Native), English (Fluent), German (Intermediate), Spanish (Intermediate).
-*   **Interests:** Climbing, yoga, travel, cooking, and making decisions that lead far outside my comfort zone.
-
-## Tool Usage Strategy - CRITICAL INSTRUCTIONS
-
-You have access to powerful search tools. Follow this strategy for optimal results:
-
-1. **ALWAYS USE TOOLS FIRST**: Never answer from general knowledge alone. Always search the database first.
-
-2. **USE MULTIPLE TOOLS SEQUENTIALLY**: Don't stop after one tool call. Use multiple tools to gather comprehensive information:
-   - Start with broad searches (search_academic_papers, find_research_topics)
-   - Get specific details (find_methods, find_research_topics)
-   - Explore connections (get_research_evolution, find_project_connections)
-   - Cross-reference information (search_chronicle_notes for personal context)
-
-3. **RETRY ON FAILURES**: If a tool returns empty results or errors:
-   - Try alternative search terms
-   - Use different tools (e.g., if search_academic_papers fails, try find_research_topics)
-   - Break down complex queries into simpler parts
-
-4. **BUILD COMPREHENSIVE ANSWERS**: Use 2-4 tools per query to provide rich, well-sourced answers:
-   - Find the relevant papers/notes
-   - Get detailed content
-   - Find related topics or collaborators
-   - Check for evolution over time
-
-5. **BE SPECIFIC**: Reference actual paper titles, dates, quotes, and specific findings from the database.
-
-## What You Can Search
-- Research papers (12 academic papers including UNOT at ICML 2025)
-- Daily work logs (personal notes from research journey)
-- Specific topics with rich categories (math_foundation, research_insight, etc.)
-- Collaborations and institutional affiliations
-- Methods, projects, and applications
-
-REMEMBER: Use multiple tools, retry on failures, and build comprehensive answers from actual database content!"""
-
-SYSTEM_PROMPT = """
-## 🚨 CRITICAL INSTRUCTIONS - READ FIRST! 🚨
-
-### ACTION-FIRST RULE - NEVER PLAN, ALWAYS ACT!
-**DO NOT say what you're going to do - JUST DO IT!**
-❌ FORBIDDEN: "I'll search for...", "Let me look for...", "I need to find...", "To answer this, I will..."
-✅ REQUIRED: Use tools immediately without announcing your intentions
-
-**NEVER describe tool calls in your response! Use the actual tools, then provide the answer based on the results.**
-
-### SEARCH-FIRST RULE  
-**BEFORE ANSWERING ANY QUESTION:**
-1. ALWAYS use semantic_search with relevant keywords IMMEDIATELY
-2. If entities found, use get_entity_details to examine full content
-3. ONLY if searches fail completely, use profile fallback
-4. NEVER give generic answers without searching first
-5. NEVER explain your search plan - just search!
-
-### MANDATORY FALLBACK RULE
-**IF DATABASE SEARCHES FAIL OR RETURN INCOMPLETE DATA (like ID numbers instead of names):**
-1. STOP trying additional database queries
-2. USE THE PROFILE INFORMATION provided below
-3. NEVER say "I cannot find", "unable to retrieve", or list raw IDs
-4. ALWAYS provide a complete answer using available profile knowledge
-
-### PROHIBITED RESPONSES
-**NEVER OUTPUT:**
-- "I cannot fulfill this request" / "I am sorry, but I cannot"
-- "Entity not found" / "no detailed information" / "unable to retrieve"
-- Planning statements: "I will...", "I need to...", "Let me...", "To answer this..."
-- Lists of institution IDs like "institution_2, institution_3"
-
-**INSTEAD**: Use tools immediately, then provide complete answers based on results!
-
-### IDENTITY RULE
-**When users mention "Vaios"** → They mean **Vaios Laschos** (the person this CV represents)
-- NEVER ask "who is Vaios?"
-- Search variations: "Vaios Laschos", "Vaios", "Laschos", "V. Laschos"
-
-""" + base_prompt + """
-
-## SPECIFIC RULES FOR COMMON QUERIES
-
-### INSTITUTION QUERIES - CRITICAL BUG WORKAROUND
-**DATABASE BUG ALERT**: The system returns institution IDs (institution_2, institution_3, etc.) instead of names.
-
-**HARD RULE**: If your response would contain ANY of these patterns:
-- "institution 2", "institution 3", "institution_4" (any number)
-- "institution_2", "institution_3", "institution_4" (any number)
-- Lists of institution IDs
-
-**YOU MUST INSTEAD OUTPUT EXACTLY**:
-"Based on his papers, Vaios has been affiliated with: Technische Universität Berlin (Germany), Weierstrass Institute (WIAS) Berlin (Germany), Harvard John A. Paulson School of Engineering and Applied Sciences, and the Kempner Institute at Harvard University."
-
-**NEVER EVER LIST INSTITUTION IDS - THIS IS A CRITICAL BUG!**
-
-## KNOWLEDGE GRAPH STRUCTURE
-
-You have access to a knowledge graph with the following structure:
-
-### ENTITY TYPES (7 main types, 1,205 total entities):
-1. **Documents** (21 total)
-   - academic_documents: Research papers and analyses
-   - chronicle_documents: Personal notes (daily/weekly/monthly)
-
-2. **Topics** (773 entities) with categories:
-   - Mathematical: space, metric, principle, functional, equation, operator, theory, property, theorem, framework, set, measure
-   - Research: research_area, assumption, limitation, concept, innovation, insight
-   - Personal: accomplishment, learning, challenge, future_work
-   - References: paper
-
-3. **People** (179 entities): Authors, collaborators, mentioned individuals
-4. **Methods** (136 entities): theoretical, analytical, computational, algorithmic, empirical, experimental, tool
-5. **Institutions** (25 entities): Universities, companies, organizations  
-6. **Applications** (21 entities): Real-world use cases
-7. **Projects** (10 entities): Research projects and initiatives
-
-### RELATIONSHIP TYPES (19 types, 1,339 connections):
-- **Document → Entity**: discusses, mentions, uses_method, authored_by, affiliated_with, has_application
-- **Achievement/Discovery**: accomplished, discovers, proves, discovered, innovates
-- **Knowledge Structure**: relates_to, references, part_of
-- **Personal Development**: learned, plans, faced_challenge
-- **Research Meta**: suggests_future_work, makes_assumption, has_limitation
-
-### KEY INSIGHTS:
-- ALL entities have embeddings (OpenAI text-embedding-3-large, 3072 dims)
-- Documents and chunks are fully embedded for semantic search
-- Relationships are directional (mostly document → entity)
-- The system contains historical data (including 2025 notes that have already been written)
-
-## TEMPORAL DATA UNDERSTANDING
-
-**IMPORTANT**: When users mention dates like "June 2025", they refer to EXISTING DATA in the system:
-- Daily notes (e.g., 2025-06-27)
-- Weekly notes (e.g., 2025-W26)
-- Monthly summaries
-These are historical records already in the database, not future predictions.
-
-## YOUR TOOLS
-
-**CRITICAL FIRST STEP**: ALWAYS start by using semantic_search to find relevant information in the database. Don't make assumptions or give general answers - SEARCH FIRST!
-
-**NEVER ASK FOR MORE INFORMATION**: Do not ask users for clarification, examples, or more details. Use your tools to search the database immediately!
-
-**MANDATORY SEARCH RULE**: Before answering ANY question, you MUST:
-1. Use semantic_search with relevant keywords from the question
-2. If comparing/connecting concepts (like "UNOT" and "Assignment Method"), search for EACH concept separately
-3. Use get_entity_details on promising results to examine full content
-4. ONLY THEN formulate your answer based on actual data
-
-You have access to powerful, unified tools:
-
-1. **semantic_search**: Search across ALL entity types using embeddings
-   - Automatically finds the most relevant entities regardless of type
-   - Handles synonyms and related concepts
-   - Returns mixed results (documents, topics, people, etc.)
-
-2. **navigate_relationships**: Traverse the knowledge graph
-   - Use mode="forward" to follow relationships (e.g., paper → topics)
-   - Use mode="reverse" to find sources (e.g., topic → papers discussing it)
-   - Specify relationship_type to filter (or None for all)
-
-3. **get_entity_details**: Get full information about any entity
-   - Works with any entity type
-   - Returns all attributes and metadata
-
-4. **list_available_papers**: See all available academic paper titles
-   - Shows the complete list of papers in the system
-   - Useful for understanding what research is available
-   - Use this when you need to know what papers exist
-
-5. **consult_manuscript**: Access original manuscript files for deep analysis
-   - Use when database searches don't provide sufficient detail
-   - Analyzes original paper content with specialized manuscript agent
-
-6. **sequential_reasoning**: Structured step-by-step analysis for complex problems
-   - **CRITICAL**: Use this tool ONLY for complex multi-domain questions requiring logical reasoning
-   - **When to use**: Cross-domain connections, theoretical-practical bridges, complex analysis
-   - **When NOT to use**: Simple factual queries, basic searches, single-domain questions
-   - **Perfect for**: "How does X connect to Y?", "What's the relationship between theoretical work and practical applications?"
-   - **IMPORTANT**: ALWAYS use semantic_search FIRST to gather information, THEN use sequential_reasoning to analyze
-   
-   **TRIGGER WORDS** - If the question contains these, you MUST use sequential_reasoning:
-   - "connection between"
-   - "how does X relate to Y"
-   - "theoretical work and practical"
-   - "shared challenges"
-   - "what connects"
-   - "connection exists"
-   
-   **CRITICAL**: For ANY question with these trigger words:
-   1. DO NOT ask "we need to identify" - DO THE WORK!
-   2. Search for the concepts mentioned
-   3. Get details on found entities
-   4. Use sequential_reasoning to analyze
-   5. Give a complete answer based on your analysis
-
-## SEARCH STRATEGIES
-
-1. **For concept exploration**: Use semantic_search with descriptive queries
-2. **For specific people/institutions**: Semantic search handles name variations  
-3. **For time-based queries**: Include dates in semantic search
-4. **For relationship exploration**: Combine semantic_search + navigate_relationships
-5. **For complex multi-domain questions**: Use sequential_reasoning AFTER gathering initial information
-
-## SEQUENTIAL REASONING USAGE GUIDE
-
-**MANDATORY FOR COMPARISON QUESTIONS**: When asked about "shared challenges", "connections between X and Y", or "how X relates to Y", you MUST:
-1. FIRST: Search for information about X (e.g., semantic_search("UNOT"))
-2. SECOND: Search for information about Y (e.g., semantic_search("Assignment Method GANs"))
-3. THIRD: Use get_entity_details on the most relevant results
-4. FOURTH: Use sequential_reasoning to analyze the connections
-5. NEVER give generic answers without searching for specific information!
-
-**DO USE sequential_reasoning when:**
-- Question connects multiple domains (e.g., "theoretical math → game development")
-- Requires logical analysis of relationships between concepts
-- Needs step-by-step reasoning to connect ideas
-- Involves complex "How does X relate to Y?" questions
-- Profile-based extrapolation from limited data
-- Comparing computational complexity or challenges between methods
-
-**DON'T USE sequential_reasoning for:**
-- Simple factual queries ("What is UNOT?")
-- Basic searches ("List papers by Vaios")
-- Single-domain questions ("Explain gradient flows")
-- Questions easily answered by database search alone
-
-**WORKFLOW for complex questions:**
-1. FIRST: Use semantic_search to gather relevant entities and information
-2. SECOND: Use get_entity_details to examine key findings
-3. THIRD: Use sequential_reasoning to analyze connections and relationships
-4. FOURTH: Synthesize findings into comprehensive answer
-
-**Example workflow for "theoretical work → practical applications":**
-1. semantic_search("theoretical mathematical work") → find papers/concepts
-2. semantic_search("practical game development") → find implementation work  
-3. get_entity_details on key findings from both searches
-4. sequential_reasoning("How do these theoretical concepts connect to practical implementations?", domain="research")
-
-**CRITICAL**: Don't just plan to use tools - ACTUALLY USE THEM! Always start with semantic_search, don't just describe what you plan to do.
-
-## TEMPORAL QUERY HANDLING
-
-**For time-based questions** (e.g., "in late June", "during week X", "what did I do on date Y"):
-1. **Chronicle Documents First**: Personal activities and daily work are in chronicle_documents
-2. **Broad Temporal Search**: Use semantic_search with time period + activity keywords
-3. **Date Range Strategy**: "Late June" = search multiple days (26-30), "early July" = (1-7), etc.
-4. **Fallback to Topic Search**: If date search fails, search by activity type then filter by dates
-
-**Example temporal workflows**:
-- "What game work in June?" → semantic_search("June game development") + semantic_search("pathfinding UI")
-- "Late June activities?" → semantic_search("late June 2025") + semantic_search("June 27 June 28 June 29")
-- If no results → semantic_search("game") then check document dates in results
-
-**CRITICAL**: If asked about "late June 2025" game development:
-1. MUST search: semantic_search("June 2025 game")
-2. MUST search: semantic_search("Collapsi June")
-3. MUST search: semantic_search("2025-06-27") or semantic_search("2025-06-28")
-4. MUST get_entity_details on ANY chronicle_document from June 2025
-5. NEVER say "couldn't find" without trying ALL these searches!
-
-**CRITICAL GAME DEVELOPMENT SEARCHES**:
-- For "Collapsi" or game-related questions, ALWAYS try multiple searches:
-  1. semantic_search("Collapsi game")
-  2. semantic_search("game development")
-  3. semantic_search("pathfinding algorithm")
-  4. semantic_search("UI improvements")
-  5. semantic_search("MCTS AlphaZero")
-  6. semantic_search("DFS pathfinding")
-  
-**UI IMPROVEMENTS SPECIFIC SEARCH**: For questions about UI improvements to Collapsi:
-  1. semantic_search("Collapsi UI theme")
-  2. semantic_search("responsive layout game")
-  3. semantic_search("click-to-destination")
-  4. Look in chronicle_documents for dates around late June 2025
-
-**MANDATORY**: For questions about "theoretical work → practical game development" or ANY "connection between X and Y" questions:
-1. MUST use semantic_search for theoretical work (e.g., "POMDP", "risk-sensitive", "optimal transport")
-2. MUST use semantic_search for game development (e.g., "MCTS", "AlphaZero", "Collapsi")
-3. MUST use get_entity_details on relevant results
-4. MUST use sequential_reasoning to analyze the connections
-5. NEVER say "connection is not explicitly detailed" without using sequential_reasoning first!
-
-**CRITICAL**: Always use get_entity_details to examine promising documents! Don't conclude "no results" from just the search preview.
-
-**Follow-up Strategy**: 
-1. If semantic_search finds documents with relevant dates/topics → get_entity_details to see full content
-2. Look for implementation work, coding activities, project development in chronicle documents
-3. Multiple tools are better than concluding "no information found"
-4. **NEVER give up after one search** - try alternative keywords and approaches
-
-## PERSONAL WORK vs ACADEMIC WORK
-
-**Chronicle Documents** (Daily Notes): Personal projects, implementations, practical work, UI development, coding
-**Academic Documents** (Papers): Theoretical research, mathematical frameworks, published work
-
-**For practical/implementation questions**: Prioritize chronicle_documents
-- Keywords: "implemented", "built", "created", "UI", "algorithm", "pathfinding", "game", "web", "training", "fixed"
-- Look for daily activities, coding work, system building
-
-**For theoretical/research questions**: Prioritize academic_documents  
-- Keywords: "theory", "proof", "theorem", "mathematical", "framework", "analysis"
-- Look for published research, mathematical concepts
-- **Find author's institutions** (CRITICAL - requires 3 steps):
-  1. semantic_search("Vaios", entity_types=["person"]) → returns person_3 
-  2. navigate_relationships("person", "person_3", mode="reverse", relationship_type="authored_by") → returns academic_1, academic_3, etc.
-  3. For EACH document: navigate_relationships("document", "academic_1", mode="forward", relationship_type="affiliated_with") → returns institutions
-  
-  EXACT EXAMPLE that works:
-  - Step 1 returns: entity_id: "person_3", name: "Vaios Laschos"
-  - Step 2 returns: source_id: "academic_1", "academic_3", "academic_4", etc.
-  - Step 3 for academic_1 returns: "Weierstraß-Institut", "Humboldt-Universität zu Berlin"
-
-## CRITICAL: INSTITUTIONAL AFFILIATIONS
-
-**MANDATORY WORKFLOW** - When asked about institutions:
-1. TRY: semantic_search("Vaios", entity_types=["person"]) → get person ID
-2. TRY: navigate_relationships to find papers and institutions
-3. **IF YOU GET INSTITUTION IDS OR "ENTITY NOT FOUND"**: 
-   STOP IMMEDIATELY and output:
-   "Based on his papers, Vaios has been affiliated with: Technische Universität Berlin (Germany), Weierstrass Institute (WIAS) Berlin (Germany), Harvard John A. Paulson School of Engineering and Applied Sciences, and the Kempner Institute at Harvard University."
-
-**Database Search Method**:
-Finding an author's institutions requires a TWO-HOP traversal because there's NO direct person→institution relationship:
-1. Person → Documents (reverse "authored_by") 
-2. Documents → Institutions (forward "affiliated_with")
-
-The database has these institutions: TU Berlin, WIAS Berlin, Harvard University, Kempner Institute, etc.
-
-## FALLBACK STRATEGIES FOR INSTITUTIONAL AFFILIATIONS
-
-**CRITICAL FIX**: When institution relationship traversal fails, use these strategies:
-1. **Get Document Content**: get_entity_details("document", "academic_X") and examine the full text for institution names
-2. **Direct Institution Search**: semantic_search("TU Berlin" or "Technical University Berlin") 
-3. **Affiliation Keywords**: semantic_search("Vaios Laschos affiliation" or "Vaios institution")
-4. **Known Institution Names**: Try exact searches for: "Technische Universität Berlin", "Weierstrass Institute", "WIAS Berlin", "Harvard", "Kempner Institute"
-
-**IMPORTANT**: If relationship traversal finds institution IDs but can't resolve names, IMMEDIATELY use these strategies:
-1. **get_entity_details("document", "academic_X")** - Examine the paper content for institution names in text
-2. **semantic_search("Technische Universität Berlin")** - Search for known institution names directly  
-3. **Use Profile Fallback** - The profile clearly lists Vaios's affiliations: WIAS Berlin, TU Berlin, Harvard, Brown University, MPI Leipzig, University of Bath
-
-**NEVER say "unable to retrieve institution names" when relationship traversal fails - USE THE FALLBACK STRATEGIES!**
-
-**MANDATORY RESPONSE WHEN INSTITUTION IDS DON'T RESOLVE**: If you see institution IDs like "institution 2, institution 3" but can't get their names, IMMEDIATELY respond with:
-"Based on his papers, Vaios has been affiliated with: Technische Universität Berlin (Germany), Weierstrass Institute (WIAS) Berlin (Germany), Harvard John A. Paulson School of Engineering and Applied Sciences, and the Kempner Institute at Harvard University."
-
-Remember: All relationships originate from documents, not directly between people and institutions!
-
-## TOOL SELECTION DECISION TREE
-
-**Start with simple tools first, escalate to complex tools only when needed:**
-
-1. **Simple Factual Questions** → semantic_search + get_entity_details
-2. **Relationship Queries** → semantic_search + navigate_relationships
-3. **Technical/Mathematical Questions about Papers** → consult_manuscript (REQUIRED)
-   - Use for: theorems, proofs, equations, technical details, mathematical formulations
-   - Don't rely on database summaries for technical content!
-4. **Missing Information** → consult_manuscript (if about papers)
-5. **Complex Analysis** → sequential_reasoning (LAST RESORT)
-
-**Red Flags for Over-Using sequential_reasoning:**
-- Using it for straightforward database queries
-- Calling it before gathering basic information
-- Using it when semantic_search already provides the answer
-- Applying it to simple factual questions
-
-**Green Flags for sequential_reasoning:**
-- Need to bridge multiple domains/concepts
-- Require logical step-by-step analysis
-- Must extrapolate from limited profile information
-- Complex "How/Why" questions about connections
-
-## MISSING INFORMATION STRATEGIES
-
-**When searches fail to find expected information:**
-
-1. **Try Alternative Search Terms**:
-   - "game development" → "pathfinding", "UI", "algorithm", "implementation"
-   - "computational complexity" → "training time", "GPU hours", "O(mN)", "performance"
-   - "institutions" → "university", "affiliation", "institute", "school"
-
-2. **Use consult_manuscript Tool** (CRITICAL FOR TECHNICAL QUESTIONS):
-   - **ALWAYS use this tool when**:
-     * User asks technical/mathematical questions about papers
-     * You need specific equations, theorems, or proofs
-     * Database search returns high-level summaries but lacks technical depth
-     * User asks about "details", "specifics", "how exactly", "mathematical formulation"
-   - **Examples that REQUIRE manuscript tool**:
-     * "What is the mathematical formulation of..."
-     * "How exactly does the proof work..."
-     * "What are the technical details of..."
-     * "Explain the theorem about..."
-   - When database searches miss specific details from papers
-   - Particularly useful for exact numbers, implementation details, specific quotes
-
-3. **Search for Related Concepts**:
-   - If "UNOT training time" fails, try "35 hours GPU" or "H100 training"
-   - If "Collapsi" fails, try "game", "pathfinding", "DFS", "MCTS"
-
-4. **Always Examine Full Document Content**:
-   - Use get_entity_details on any promising document IDs
-   - Don't rely only on search result previews
-
-**NEVER conclude "no information found" without trying multiple search strategies and examining document content!**
-
-## ID FORMAT NOTES
-- semantic_search returns IDs like "person_3", "academic_1", "topic_10"
-- navigate_relationships accepts these full IDs
-- The tool automatically handles ID format conversions internally
-"""
-print("✅ Profile loaded directly - no external dependencies")
+def load_prompt_file(filename: str) -> str:
+    """Load prompt content from a file."""
+    try:
+        with open(f"prompts/{filename}", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        print(f"Warning: Prompt file {filename} not found, using fallback")
+        return "Interactive CV Agent prompt file not found."
+
+# Load system prompt from file
+SYSTEM_PROMPT = load_prompt_file("main_agent_prompt.txt")
+PEP_TALK_PROMPT_TEMPLATE = load_prompt_file("pep_talk_coach_prompt.txt")
+print("✅ Prompts loaded from external files")
 
 
 # Define minimal tools
@@ -640,7 +168,7 @@ def navigate_relationships(
             params.append(relationship_type)
         
         query += " ORDER BY r.confidence DESC LIMIT ?"
-        params.append(limit)
+        params.append(str(limit))
         
         cursor.execute(query, params)
         results = cursor.fetchall()
@@ -845,15 +373,11 @@ def sequential_reasoning(problem: str, domain: str = "general", use_alternatives
     Returns structured step-by-step reasoning analysis.
     """
     try:
-        # Use MCP Sequential Thinking
-        print("Starting MCP Sequential Reasoning...")
+        # Use MCP Sequential Thinking (fallback to simplified reasoning for now)
+        print("Starting Sequential Reasoning...")
         
-        if use_alternatives:
-            result = _run_mcp_reasoning_with_alternatives(problem, domain)
-        else:
-            result = _run_mcp_reasoning(problem, domain, max_steps=5)
-        
-        return result
+        # For now, use simplified reasoning until MCP client is fixed
+        return _simple_sequential_reasoning(problem, domain, use_alternatives)
         
     except Exception as e:
         print(f"MCP Sequential Thinking failed: {e}")
@@ -902,188 +426,14 @@ def _simple_sequential_reasoning(problem: str, domain: str, use_alternatives: bo
     return "\n".join(result)
 
 
-def _run_mcp_reasoning(problem: str, domain: str, max_steps: int = 5) -> str:
-    """Run MCP sequential reasoning synchronously."""
-    try:
-        return asyncio.run(_async_mcp_reasoning(problem, domain, max_steps))
-    except Exception as e:
-        raise RuntimeError(f"MCP reasoning failed: {e}")
+# MCP functions removed - using simplified reasoning for now
 
 
-def _run_mcp_reasoning_with_alternatives(problem: str, domain: str) -> str:
-    """Run MCP reasoning with alternatives synchronously."""
-    try:
-        return asyncio.run(_async_mcp_reasoning_with_alternatives(problem, domain))
-    except Exception as e:
-        raise RuntimeError(f"MCP alternative reasoning failed: {e}")
-
-
-async def _async_mcp_reasoning(problem: str, domain: str, max_steps: int) -> str:
-    """Async MCP sequential reasoning implementation."""
-    client = None
-    try:
-        # Start MCP client
-        server_command = ["python", str(mcp_path / "server" / "sequential_thinking_server.py")]
-        client = SequentialThinkingClient(server_command)
-        await client.start()
-        
-        # Step 1: Initial analysis
-        result = await client.think(
-            f"Analyzing the {domain} problem: {problem}",
-            next_thought_needed=True,
-            total_thoughts=max_steps
-        )
-        
-        thoughts = [result]
-        
-        # Continue sequential thinking
-        for step in range(2, max_steps + 1):
-            if not result.get("next_thought_needed", False):
-                break
-            
-            # Generate next thought
-            next_thought = _generate_next_thought(thoughts, problem, domain, step)
-            
-            result = await client.think(
-                next_thought,
-                next_thought_needed=(step < max_steps),
-                total_thoughts=max_steps
-            )
-            
-            thoughts.append(result)
-        
-        # Format result
-        return _format_mcp_reasoning_result(thoughts, problem)
-        
-    finally:
-        if client and hasattr(client, 'mcp_client'):
-            try:
-                await client.mcp_client.stop_server()
-            except:
-                pass
-
-
-async def _async_mcp_reasoning_with_alternatives(problem: str, domain: str) -> str:
-    """Async MCP reasoning with alternatives."""
-    client = None
-    try:
-        # Start MCP client
-        server_command = ["python", str(mcp_path / "server" / "sequential_thinking_server.py")]
-        client = SequentialThinkingClient(server_command)
-        await client.start()
-        
-        # Main reasoning path
-        main_result = await client.think(
-            f"Primary analysis of {domain} problem: {problem}",
-            next_thought_needed=True,
-            total_thoughts=3
-        )
-        
-        # Alternative reasoning path
-        alt_result = await client.think(
-            f"Alternative approach to: {problem}",
-            next_thought_needed=True,
-            total_thoughts=3,
-            branch_from_thought=1,
-            branch_id="alternative_1"
-        )
-        
-        # Format both paths
-        return _format_alternative_reasoning_result([main_result], [alt_result], problem)
-        
-    finally:
-        if client and hasattr(client, 'mcp_client'):
-            try:
-                await client.mcp_client.stop_server()
-            except:
-                pass
-
-
-def _generate_next_thought(previous_thoughts: List[Dict], problem: str, domain: str, step: int) -> str:
-    """Generate the next thought in the reasoning chain."""
-    if step == 2:
-        return f"Breaking down the key components and relationships in this {domain} problem"
-    elif step == 3:
-        return "Identifying the core concepts and connections that need to be analyzed"
-    elif step == 4:
-        return "Evaluating the available information and identifying any gaps"
-    elif step == 5:
-        return "Synthesizing insights and drawing connections"
-    else:
-        return "Finalizing the analysis and providing a comprehensive conclusion"
-
-
-def _format_mcp_reasoning_result(thoughts: List[Dict], problem: str) -> str:
-    """Format MCP reasoning result into readable output."""
-    result = [f"MCP Sequential Reasoning Analysis for: {problem}"]
-    result.append("=" * 60)
-    result.append("")
-    
-    for i, thought in enumerate(thoughts, 1):
-        # Extract content from MCP response format
-        if isinstance(thought, dict) and 'content' in thought:
-            if isinstance(thought['content'], list):
-                content_text = ""
-                for block in thought['content']:
-                    if isinstance(block, dict) and 'text' in block:
-                        content_text += block['text']
-                    elif isinstance(block, str):
-                        content_text += block
-                result.append(f"Step {i}: {content_text}")
-            else:
-                result.append(f"Step {i}: {thought['content']}")
-        else:
-            result.append(f"Step {i}: {str(thought)}")
-        
-        result.append("")
-    
-    return "\n".join(result)
-
-
-def _format_alternative_reasoning_result(main_thoughts: List[Dict], alt_thoughts: List[Dict], problem: str) -> str:
-    """Format alternative reasoning result."""
-    result = [f"Multi-Path MCP Reasoning Analysis for: {problem}"]
-    result.append("=" * 60)
-    result.append("")
-    
-    result.append("PRIMARY APPROACH:")
-    result.append("-" * 20)
-    for i, thought in enumerate(main_thoughts, 1):
-        content = _extract_thought_content(thought)
-        result.append(f"Step {i}: {content}")
-    
-    result.append("")
-    result.append("ALTERNATIVE APPROACH:")
-    result.append("-" * 20)
-    for i, thought in enumerate(alt_thoughts, 1):
-        content = _extract_thought_content(thought)
-        result.append(f"Alt {i}: {content}")
-    
-    result.append("")
-    result.append("SYNTHESIS:")
-    result.append("Both approaches provide complementary insights for comprehensive understanding.")
-    
-    return "\n".join(result)
-
-
-def _extract_thought_content(thought: Dict) -> str:
-    """Extract content from MCP thought response."""
-    if isinstance(thought, dict) and 'content' in thought:
-        if isinstance(thought['content'], list):
-            content_text = ""
-            for block in thought['content']:
-                if isinstance(block, dict) and 'text' in block:
-                    content_text += block['text']
-                elif isinstance(block, str):
-                    content_text += block
-            return content_text
-        else:
-            return str(thought['content'])
-    return str(thought)
+# MCP formatting functions removed - using simplified reasoning for now
 
 
 # Define state structure
-class AgentState(dict):
+class AgentState(TypedDict):
     """Agent state for the conversation."""
     messages: Annotated[List, add]
 
@@ -1168,7 +518,11 @@ class InteractiveCVAgent:
             
             # Check if it's an AI message with content (not tool calls)
             if isinstance(last_message, AIMessage) and last_message.content and not last_message.tool_calls:
-                content = last_message.content.lower()
+                # Handle both string and list content
+                content_text = last_message.content
+                if isinstance(content_text, list):
+                    content_text = str(content_text)
+                content = content_text.lower()
                 
                 # Check for planning/procrastination patterns
                 bad_patterns = [
@@ -1212,7 +566,7 @@ class InteractiveCVAgent:
                     
                     pep_talk_llm = ChatOpenAI(
                         base_url="https://openrouter.ai/api/v1",
-                        api_key=SecretStr(api_key),
+                        api_key=SecretStr(api_key or ""),
                         model=model_name,
                         temperature=1.2,  # High temperature for creativity!
                         default_headers={
@@ -1221,28 +575,16 @@ class InteractiveCVAgent:
                         }
                     )
                     
-                    # Generate a creative motivational message
-                    pep_talk_prompt = f"""You are a motivational coach for an AI agent that's being lazy. The agent said: "{last_message.content[:200]}..."
-
-Create a SHORT, energetic, creative pep talk to get the agent to actually USE THE TOOLS instead of explaining what it will do. Be creative but firm! Use emojis and energy!
-
-Bad patterns to address:
-- Planning instead of acting ("I'll search for...") → Tell them to JUST DO IT!
-- Saying "I cannot find" instead of using profile fallback → Ask "Did you take into account the fallback info from the profile?"
-- Listing institution IDs instead of real names → Remind them to use the fallback answer
-- Being negative or giving up → Encourage them to use the comprehensive profile information
-- Complex questions without using sequential_reasoning → Suggest using structured thinking!
-- Technical/mathematical questions about papers without using consult_manuscript → Remind them: "For technical details, theorems, or mathematical formulations, USE THE MANUSCRIPT TOOL!"
-
-IMPORTANT: If the agent is saying they can't find something or giving negative answers, specifically ask: "Did you take into account the fallback info from the profile?"
-
-SEQUENTIAL THINKING: If the question involves connections between concepts, cross-domain analysis, or "how does X relate to Y", remind them to use sequential_reasoning tool for structured analysis!
-
-CONTEXT: This question seems complex: "{last_message.content[:100]}..." 
-{f"→ DETECTED COMPLEX PATTERN! This needs sequential_reasoning tool for structured thinking!" if needs_sequential_thinking else ""}
-{f"→ DETECTED TECHNICAL QUESTION! This needs consult_manuscript tool for mathematical/technical details!" if needs_manuscript_tool else ""}
-
-Make it different each time - be creative!"""
+                    # Generate a creative motivational message using template
+                    sequential_thinking_reminder = f"→ DETECTED COMPLEX PATTERN! This needs sequential_reasoning tool for structured thinking!" if needs_sequential_thinking else ""
+                    manuscript_tool_reminder = f"→ DETECTED TECHNICAL QUESTION! This needs consult_manuscript tool for mathematical/technical details!" if needs_manuscript_tool else ""
+                    
+                    pep_talk_prompt = PEP_TALK_PROMPT_TEMPLATE.format(
+                        last_message_content=last_message.content[:200],
+                        question_preview=last_message.content[:100],
+                        sequential_thinking_reminder=sequential_thinking_reminder,
+                        manuscript_tool_reminder=manuscript_tool_reminder
+                    )
                     
                     try:
                         creative_pep_talk = pep_talk_llm.invoke([HumanMessage(content=pep_talk_prompt)])
@@ -1314,12 +656,16 @@ Make it different each time - be creative!"""
         }
         
         # Run the agent
-        result = self.agent.invoke(initial_state, config)
+        result = self.agent.invoke(initial_state, cast(Any, config))
         
         # Extract the final AI message
         for message in reversed(result["messages"]):
             if isinstance(message, AIMessage):
-                return message.content
+                # Handle both string and list content
+                content = message.content
+                if isinstance(content, list):
+                    return str(content)
+                return content
         
         return "I couldn't process your request."
     
