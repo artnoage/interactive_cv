@@ -47,18 +47,22 @@ The Interactive CV uses a **unified tool agent** that leverages semantic search 
 
 ### The Pep Talk Coach 🎯
 
-A revolutionary **motivational coaching agent** that sits between the main agent and the user to ensure quality responses:
+A **quality assurance agent** that intervenes ONLY when the agent provides truly non-informative responses:
 
-- **Intercepts lazy responses** - Catches "I'll search for..." and "I cannot find..." patterns
-- **Provides motivational feedback** - Uses high-temperature generation for creative coaching
-- **Enforces tool usage** - Won't let planning statements through without actual tool calls
-- **Fallback reminders** - Specifically asks "Did you take into account the fallback info from the profile?"
-- **Loop prevention** - Allows up to 4 coaching attempts before giving up
-- **Dynamic messaging** - Each pep talk is contextually generated and unique
+- **Strict Intervention** - Only activates when answers have no useful information at all
+- **Single Intervention** - Maximum of one pep talk per conversation to prevent loops
+- **Answer Quality Focus** - Evaluates response content, not question patterns
+- **General Guidance** - Provides actionable advice without seeing the original question
+- **Non-Informative Detection** - Catches planning statements, generic IDs, error messages, very short responses
 
-**Workflow**: User → Agent → Tools → **Pep Talk Coach** → (Back to Agent if needed) → User
+**Key Improvements**:
+- **Before**: Triggered by question patterns like "How does" or "relates to" causing false positives
+- **After**: Only triggers on truly empty or non-informative responses
+- **Result**: Eliminated coaching loops that blocked good answers (e.g., risk-sensitive POMDP question now scores 95/100 instead of 0/100)
 
-This ensures the agent actually uses its tools instead of just talking about using them!
+**Workflow**: User → Agent → Tools → **Quality Check** → (Pep Talk if needed) → User
+
+This ensures quality responses without blocking legitimate answers that contain real information!
 
 ### Usage
 
@@ -100,7 +104,8 @@ blueprints/
 - **Semantic Search**: OpenAI text-embedding-3-large (3072 dimensions)
 - **MCP Integration**: Real JSON-RPC subprocess communication for structured reasoning
 - **Performance**: Best scores ever achieved with Pep Talk Coach + MCP system
-- **Quality Control**: Automated coaching prevents lazy responses and ensures tool usage
+- **Quality Control**: Smart coaching system prevents non-informative responses only when needed
+- **Test Suite**: 40 comprehensive test questions with automated evaluation
 - **Remote Deployment**: Successfully deployed with environment configuration
 - **Chronicle Sync**: Automated Obsidian to remote server synchronization
 

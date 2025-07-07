@@ -10,7 +10,7 @@ import random
 import sys
 import os
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 import time
 import argparse
 from datetime import datetime
@@ -19,7 +19,7 @@ from datetime import datetime
 sys.path.append(str(Path(__file__).parent))
 
 from interactive_agent import InteractiveCVAgent
-from agents.judge_agent import JudgeAgent, AnswerQuality
+from agents.judge_agent import JudgeAgent
 
 
 class ComprehensiveAgentEvaluator:
@@ -303,7 +303,7 @@ class ComprehensiveAgentEvaluator:
             for h in hallucinations:
                 print(f"   - Q{h['question_id']}: {h['question'][:40]}...")
     
-    def save_results(self, results: List[Dict[str, Any]], filename: str = None):
+    def save_results(self, results: List[Dict[str, Any]], filename: str | None = None):
         """Save evaluation results to file."""
         if filename is None:
             timestamp = time.strftime("%Y%m%d_%H%M%S")
@@ -451,12 +451,12 @@ class ComprehensiveAgentEvaluator:
         print(f"   • Pro Model:    {results['pro']:.1f}/100")
         print(f"   • Claude Model: {results['claude']:.1f}/100")
         
-        best_model = max(results, key=results.get)
+        best_model = max(results.keys(), key=lambda k: results[k])
         print(f"\n   🏆 Best: {best_model.capitalize()} ({results[best_model]:.1f}/100)")
         
         return results
     
-    def save_baseline_report(self, results: List[Dict[str, Any]], model_name: str, filename: str = None):
+    def save_baseline_report(self, results: List[Dict[str, Any]], model_name: str, filename: str | None = None):
         """Save comprehensive baseline report."""
         if filename is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -678,14 +678,14 @@ Examples:
     
     # Evaluation scope
     eval_group = parser.add_mutually_exclusive_group()
-    eval_group.add_argument("--all", action="store_true", help="Evaluate all 35 questions")
+    eval_group.add_argument("--all", action="store_true", help="Evaluate all 40 questions")
     eval_group.add_argument("--random", type=int, default=5, help="Evaluate N random questions (default: 5)")
     eval_group.add_argument("--quick", action="store_true", help="Quick test with 3 random questions")
     eval_group.add_argument("--category", choices=["single_paper", "personal_notes", "cross_paper", "cross_domain"], 
                            help="Evaluate questions from specific category")
     eval_group.add_argument("--difficulty", choices=["easy", "medium", "hard", "very_hard"], 
                            help="Evaluate questions of specific difficulty")
-    eval_group.add_argument("--questions", nargs="+", type=int, help="Question IDs to evaluate (1-35)")
+    eval_group.add_argument("--questions", nargs="+", type=int, help="Question IDs to evaluate (1-40)")
     eval_group.add_argument("--compare-models", action="store_true", help="Compare Flash vs Pro vs Claude models")
     eval_group.add_argument("--test-tools", action="store_true", help="Test tool functionality (MCP, manuscript, semantic search)")
     
@@ -751,7 +751,7 @@ Examples:
         if args.baseline:
             results = evaluator.run_baseline_evaluation(model_name)
         else:
-            print("\n🎯 Evaluating ALL 35 questions...")
+            print("\n🎯 Evaluating ALL 40 questions...")
             results = evaluator.evaluate_all_questions()
     elif args.category:
         print(f"\n📂 Evaluating {args.category} questions...")

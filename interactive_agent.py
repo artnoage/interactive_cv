@@ -502,15 +502,15 @@ class InteractiveCVAgent:
         
         # Define the pep talk agent
         def pep_talk_coach(state: AgentState):
-            """The motivational coach that encourages the agent to actually work!"""
+            """The motivational coach that intervenes ONLY when the answer has no useful information at all."""
             messages = state["messages"]
             
-            # Count how many pep talks we've given
+            # Only intervene once - check if we've already given a pep talk
             pep_talk_count = sum(1 for msg in messages 
                                if isinstance(msg, AIMessage) and "HEY AGENT!" in str(msg.content))
             
-            # If we've given too many pep talks, just let it through to avoid loops
-            if pep_talk_count >= 4:
+            # If we've already given a pep talk, let everything through
+            if pep_talk_count >= 1:
                 return {"messages": messages}
             
             # Get the last AI message
@@ -524,76 +524,52 @@ class InteractiveCVAgent:
                     content_text = str(content_text)
                 content = content_text.lower()
                 
-                # Check for planning/procrastination patterns
-                bad_patterns = [
+                # Only intervene for truly non-informative responses
+                non_informative_patterns = [
+                    # Planning/procrastination without actual information
                     "i'll search for", "i will search", "let me search", "i need to",
                     "to answer this", "i'll look for", "let me find", "i need to find",
                     "i'll need to", "we need to", "i should", "first i'll",
-                    "[directly calls", "invoke(", "semantic_search(",  # literal tool descriptions
+                    
+                    # Technical failures without information
                     "i cannot find", "unable to retrieve", "entity not found",
-                    "institution_", "institution 2", "institution 3"  # institution IDs
+                    "no information available", "no data found", "not found in the database",
+                    
+                    # Generic placeholder responses
+                    "institution_", "institution 2", "institution 3",  # institution IDs
+                    "person_", "method_", "topic_",  # other generic IDs
+                    
+                    # Empty or error responses
+                    "error getting answer", "failed to", "cannot access"
                 ]
                 
-                # Check for complex questions that need sequential reasoning
-                sequential_thinking_triggers = [
-                    "connection between", "how does", "relates to", "connect",
-                    "theoretical work", "practical", "cross-domain", "bridges",
-                    "shared challenges", "what connects", "relationship between"
-                ]
+                # Check if the response is truly non-informative
+                is_non_informative = any(pattern in content for pattern in non_informative_patterns)
                 
-                # Check for technical questions that need manuscript tool
-                manuscript_triggers = [
-                    "mathematical formulation", "theorem", "proof", "equation",
-                    "technical details", "how exactly", "specific formula",
-                    "mathematical", "lemma", "proposition", "corollary"
-                ]
+                # Also check for extremely short responses (less than 20 characters)
+                is_too_short = len(content.strip()) < 20
                 
-                needs_sequential_thinking = any(trigger in content for trigger in sequential_thinking_triggers)
-                needs_manuscript_tool = any(trigger in content for trigger in manuscript_triggers)
+                # Check for responses that are just error messages or placeholders
+                is_error_only = any(error in content for error in [
+                    "error:", "exception:", "failed:", "unable to", "cannot", "not found"
+                ]) and len(content.strip()) < 100
                 
-                if any(pattern in content for pattern in bad_patterns) or needs_sequential_thinking or needs_manuscript_tool:
-                    # Create a high-temperature LLM for creative pep talks
-                    # Get the API key from environment instead of trying to access self.llm.api_key
-                    api_key = os.getenv("OPENROUTER_API_KEY")
-                    # Get model name from the main agent - match default to Flash
-                    current_model = os.getenv("AGENT_MODEL", "flash")
-                    models = {
-                        "flash": "google/gemini-2.5-flash",
-                        "pro": "google/gemini-2.5-pro",
-                        "claude": "anthropic/claude-sonnet-4"
-                    }
-                    model_name = models.get(current_model, models["flash"])
+                if is_non_informative or is_too_short or is_error_only:
+                    # Give general advice without seeing the question
+                    pep_talk_message = """🎯 HEY AGENT! Your response doesn't provide useful information to the user. 
+
+Here's what you should do:
+• Use your tools to find specific information
+• Provide actual names, not generic IDs (e.g., "University of Bath", not "institution_1")
+• Give concrete details from your knowledge base
+• If you can't find something, try different search terms or tools
+• Use semantic_search, navigate_relationships, and get_entity_details
+• For complex questions, try sequential_reasoning
+• For technical details, try consult_manuscript
+
+Remember: The user needs real information, not planning statements!"""
                     
-                    pep_talk_llm = ChatOpenAI(
-                        base_url="https://openrouter.ai/api/v1",
-                        api_key=SecretStr(api_key or ""),
-                        model=model_name,
-                        temperature=1.2,  # High temperature for creativity!
-                        default_headers={
-                            "HTTP-Referer": "http://localhost:3000",
-                            "X-Title": "Interactive CV Agent - Pep Talk Coach",
-                        }
-                    )
-                    
-                    # Generate a creative motivational message using template
-                    sequential_thinking_reminder = f"→ DETECTED COMPLEX PATTERN! This needs sequential_reasoning tool for structured thinking!" if needs_sequential_thinking else ""
-                    manuscript_tool_reminder = f"→ DETECTED TECHNICAL QUESTION! This needs consult_manuscript tool for mathematical/technical details!" if needs_manuscript_tool else ""
-                    
-                    pep_talk_prompt = PEP_TALK_PROMPT_TEMPLATE.format(
-                        last_message_content=last_message.content[:200],
-                        question_preview=last_message.content[:100],
-                        sequential_thinking_reminder=sequential_thinking_reminder,
-                        manuscript_tool_reminder=manuscript_tool_reminder
-                    )
-                    
-                    try:
-                        creative_pep_talk = pep_talk_llm.invoke([HumanMessage(content=pep_talk_prompt)])
-                        pep_content = creative_pep_talk.content
-                    except:
-                        # Fallback to static message if API fails
-                        pep_content = """🎯 HEY AGENT! Stop planning and START DOING! Use those tools! 💪"""
-                    
-                    pep_talk = AIMessage(content=f"🎯 HEY AGENT! {pep_content}")
+                    pep_talk = AIMessage(content=pep_talk_message)
                     
                     # Remove the bad response and add pep talk
                     return {"messages": messages[:-1] + [pep_talk]}
