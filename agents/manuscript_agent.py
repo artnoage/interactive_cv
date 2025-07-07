@@ -130,27 +130,16 @@ class ManuscriptAgent:
     """Agent specialized in reading and analyzing manuscript files."""
     
     def __init__(self, model_name: str = None):
-        # Use environment variable or default
-        if model_name is None:
-            model_env = os.environ.get('AGENT_MODEL', 'flash').lower()
-            model_map = {
-                'flash': 'google/gemini-2.5-flash',
-                'claude': 'anthropic/claude-sonnet-4',
-                'pro': 'google/gemini-2.5-pro',
-                'gpt4': 'gpt-4o-mini'
-            }
-            model_name = model_map.get(model_env, 'google/gemini-2.5-flash')
+        # Always use Gemini Flash for manuscript reading, regardless of main agent model
+        model_name = 'google/gemini-2.5-flash'
         
         # Handle OpenRouter models
-        if model_name.startswith(('google/', 'anthropic/')):
-            self.model = ChatOpenAI(
-                model=model_name,
-                temperature=0,
-                base_url="https://openrouter.ai/api/v1",
-                api_key=os.environ.get('OPENROUTER_API_KEY')
-            )
-        else:
-            self.model = ChatOpenAI(model=model_name, temperature=0)
+        self.model = ChatOpenAI(
+            model=model_name,
+            temperature=0,
+            base_url="https://openrouter.ai/api/v1",
+            api_key=os.environ.get('OPENROUTER_API_KEY')
+        )
         self.tools = [list_manuscripts, read_manuscript, search_manuscript_content]
         
         # Create the agent prompt

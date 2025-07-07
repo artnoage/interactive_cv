@@ -44,7 +44,10 @@ class JudgeAgent:
     # Model configuration
     MODELS = {
         "flash": "google/gemini-2.5-flash",
-        "pro": "google/gemini-2.5-pro"
+        "pro": "google/gemini-2.5-pro",
+        "claude": "anthropic/claude-sonnet-4",
+        "mistral": "mistralai/mistral-small-3.2-24b-instruct",
+        "lmstudio": "google/gemma-3-12b"
     }
     
     MODEL_CONFIGS = {
@@ -55,36 +58,65 @@ class JudgeAgent:
         "google/gemini-2.5-pro": {
             "temperature": 0.1,
             "max_tokens": 8192
+        },
+        "anthropic/claude-sonnet-4": {
+            "temperature": 0.1,
+            "max_tokens": 4096
+        },
+        "mistralai/mistral-small-3.2-24b-instruct": {
+            "temperature": 0.1,
+            "max_tokens": 4096
+        },
+        "google/gemma-3-12b": {
+            "temperature": 0.1,
+            "max_tokens": 2048
         }
     }
     
     def __init__(self, model: Optional[str] = None):
         """Initialize judge with specified or configured model."""
-        api_key = os.getenv("OPENROUTER_API_KEY")
-        if not api_key:
-            raise ValueError("OPENROUTER_API_KEY not found in .env file")
-        
-        # Get model from environment or default
+        # Always use Gemini Flash for judge, regardless of agent model
         if model is None:
-            model_key = os.getenv("JUDGE_MODEL", "flash")
-            model = self.MODELS.get(model_key, self.MODELS["flash"])
+            model_key = "flash"  # Force Flash for judge
+            model = self.MODELS["flash"]
+        else:
+            model_key = "flash"  # Force Flash for judge
+        
+        # Check API key only for non-local models
+        if model_key != "lmstudio":
+            api_key = os.getenv("OPENROUTER_API_KEY")
+            if not api_key:
+                raise ValueError("OPENROUTER_API_KEY not found in .env file")
+        else:
+            api_key = "lm-studio"  # Dummy key for LM Studio
         
         model_config = self.MODEL_CONFIGS.get(model, self.MODEL_CONFIGS["google/gemini-2.5-flash"])
         
         # Get max tokens from config
         max_tokens = model_config.get("max_tokens", 4096)
         
-        self.llm = ChatOpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=SecretStr(api_key),
-            model=model,
-            temperature=model_config.get("temperature", 0.1),
-            default_headers={
-                "HTTP-Referer": "http://localhost:3000",
-                "X-Title": "Interactive CV Judge Agent",
-            },
-            model_kwargs={"max_tokens": max_tokens}
-        )
+        # Check if using LM Studio
+        model_key = os.getenv("JUDGE_MODEL", "flash")
+        if model_key == "lmstudio":
+            self.llm = ChatOpenAI(
+                base_url="http://localhost:1234/v1",
+                api_key="lm-studio",  # LM Studio doesn't require real key
+                model=model,
+                temperature=model_config.get("temperature", 0.1),
+                model_kwargs={"max_tokens": max_tokens}
+            )
+        else:
+            self.llm = ChatOpenAI(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=SecretStr(api_key),
+                model=model,
+                temperature=model_config.get("temperature", 0.1),
+                default_headers={
+                    "HTTP-Referer": "http://localhost:3000",
+                    "X-Title": "Interactive CV Judge Agent",
+                },
+                model_kwargs={"max_tokens": max_tokens}
+            )
         
         print(f"⚖️ Judge using model: {model}")
         

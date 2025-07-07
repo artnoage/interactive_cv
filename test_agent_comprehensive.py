@@ -673,6 +673,9 @@ Examples:
   python test_agent_comprehensive.py --compare-models --questions 5
   python test_agent_comprehensive.py --test-tools --claude --save
   python test_agent_comprehensive.py --quick --flash
+  python test_agent_comprehensive.py --random 5 --mistral --save
+  python test_agent_comprehensive.py --random 5 --lmstudio --save
+  python test_agent_comprehensive.py --random 5 --phi4 --save
         """
     )
     
@@ -694,6 +697,9 @@ Examples:
     model_group.add_argument("--flash", action="store_true", help="Use Flash model (default, fastest)")
     model_group.add_argument("--pro", action="store_true", help="Use Pro model (better performance)")
     model_group.add_argument("--claude", action="store_true", help="Use Claude model (best instruction following)")
+    model_group.add_argument("--mistral", action="store_true", help="Use Mistral model (good performance, supports tools)")
+    model_group.add_argument("--lmstudio", action="store_true", help="Use local LM Studio model (localhost:1234)")
+    model_group.add_argument("--phi4", action="store_true", help="Use local Phi-4 reasoning model (localhost:1234)")
     
     # Reporting options
     parser.add_argument("--baseline", action="store_true", help="Run baseline evaluation with enhanced reporting")
@@ -709,19 +715,28 @@ Examples:
     model_name = "flash"  # default
     if args.claude:
         os.environ["AGENT_MODEL"] = "claude"
-        os.environ["JUDGE_MODEL"] = "claude"
         model_name = "claude"
-        print("🤖 Using Claude models (best instruction following)")
+        print("🤖 Using Claude agent with Gemini judge")
     elif args.pro:
         os.environ["AGENT_MODEL"] = "pro"
-        os.environ["JUDGE_MODEL"] = "pro"
         model_name = "pro"
-        print("🧠 Using Pro models (better performance)")
+        print("🧠 Using Pro agent with Gemini judge")
+    elif args.mistral:
+        os.environ["AGENT_MODEL"] = "mistral"
+        model_name = "mistral"
+        print("🚀 Using Mistral agent with Gemini judge")
+    elif args.lmstudio:
+        os.environ["AGENT_MODEL"] = "lmstudio"
+        model_name = "lmstudio"
+        print("🏠 Using LM Studio agent with Gemini judge")
+    elif args.phi4:
+        os.environ["AGENT_MODEL"] = "phi4"
+        model_name = "phi4"
+        print("🧠 Using Phi-4 reasoning agent with Gemini judge")
     elif args.flash:
         os.environ["AGENT_MODEL"] = "flash"
-        os.environ["JUDGE_MODEL"] = "flash"
         model_name = "flash"
-        print("⚡ Using Flash models (fastest)")
+        print("⚡ Using Flash agent with Gemini judge")
     
     # Initialize evaluator
     evaluator = ComprehensiveAgentEvaluator()

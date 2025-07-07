@@ -445,30 +445,45 @@ class InteractiveCVAgent:
         """Initialize the agent with minimal tools."""
         print("🔧 Initializing Embedding-First Agent...")
         
-        # Initialize OpenRouter LLM
-        api_key = os.getenv("OPENROUTER_API_KEY")
-        if not api_key:
-            raise ValueError("OPENROUTER_API_KEY not found in .env file")
-        
         # Model selection - Default to Flash for cost efficiency
         model_key = os.getenv("AGENT_MODEL", "flash")
+        
+        # Initialize LLM - API key only needed for non-local models
+        if model_key not in ["lmstudio", "phi4"]:
+            api_key = os.getenv("OPENROUTER_API_KEY")
+            if not api_key:
+                raise ValueError("OPENROUTER_API_KEY not found in .env file")
+        else:
+            api_key = "lm-studio"  # Dummy key for LM Studio
         models = {
             "flash": "google/gemini-2.5-flash",
             "pro": "google/gemini-2.5-pro", 
-            "claude": "anthropic/claude-sonnet-4"
+            "claude": "anthropic/claude-sonnet-4",
+            "mistral": "mistralai/mistral-small-3.2-24b-instruct",
+            "lmstudio": "google/gemma-3-12b",  # LM Studio local model
+            "phi4": "microsoft/phi-4-reasoning-plus"  # LM Studio Phi-4 model
         }
         model_name = models.get(model_key, models["flash"])
         
-        self.llm = ChatOpenAI(
-            base_url="https://openrouter.ai/api/v1",
-            api_key=SecretStr(api_key),
-            model=model_name,
-            temperature=0.7,
-            default_headers={
-                "HTTP-Referer": "http://localhost:3000",
-                "X-Title": "Interactive CV Agent",
-            }
-        )
+        # Configure LLM based on model type
+        if model_key in ["lmstudio", "phi4"]:
+            self.llm = ChatOpenAI(
+                base_url="http://localhost:1234/v1",
+                api_key="lm-studio",  # LM Studio doesn't require real key
+                model=model_name,
+                temperature=0.7
+            )
+        else:
+            self.llm = ChatOpenAI(
+                base_url="https://openrouter.ai/api/v1",
+                api_key=SecretStr(api_key),
+                model=model_name,
+                temperature=0.7,
+                default_headers={
+                    "HTTP-Referer": "http://localhost:3000",
+                    "X-Title": "Interactive CV Agent",
+                }
+            )
         
         print(f"🤖 Agent using model: {model_name}")
         
