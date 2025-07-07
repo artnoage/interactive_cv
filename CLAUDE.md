@@ -192,7 +192,7 @@ OPENAI_API_KEY=your_key_here
 3. **Entity Resolution**: Handles name variations and synonyms automatically
 4. **Rich Types**: 24+ entity categories with professional visualization
 5. **Structured Reasoning**: Real MCP integration for complex cross-domain analysis
-6. **Quality Assurance**: Pep Talk Coach prevents lazy responses and ensures proper tool usage
+6. **Quality Assurance**: Smart Pep Talk Coach intervenes only for truly non-informative responses
 7. **Universal Scalability**: Works with any number of entities across any domain
 8. **Deployment Ready**: Successfully configured for remote server deployment
 
@@ -201,16 +201,17 @@ OPENAI_API_KEY=your_key_here
 ### Agent System Enhancements
 - **MCP Integration**: Real Model Context Protocol with JSON-RPC subprocess communication
 - **6 Unified Tools**: Expanded from 3 to 6 tools including manuscript consultation and structured reasoning
-- **Pep Talk Coach**: Revolutionary motivational agent that ensures quality responses
-- **Action-First Prompting**: Eliminates "I'll search for..." lazy responses
-- **Fallback Reminders**: Automatic coaching to use profile information when searches fail
-- **Creative Coaching**: High-temperature LLM generates diverse motivational messages
-- **Loop Prevention**: Smart limits prevent infinite coaching cycles
+- **Pep Talk Coach v2**: Smart quality assurance that only intervenes for truly non-informative responses
+- **Answer Quality Focus**: Evaluates response content, not question patterns to prevent false positives
+- **Single Intervention**: Maximum one coaching attempt per conversation to eliminate loops
+- **Targeted Detection**: Only catches planning statements, generic IDs, error messages, and very short responses
+- **Performance Fix**: Eliminated coaching loops that blocked good answers (e.g., 0/100 → 95/100 for complex questions)
 
 ### Infrastructure Improvements
 - **Chronicle Sync**: Automated sync from Obsidian Chronicles to remote server
 - **Remote Deployment**: Successfully deployed with proper environment configuration
 - **Database Expansion**: 19 documents with 1,135 entities and rich categorization
+- **Test Suite Expansion**: 40 comprehensive test questions (up from 35) with automated evaluation
 - **High-Quality Embeddings**: OpenAI text-embedding-3-large (3072 dimensions)
 - **Thread-Safe**: Fixed SQLite threading issues for web deployment
 - **Content Loading**: Full document content (20-29k chars academic, 1.6-5.4k personal)
