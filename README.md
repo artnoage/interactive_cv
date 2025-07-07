@@ -150,7 +150,7 @@ The main conversational agent that provides intelligent access to your professio
 The agent uses **LangGraph** for sophisticated workflow orchestration with two main components:
 
 1. **Main Agent**: Uses 6 unified tools with semantic intelligence
-2. **Pep Talk Coach**: Quality control system that ensures proper tool usage
+2. **Pep Talk Coach v2**: Smart quality assurance that only intervenes for non-informative responses
 
 #### **The 6 Unified Tools** 🛠️
 
@@ -188,7 +188,7 @@ The agent uses **LangGraph** for sophisticated workflow orchestration with two m
 - JSON-RPC communication with dedicated MCP server subprocess
 - Handles multi-domain connections and theoretical-practical bridges
 
-#### **The Pep Talk Coach: Quality Control for Cost-Effective Models** 🎯
+#### **The Pep Talk Coach v2: Smart Quality Assurance** 🎯
 
 A **revolutionary quality control system** designed to make cheaper models (like Gemini Flash) perform at Claude-level quality through motivational coaching:
 
@@ -446,7 +446,7 @@ This system represents a **novel approach** to knowledge management:
 1. **Configuration-Driven**: Domain knowledge lives in YAML files, not code
 2. **Agent Orchestration**: Specialized AI agents handle different aspects  
 3. **MCP Integration**: Real Model Context Protocol for structured reasoning
-4. **Quality Assurance**: Revolutionary Pep Talk Coach ensures agent effectiveness
+4. **Quality Assurance**: Smart Pep Talk Coach v2 ensures quality without blocking good answers
 5. **Semantic Intelligence**: Embedding-first search with graph navigation
 6. **Universal Adaptability**: Works for any research domain via blueprints
 
@@ -594,7 +594,7 @@ The main conversational agent that provides intelligent access to your professio
 The agent uses **LangGraph** for sophisticated workflow orchestration with two main components:
 
 1. **Main Agent**: Uses 6 unified tools with semantic intelligence
-2. **Pep Talk Coach**: Quality control system that ensures proper tool usage
+2. **Pep Talk Coach v2**: Smart quality assurance that only intervenes for non-informative responses
 
 #### **The 6 Unified Tools** 🛠️
 
@@ -632,7 +632,7 @@ The agent uses **LangGraph** for sophisticated workflow orchestration with two m
 - JSON-RPC communication with dedicated MCP server subprocess
 - Handles multi-domain connections and theoretical-practical bridges
 
-#### **The Pep Talk Coach: Quality Control for Cost-Effective Models** 🎯
+#### **The Pep Talk Coach v2: Smart Quality Assurance** 🎯
 
 A **revolutionary quality control system** designed to make cheaper models (like Gemini Flash) perform at Claude-level quality through motivational coaching:
 
@@ -1027,7 +1027,7 @@ This system represents a **novel approach** to knowledge management:
 1. **Configuration-Driven**: Domain knowledge lives in YAML files, not code
 2. **Agent Orchestration**: Specialized AI agents handle different aspects  
 3. **MCP Integration**: Real Model Context Protocol for structured reasoning
-4. **Quality Assurance**: Revolutionary Pep Talk Coach ensures agent effectiveness
+4. **Quality Assurance**: Smart Pep Talk Coach v2 ensures quality without blocking good answers
 5. **Semantic Intelligence**: Embedding-first search with graph navigation
 6. **Universal Adaptability**: Works for any research domain via blueprints
 
