@@ -4,7 +4,7 @@
 
 The Interactive CV uses a **unified tool agent** that leverages semantic search across all entities with advanced reasoning capabilities.
 
-**Key Achievement**: *6 unified tools with semantic search + MCP integration replace 83+ specific tools*
+**Key Achievement**: *6 unified tools with semantic search + MCP integration provide comprehensive functionality*
 
 ### System Architecture
 
@@ -55,10 +55,10 @@ A **quality assurance agent** that intervenes ONLY when the agent provides truly
 - **General Guidance** - Provides actionable advice without seeing the original question
 - **Non-Informative Detection** - Catches planning statements, generic IDs, error messages, very short responses
 
-**Key Improvements**:
-- **Before**: Triggered by question patterns like "How does" or "relates to" causing false positives
-- **After**: Only triggers on truly empty or non-informative responses
-- **Result**: Eliminated coaching loops that blocked good answers (e.g., risk-sensitive POMDP question now scores 95/100 instead of 0/100)
+**Key Features**:
+- Only triggers on truly empty or non-informative responses
+- Eliminates coaching loops that could block good answers
+- Maintains high quality scoring (e.g., risk-sensitive POMDP question scores 95/100)
 
 **Workflow**: User → Agent → Tools → **Quality Check** → (Pep Talk if needed) → User
 
@@ -200,20 +200,18 @@ OPENAI_API_KEY=your_key_here
 
 ### Agent System Enhancements
 - **MCP Integration**: Real Model Context Protocol with JSON-RPC subprocess communication
-- **6 Unified Tools**: Expanded from 3 to 6 tools including manuscript consultation and structured reasoning
-- **Pep Talk Coach v2**: Smart quality assurance that only intervenes for truly non-informative responses
-- **Answer Quality Focus**: Evaluates response content, not question patterns to prevent false positives
-- **Single Intervention**: Maximum one coaching attempt per conversation to eliminate loops
+- **Tool Expansion**: 6 unified tools including manuscript consultation and structured reasoning
+- **Smart Quality Assurance**: Pep Talk Coach v2 only intervenes for truly non-informative responses
 - **Targeted Detection**: Only catches planning statements, generic IDs, error messages, and very short responses
-- **Performance Fix**: Eliminated coaching loops that blocked good answers (e.g., 0/100 → 95/100 for complex questions)
+- **Performance Optimization**: Coaching loops eliminated for complex questions (achieving 95/100 scores)
 
 ### Infrastructure Improvements
 - **Chronicle Sync**: Automated sync from Obsidian Chronicles to remote server
 - **Remote Deployment**: Successfully deployed with proper environment configuration
 - **Database Expansion**: 19 documents with 1,135 entities and rich categorization
-- **Test Suite Expansion**: 40 comprehensive test questions (up from 35) with automated evaluation
+- **Test Suite**: 40 comprehensive test questions with automated evaluation
 - **High-Quality Embeddings**: OpenAI text-embedding-3-large (3072 dimensions)
-- **Thread-Safe**: Fixed SQLite threading issues for web deployment
+- **Thread-Safe**: SQLite threading optimized for web deployment
 - **Content Loading**: Full document content (20-29k chars academic, 1.6-5.4k personal)
 - **Blueprint System**: Mature YAML-driven configuration for universal domain adaptation
 
@@ -237,14 +235,13 @@ OPENAI_API_KEY=your_key_here
 
 ## Summary
 
-The Interactive CV is a **unified knowledge platform** with **MCP-powered reasoning** and **motivational coaching** that:
+The Interactive CV is a **unified knowledge platform** with **MCP-powered reasoning** and **smart quality assurance** that:
 - Uses 6 unified tools powered by semantic search and structured reasoning
-- Features a revolutionary Pep Talk Coach that ensures quality responses
+- Features intelligent Pep Talk Coach that ensures quality responses
 - Integrates real Model Context Protocol for complex cross-domain analysis
 - Works universally across any research domain via blueprint configuration
 - Combines high-quality embeddings with SQL queries and graph navigation
 - Provides CLI, web interface, and automated synchronization workflows
 - Successfully deployed to remote servers with proper environment configuration
-- Automatically prevents lazy responses and enforces proper tool usage
 
-*From 83 specific tools to 6 intelligent tools + MCP reasoning + motivational coaching - achieving best performance ever through semantic intelligence and quality assurance.*
+*6 intelligent tools + MCP reasoning + motivational coaching achieve exceptional performance through semantic intelligence and quality assurance.*
