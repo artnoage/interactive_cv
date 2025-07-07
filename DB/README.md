@@ -43,22 +43,18 @@ graph TB
         CJ --> UP
         UP --> DB[(SQLite Database<br/>metadata.db)]
         
-        DB --> CH[Chunker<br/>DB/chunker.py]
+        DB --> CH[Chunker<br/>DB/utils/chunker.py]
         CH --> DC[Document Chunks]
         DC --> DB
         
-        DB --> EMB[Embeddings Generator<br/>DB/embeddings.py]
+        DB --> EMB[Embeddings Generator<br/>DB/utils/embeddings.py]
         EMB --> VE[Vector Embeddings]
         VE --> DB
-        
-        DB --> PGT[Populate Graph Tables<br/>DB/populate_graph_tables.py]
-        PGT --> GT[Graph Tables<br/>graph_nodes & graph_edges]
-        GT --> DB
     end
     
     subgraph "Application Layer"
         DB --> KG[Knowledge Graph<br/>KG/knowledge_graph.py]
-        DB --> QE[Query Engine<br/>DB/query_comprehensive.py]
+        DB --> QE[Query Engine<br/>DB/utils/query_comprehensive.py]
         DB --> IA[Interactive Agent<br/>interactive_agent.py]
         KG --> VIS[Visualization<br/>web_ui/]
     end
@@ -181,10 +177,10 @@ python DB/populator.py [document_type] [--metadata-dir path] [--blueprint-dir pa
 - Handles both academic and chronicle sources through configuration
 - Supports content loading from analysis files or direct file paths
 
-#### `chunker.py` - **Intelligent Document Chunker**
+#### `utils/chunker.py` - **Intelligent Document Chunker**
 Advanced document segmentation with semantic boundary detection:
 ```bash
-python DB/chunker.py [--chunk-size 1200] [--overlap 200] [--min-chunk-size 300]
+python DB/utils/chunker.py [--chunk-size 1200] [--overlap 200] [--min-chunk-size 300]
 ```
 
 **Advanced Features**:
@@ -202,10 +198,10 @@ python DB/chunker.py [--chunk-size 1200] [--overlap 200] [--min-chunk-size 300]
 - Handles minimum chunk size thresholds
 - Supports batch processing for large document collections
 
-#### `embeddings.py` - **High-Quality Vector Generation**
+#### `utils/embeddings.py` - **High-Quality Vector Generation**
 Advanced embedding generation with OpenAI's latest models:
 ```bash
-python DB/embeddings.py [--entities-only] [--verify] [--batch-size 100]
+python DB/utils/embeddings.py [--entities-only] [--verify] [--batch-size 100]
 ```
 
 **Advanced Features**:
@@ -226,28 +222,6 @@ python DB/embeddings.py [--entities-only] [--verify] [--batch-size 100]
 - `--verify` flag for interactive verification before generation
 - Automatic regeneration when old model embeddings detected
 - Model version tracking and upgrade capabilities
-
-#### `populate_graph_tables.py` - **Configuration-Driven Graph Builder**
-Advanced graph table population with rich visualization attributes:
-```bash
-python DB/populate_graph_tables.py [--validate-blueprints]
-```
-
-**Configuration-Driven Features**:
-- **Rich Node Types**: Creates 24+ distinct node types from blueprint configurations
-- **Configurable Visualization**: Uses `blueprints/core/visualization.yaml` for colors and layouts
-- **Relationship Typing**: Supports multiple relationship types (discusses, proves, uses_method, etc.)
-- **Automatic Co-occurrence**: Generates document-based co-occurrence relationships
-- **Collaboration Networks**: Creates author collaboration graphs
-
-**Key Operations**:
-- Converts entities to nodes with rich attributes (type, category, color, size)
-- Creates edges from relationships with proper typing and weights
-- Adds co-occurrence relationships automatically from document analysis
-- Computes edge weights based on relationship strength
-- Generates collaboration networks for people entities
-- Pre-computes graph structure for fast visualization
-- Supports incremental updates for new entities
 
 ### 4. **Database Utilities**
 
@@ -390,7 +364,7 @@ python DB/update_database.py
 # - Maintain database consistency throughout
 
 # Update specific components if needed
-python DB/populate_graph_tables.py --validate-blueprints
+python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
 ```
 
 ### Database Analysis & Exploration
@@ -424,8 +398,8 @@ python agents/entity_deduplicator.py --dry-run
 # 4. Create backup and merge duplicates with parallel processing
 python agents/entity_deduplicator.py --parallel-workers 20 --merge --backup
 
-# 5. Rebuild graph tables after deduplication
-python DB/populate_graph_tables.py
+# 5. Rebuild knowledge graph after deduplication
+python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
 ```
 
 **Enhanced Deduplication Features**:
@@ -449,14 +423,16 @@ DB/                               # Database system root
 ├── build_database.py             # Configuration-driven complete database builder
 ├── update_database.py            # Smart incremental updater with model versioning
 ├── populator.py                  # Blueprint-driven generic metadata importer
-├── chunker.py                    # Intelligent document chunker with semantic boundaries
-├── embeddings.py                 # High-quality vector generation (text-embedding-3-large)
-├── populate_graph_tables.py      # Configuration-driven graph builder
+├── metadata.db                   # SQLite database (not in git)
+├── test.db                       # Test database
+├── logs/                          # Database operation logs
 │
 └── utils/                        # Database utilities and tools
     ├── __init__.py
-    ├── query_comprehensive.py    # Database explorer and analysis tool
-    └── verify_entities.py        # Entity quality verification and duplicate detection
+    ├── chunker.py                # Intelligent document chunker with semantic boundaries
+    ├── embeddings.py             # High-quality vector generation (text-embedding-3-large)
+    ├── query_comprehensive.py   # Database explorer and analysis tool
+    └── verify_entities.py       # Entity quality verification and duplicate detection
 ```
 
 ## Configuration System Integration
@@ -554,7 +530,7 @@ blueprints/
 
 1. **"Database locked"**: Close other connections (Datasette, etc.)
 2. **Missing embeddings**: Check OPENAI_API_KEY in .env
-3. **Empty graph**: Run populate_graph_tables.py
+3. **Empty graph**: Run knowledge graph generation with `python KG/graph_builder.py`
 4. **Slow queries**: Check indexes with `EXPLAIN QUERY PLAN`
 
 ### Maintenance

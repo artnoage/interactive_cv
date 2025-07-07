@@ -129,6 +129,80 @@ relationship_types:
     style: "dashed"
 ```
 
+#### 3. **analyze_knowledge_graph.py** - Graph Analysis Tool
+
+**Purpose**: Analyzes knowledge graphs and extracts detailed information about entities and relationships for comparison and debugging purposes.
+
+**Key Features**:
+- **Statistical Analysis**: Provides detailed statistics about node types, relationship types, and connectivity
+- **Entity Distribution**: Shows count and percentage of each entity type
+- **Relationship Mapping**: Analyzes relationship patterns and connection strengths
+- **Comparison Ready**: Outputs formatted data suitable for comparing different graph versions
+- **Debugging Support**: Helps identify issues with graph structure and data quality
+
+**Usage**:
+```bash
+# Analyze a knowledge graph
+python KG/analyze_knowledge_graph.py KG/knowledge_graph.json
+
+# Analyze and compare multiple graphs
+python KG/analyze_knowledge_graph.py KG/knowledge_graph.json web_ui/knowledge_graph.json
+```
+
+#### 4. **prune_knowledge_graph.py** - Graph Pruning Tool
+
+**Purpose**: Creates focused, filtered versions of knowledge graphs by excluding specified entity types and relationship types, with automatic isolated node removal.
+
+**Key Features**:
+- **Entity Type Filtering**: Exclude specific entity types (e.g., personal elements, technical details)
+- **Relationship Type Filtering**: Remove specific relationship types (e.g., process metadata, weak connections)
+- **Isolated Node Removal**: Automatically removes orphaned nodes with no connections
+- **Structural Focus**: Transform detailed graphs into cleaner, more focused versions
+- **Web UI Optimization**: Create lighter graphs optimized for visualization performance
+
+**Usage**:
+```bash
+# Basic pruning with entity exclusion
+python KG/prune_knowledge_graph.py input.json output.json \
+  --exclude-entities person personal_achievement \
+  --exclude-relationships authored_by affiliated_with
+
+# Comprehensive pruning with isolated node removal
+python KG/prune_knowledge_graph.py KG/knowledge_graph.json web_ui/knowledge_graph.json \
+  --exclude-entities person personal_achievement personal_learning math_foundation \
+  --exclude-relationships authored_by proves mentions \
+  --remove-isolated
+
+# Configuration-style pruning (see config_style_pruning_params.txt for full example)
+python KG/prune_knowledge_graph.py KG/knowledge_graph.json web_ui/knowledge_graph.json \
+  --exclude-entities person personal_achievement personal_learning personal_note challenge future_direction assumption limitation general_concept general_topic theoretical_method analytical_method algorithmic_method computational_method general_method tool project math_foundation \
+  --exclude-relationships accomplished learned plans faced_challenge mentions relates_to suggests_future_work makes_assumption has_limitation discovered discovers affiliated_with authored_by proves \
+  --remove-isolated
+```
+
+#### 5. **graph_matching_ideas.md** - Advanced Graph Theory Documentation
+
+**Purpose**: Documents mathematical approaches for finding structurally similar subgraphs, particularly for matching academic knowledge graphs to reference structures.
+
+**Content**:
+- **Subgraph Isomorphism**: Mathematical foundations for graph matching
+- **Similarity Metrics**: Distance measures and scoring functions for graph comparison
+- **Algorithm Exploration**: Various approaches to graph matching problems
+- **Use Cases**: Applications for knowledge graph similarity and structure analysis
+
+#### 6. **config_style_pruning_params.txt** - Pruning Configuration Documentation
+
+**Purpose**: Documents the exact parameters and rationale for creating web UI-optimized knowledge graphs from full research graphs.
+
+**Content**:
+- **Pruning Commands**: Complete command-line examples with all parameters
+- **Entity Type Rationale**: Explanation of why specific entity types are excluded/included
+- **Relationship Type Logic**: Reasoning behind relationship filtering decisions
+- **Performance Results**: Statistics on graph size reduction and optimization outcomes
+- **Philosophy**: Structural focus vs. process focus approach to graph design
+
+**Key Achievement**: Transforms 1,081 entities into 119 focused entities (11% retention) while maintaining graph connectivity and core research relationships.
+
 ## Usage
 
 ### Command Line Interface

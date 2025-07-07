@@ -162,6 +162,69 @@ The test files are designed to work with various test scripts:
 
 All scripts can accept different test files via command-line arguments for flexibility.
 
+## Test Utilities
+
+### `test_utils.py` - Test File Helper Functions
+
+Utility library providing common functions for working with test files across the testing framework.
+
+**Key Functions:**
+- `load_test_file(filename)`: Load any test file with error handling
+- `get_questions_by_category(test_data, category)`: Filter questions by category
+- `get_questions_by_difficulty(test_data, difficulty)`: Filter questions by difficulty level
+- `get_random_questions(test_data, count)`: Get random sample of questions
+- `validate_test_structure(test_data)`: Verify test file format and required fields
+
+**Usage:**
+```python
+from tests.test_utils import load_test_file, get_questions_by_category
+
+# Load test data
+test_data = load_test_file("qa_extended_test_set.json")
+
+# Get specific categories
+single_paper_questions = get_questions_by_category(test_data, "single_paper")
+cross_domain_questions = get_questions_by_category(test_data, "cross_domain")
+
+# Get random sample for quick testing
+random_questions = get_random_questions(test_data, 5)
+```
+
+### `verify_test_files.py` - Test File Integrity Checker
+
+Comprehensive verification script that checks consistency and integrity across all test files in the testing framework.
+
+**Verification Checks:**
+- **File Consistency**: Ensures all chunk files combine correctly into complete sets
+- **ID Continuity**: Verifies question IDs are sequential and complete
+- **JSON Validation**: Checks all files are valid JSON with required fields
+- **Category Validation**: Ensures categories match expected values
+- **Difficulty Validation**: Verifies difficulty levels are consistent
+- **Cross-File Consistency**: Checks that combined files match individual chunks
+
+**Usage:**
+```bash
+# Run comprehensive verification
+python tests/verify_test_files.py
+
+# Example output:
+# === Test File Verification ===
+# 
+# ✓ Main test set loaded: 35 questions
+# ✓ Extended test set loaded: 40 questions  
+# ✓ All chunk files loaded successfully
+# ✓ ID sequence is complete (1-40)
+# ✓ Categories are consistent
+# ✓ Combined files match individual chunks
+```
+
+**Integration:**
+This script is useful for:
+- CI/CD pipeline testing validation
+- Pre-commit hooks to ensure test file integrity
+- Debugging test file issues during development
+- Validating test file modifications
+
 ## Best Practices
 
 1. **Use Extended Set for Complete Testing** - The 40-question extended set provides comprehensive coverage

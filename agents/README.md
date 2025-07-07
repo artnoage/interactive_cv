@@ -92,6 +92,87 @@ python agents/extractor.py personal \
   --output raw_data/personal_notes/extracted_metadata/
 ```
 
+## Judge Agent (`judge_agent.py`)
+
+Specialized evaluation agent that uses LLM-based assessment to compare agent responses against expected answers for quality assurance and testing.
+
+**Features:**
+- **LLM-Based Evaluation**: Uses Gemini Flash 2.5 for intelligent answer comparison
+- **Quality Scoring**: Provides numerical scores (0-100) for answer correctness
+- **Multiple Quality Levels**: EXCELLENT (90-100), GOOD (70-89), FAIR (50-69), POOR (0-49)
+- **Detailed Feedback**: Provides explanations for scores and suggestions for improvement
+- **Testing Integration**: Designed for automated testing workflows and evaluation pipelines
+
+**Usage:**
+```python
+from agents.judge_agent import JudgeAgent, AnswerQuality
+
+# Initialize judge
+judge = JudgeAgent()
+
+# Evaluate an answer
+result = judge.evaluate_answer(
+    question="What is UNOT?",
+    expected_answer="Universal Neural Optimal Transport...",
+    actual_answer="UNOT is a neural network approach...",
+    context="Academic paper about optimal transport"
+)
+
+print(f"Score: {result.score}/100")
+print(f"Quality: {result.quality}")
+print(f"Explanation: {result.explanation}")
+```
+
+**Command Line:**
+```bash
+# Evaluate answers from JSON test results
+python agents/judge_agent.py --test-results results.json --output evaluated_results.json
+```
+
+## Manuscript Agent (`manuscript_agent.py`)
+
+Deep document analysis agent with specialized tools for reading and analyzing original manuscript files to answer specific questions about research content.
+
+**Features:**
+- **Multi-Tool Agent**: Uses LangChain agent framework with specialized tools
+- **File Reading Capabilities**: Direct access to original manuscript files
+- **Content Search**: Search within specific documents for relevant passages
+- **Cross-Reference Analysis**: Find connections between different parts of manuscripts
+- **Detailed Extraction**: Extract specific information requested by queries
+- **Integration Ready**: Designed to be called by the main interactive agent
+
+**Tools Available:**
+- `read_file`: Read complete manuscript files
+- `search_file_content`: Search for specific terms within documents
+- `list_files`: Discover available manuscript files
+- `extract_sections`: Extract specific sections or passages
+
+**Usage:**
+```python
+from agents.manuscript_agent import ManuscriptAgent
+
+# Initialize agent
+agent = ManuscriptAgent()
+
+# Analyze manuscript for specific information
+response = agent.analyze_manuscript(
+    query="What methodology does the UNOT paper use for training?",
+    manuscript_path="raw_data/academic/Transcript_MDs/Universal_Neural_Optimal_Transport.md"
+)
+
+print(response)
+```
+
+**Integration with Main Agent:**
+The manuscript agent is designed to be called by the main interactive agent when detailed document analysis is needed:
+```python
+# Called automatically by interactive agent's `consult_manuscript` tool
+result = consult_manuscript(
+    "What are the mathematical foundations of the Wasserstein gradient flow paper?",
+    "Wasserstein_gradient_flows_large_deviations"
+)
+```
+
 ## Entity Deduplicator (`entity_deduplicator.py`)
 
 Identifies and merges duplicate entities in the knowledge graph using string matching, embeddings, and LLM verification.
@@ -178,6 +259,26 @@ python agents/entity_deduplicator.py --parallel-workers 10 --no-clustering --mer
 - `verify_duplicates_parallel()`: Parallel LLM verification using ThreadPoolExecutor
 - `merge_cluster()`: Merges entire clusters instead of just pairs
 - Relationship conflict handling prevents UNIQUE constraint violations
+
+## Analysis Methodology (`How_to_analyze.md`)
+
+Comprehensive methodology document that defines the structured approach for analyzing academic papers used by the Academic Analyzer agent.
+
+**Purpose**: Provides a standardized, three-phase analysis framework that ensures consistent, thorough examination of research papers across different domains.
+
+**Three-Phase Structure:**
+1. **Reconnaissance Phase**: Initial paper overview, methodology identification, and context establishment
+2. **Deep Dive Phase**: Detailed analysis of mathematical foundations, experimental design, and technical contributions
+3. **Synthesis Phase**: Critical evaluation, limitations assessment, and broader impact analysis
+
+**Key Features:**
+- **Domain-Adaptive**: Works across mathematics, computer science, physics, and interdisciplinary research
+- **Quality Assurance**: Built-in checks for thoroughness and analytical depth
+- **Structured Output**: Consistent markdown format suitable for further processing
+- **Critical Thinking**: Emphasizes assumptions, limitations, and evidence quality assessment
+
+**Usage by Academic Analyzer:**
+The `academic_analyzer.py` agent follows this methodology to produce structured analyses that are then processed by the extraction pipeline. This ensures all academic papers receive consistent, high-quality analysis before metadata extraction.
 
 ## Configuration
 
