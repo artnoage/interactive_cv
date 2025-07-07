@@ -487,139 +487,58 @@ chronicle-force        # Force re-extraction
 
 ## 🧪 Testing & Evaluation
 
-The system includes a comprehensive testing framework with 35 curated questions across multiple difficulty levels and categories.
+The system includes a comprehensive testing framework with 40 handcrafted questions across multiple difficulty levels and categories.
 
-### **Comprehensive Test Suite**
-
-The merged `test_agent_comprehensive.py` provides extensive evaluation capabilities:
+### **Quick Testing**
 
 ```bash
 # Quick evaluation (3 random questions)
 python test_agent_comprehensive.py --quick
 
-# Full baseline evaluation (all 35 questions with enhanced reporting)
-python test_agent_comprehensive.py --all --baseline --save
+# Full evaluation (all 40 questions)
+python test_agent_comprehensive.py --all --baseline
 
-# Random subset evaluation
-python test_agent_comprehensive.py --random 10
-
-# Category-specific testing
+# Test specific categories
 python test_agent_comprehensive.py --category cross_domain
 python test_agent_comprehensive.py --category single_paper
-python test_agent_comprehensive.py --category personal_notes
-python test_agent_comprehensive.py --category cross_paper
-
-# Difficulty-specific testing
-python test_agent_comprehensive.py --difficulty hard
-python test_agent_comprehensive.py --difficulty very_hard
-
-# Test specific questions by ID
-python test_agent_comprehensive.py --questions 1 5 10 15
-
-# Model comparison on same questions
-python test_agent_comprehensive.py --compare-models --questions 5
 ```
 
-### **Model Selection for Testing**
+### **Model Performance**
+
+**Best to Good Performance:**
+- **Claude + Pep Talk Coach**: Highest quality, best instruction following
+- **Flash + Pep Talk Coach**: Excellent value, cost-effective with great results  
+- **Pro + Pep Talk Coach**: Sophisticated analysis capabilities
+- **Without Pep Talk Coach**: Inconsistent, prone to lazy responses
 
 ```bash
-# Use Claude model (best instruction following, highest quality)
+# Test with different models
 python test_agent_comprehensive.py --all --claude --baseline
-
-# Use Pro model (better performance than Flash)
-python test_agent_comprehensive.py --all --pro --baseline
-
-# Use Flash model (fastest, excellent with Pep Talk Coach)
 python test_agent_comprehensive.py --all --flash --baseline
+python test_agent_comprehensive.py --all --pro --baseline
 ```
 
-### **Advanced Testing Options**
+### **Test Categories & Difficulty**
+
+**Categories:**
+- **single_paper**: Individual paper analysis
+- **personal_notes**: Personal insights and learning
+- **cross_paper**: Multi-paper connections
+- **cross_domain**: Complex interdisciplinary questions
+
+**Difficulty Levels:**
+- **easy**: Basic factual questions
+- **medium**: Semantic search and relationships
+- **hard**: Multi-hop reasoning and navigation
+- **very_hard**: Complex cross-domain analysis
+
+### **Interactive Testing**
 
 ```bash
-# Baseline evaluation with custom output
-python test_agent_comprehensive.py --all --baseline --claude --output-file my_results.json
-
-# Verbose output with detailed analysis
-python test_agent_comprehensive.py --random 5 --pro --verbose
-
-# Summary-only output (no individual question details)
-python test_agent_comprehensive.py --all --summary-only
-
-# Save results automatically for baseline and full evaluations
-python test_agent_comprehensive.py --all --baseline  # Auto-saves
-python test_agent_comprehensive.py --random 10 --save  # Manual save
-python test_agent_comprehensive.py --quick --no-save  # Force no save
-```
-
-### **Test Categories**
-
-- **single_paper**: Questions about individual papers and their content
-- **personal_notes**: Questions about personal insights and learning
-- **cross_paper**: Questions requiring information from multiple papers
-- **cross_domain**: Complex questions bridging multiple research domains
-
-### **Difficulty Levels**
-
-- **easy**: Basic factual questions about papers and people
-- **medium**: Questions requiring semantic search and entity relationships
-- **hard**: Multi-hop queries requiring graph navigation and reasoning
-- **very_hard**: Complex cross-domain analysis requiring sequential reasoning
-
-### **Baseline Evaluation Features**
-
-The `--baseline` flag provides enhanced reporting including:
-
-- **Performance breakdown** by quality categories (excellent, good, satisfactory, poor, incorrect)
-- **Category analysis** showing performance across question types
-- **Optimization recommendations** based on average scores
-- **Best/worst performing questions** for focused improvement
-- **Model-specific reports** with timestamps and metadata
-- **Comprehensive metrics** including timing and tool usage
-
-### **Example Testing Workflows**
-
-```bash
-# Development workflow: Quick test with different models
-python test_agent_comprehensive.py --quick --flash
-python test_agent_comprehensive.py --quick --claude
-
-# Performance evaluation: Full baseline with Claude
-python test_agent_comprehensive.py --all --baseline --claude
-
-# Model comparison: Test same questions across models
-python test_agent_comprehensive.py --compare-models --questions 10
-
-# Category analysis: Test specific areas
-python test_agent_comprehensive.py --category cross_domain --baseline --pro
-
-# Difficulty progression: Test harder questions with better models
-python test_agent_comprehensive.py --difficulty easy --flash
-python test_agent_comprehensive.py --difficulty very_hard --claude
-```
-
-### **Understanding Test Results**
-
-**Score Ranges:**
-- **90-100**: Excellent - Complete, accurate, well-structured answers
-- **70-89**: Good - Mostly correct with minor gaps or issues
-- **50-69**: Satisfactory - Adequate but missing important details
-- **20-49**: Poor - Significant issues or incomplete information
-- **0-19**: Incorrect - Wrong or very incomplete answers
-
-**Performance Targets:**
-- **Flash + Pep Talk Coach**: ~70-80/100 average (excellent value)
-- **Claude + Pep Talk Coach**: ~85-95/100 average (highest quality)
-- **Without Pep Talk Coach**: ~50-60/100 average (inconsistent)
-
-### **Manual Interactive Testing**
-
-```bash
-# Test interactively with different models
+# Test the agent directly
 AGENT_MODEL=claude python interactive_agent.py
-AGENT_MODEL=flash python interactive_agent.py
 
-# Test with specific queries from test suite
-python interactive_agent.py
+# Example queries
 > What's the connection between optimal transport and my machine learning work?
 > Which institutions have I collaborated with on stochastic control research?
 ```
