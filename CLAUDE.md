@@ -119,15 +119,22 @@ blueprints/
 ### Database Management
 
 ```bash
-# Build database from scratch
+# Academic Paper Workflow (3 steps)
+# 1. Analyze papers for deep insights
+python agents/academic_analyzer.py --input academic/ --output raw_data/academic/generated_analyses/
+
+# 2. Extract structured metadata from analyses
+python agents/extractor.py academic --input raw_data/academic/generated_analyses/ --output raw_data/academic/extracted_metadata/
+
+# 3. Build database from all metadata
 python DB/build_database.py
 
-# Incremental update (new documents only)
-python DB/update_database.py
-
-# Extract metadata using blueprints
-python agents/extractor.py academic --input academic/ --output raw_data/academic/extracted_metadata/
+# Personal Notes Workflow (2 steps)
+# 1. Extract metadata directly from notes
 python agents/extractor.py personal --input personal_notes/ --output raw_data/personal_notes/extracted_metadata/
+
+# 2. Update database (if already built)
+python DB/update_database.py
 ```
 
 ### Chronicle Sync

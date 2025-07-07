@@ -231,35 +231,12 @@ A **revolutionary quality control system** designed to make cheaper models (like
 
 The Pep Talk Coach democratizes access to high-quality AI interactions regardless of model budget!
 
-#### **Advanced Prompting System**
 
-**Action-First Rules:**
-- ❌ FORBIDDEN: "I'll search for...", "Let me look for...", "To answer this, I will..."
-- ✅ REQUIRED: Use tools immediately without announcing intentions
+## 🚀 Quick Start for Mathematicians
 
-**Mandatory Search Protocol:**
-1. ALWAYS use `semantic_search` with relevant keywords IMMEDIATELY  
-2. Use `get_entity_details` to examine promising results
-3. ONLY if searches fail completely, use profile fallback information
-4. NEVER give generic answers without searching first
+*Note: More document types and blueprints for other disciplines coming soon!*
 
-**Sequential Reasoning Triggers:**
-- Questions with "connection between", "how does X relate to Y" 
-- Cross-domain analysis needs
-- Theoretical-practical bridges
-- Complex multi-step reasoning requirements
-
-**Fallback Strategy:**
-- If database searches return incomplete data (like institution IDs)
-- Use comprehensive profile information from `Profile/Profile_Prompt.md`
-- NEVER say "I cannot find" - always provide complete answers
-
-## 🚀 Quick Start
-
-### 1. Profile Setup (Built-in)
-The system includes a comprehensive built-in profile for Vaios Laschos. No manual profile setup is required - the profile is embedded in the code for reliability and consistency.
-
-### 2. Environment Setup
+### 1. Environment Setup
 ```bash
 # Install dependencies (recommended: use uv for faster installation)
 pip install -r requirements.txt
@@ -273,30 +250,70 @@ cp .env.example .env
 # OPENAI_API_KEY=your_key_here      # Required for embeddings
 ```
 
-### 3. Build Knowledge Base
+### 2. Add Your Research Papers
 ```bash
-# Complete database build using blueprints
+# Create directories if they don't exist
+mkdir -p academic/
+mkdir -p personal_notes/
+
+# Add your papers to the academic folder
+# Supported formats: PDF, Markdown (.md), LaTeX (.tex)
+cp your_paper.pdf academic/
+cp your_paper.md academic/
+```
+
+### 3. Process Your Papers
+```bash
+# Step 1: Analyze papers to extract deep insights
+python agents/academic_analyzer.py --input academic/ --output raw_data/academic/generated_analyses/
+
+# Step 2: Extract structured metadata from analyses
+python agents/extractor.py academic \
+  --input raw_data/academic/generated_analyses/ \
+  --output raw_data/academic/extracted_metadata/
+
+# Step 3: (Optional) Add personal research notes
+# Place any .md files with personal insights in personal_notes/
+# Then extract their metadata:
+python agents/extractor.py personal \
+  --input personal_notes/ \
+  --output raw_data/personal_notes/extracted_metadata/
+```
+
+### 4. Build Your Knowledge Base
+```bash
+# Build the complete database from extracted metadata
 python DB/build_database.py
 
 # This automatically:
-# - Validates blueprint configurations
-# - Extracts metadata from all documents
-# - Creates semantic embeddings  
-# - Builds knowledge graph
-# - Deduplicates entities
+# - Imports all extracted metadata
+# - Creates semantic embeddings for search
+# - Builds a knowledge graph of your research
+# - Deduplicates entities (people, topics, methods)
+# - Generates interactive visualizations
 ```
 
-### 4. Run the Interactive Agent
+### 5. Interact with Your Research
 ```bash
-# Default model (Gemini Flash)
+# Run the interactive agent
 python interactive_agent.py
 
-# Use Claude for best instruction following (recommended)
-AGENT_MODEL=claude python interactive_agent.py
+# Example questions you can ask:
+# > "What are the main mathematical foundations in my work?"
+# > "How do my papers on optimal transport connect to machine learning?"
+# > "Which collaborators have I worked with on stochastic processes?"
+# > "What computational methods have I developed?"
+```
 
+### 6. Explore Visually (Optional)
+```bash
+# Launch the web interface
+./start_ui.sh
 
-# Use Pro model for sophisticated analysis
-AGENT_MODEL=pro python interactive_agent.py
+# Visit http://localhost:5000 to:
+# - See an interactive graph of your research
+# - Chat with your papers through the web UI
+# - Explore connections between topics and collaborators
 ```
 
 ## 🎛️ System Configuration
