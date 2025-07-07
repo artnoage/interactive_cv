@@ -34,8 +34,7 @@ The key innovation is **configuration over code**. Instead of hardcoding extract
 This means the same codebase can work for:
 - **Academic researchers** (papers, citations, collaborations)
 - **Software engineers** (projects, technologies, contributions)  
-- **Business professionals** (initiatives, partnerships, outcomes)
-- **Creative professionals** (works, influences, techniques)
+
 
 Just swap out the blueprints, and the entire system adapts to your domain.
 
