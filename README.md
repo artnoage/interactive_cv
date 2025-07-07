@@ -499,18 +499,6 @@ python DB/update_database.py
 python DB/utils/query_comprehensive.py
 ```
 
-### **Knowledge Graph Visualization**
-```bash
-# Generate rich knowledge graph
-python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
-
-# Launch web UI with chat integration
-./start_ui.sh
-
-# With database viewer
-./start_ui.sh --with-datasette
-```
-
 ### **Chronicle Sync (Personal Notes)**
 ```bash
 chronicle              # Regular sync with metadata extraction

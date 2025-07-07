@@ -152,8 +152,19 @@ chronicle-status       # Check configuration
 # View database
 ./view_database.sh
 
-# Generate knowledge graph
+# Generate full knowledge graph (1,000+ entities)
 python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
+
+# Create focused web UI version (~119 entities)
+python KG/prune_knowledge_graph.py KG/knowledge_graph.json web_ui/knowledge_graph.json \
+  --exclude-entities person personal_achievement personal_learning personal_note \
+    challenge future_direction assumption limitation general_concept general_topic \
+    theoretical_method analytical_method algorithmic_method computational_method \
+    general_method tool project math_foundation \
+  --exclude-relationships accomplished learned plans faced_challenge mentions \
+    relates_to suggests_future_work makes_assumption has_limitation discovered \
+    discovers affiliated_with authored_by proves \
+  --remove-isolated
 
 # Launch unified UI
 ./start_ui.sh
