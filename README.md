@@ -18,10 +18,10 @@ Traditional CVs are static documents that fail to capture the dynamic interconne
 4. **Provides** an intelligent conversational agent that can answer complex questions about your work
 
 **Example queries it can handle:**
-- "What's the connection between my work on optimal transport and machine learning?"
-- "Which collaborators have I worked with on reinforcement learning projects?"
-- "How do my personal learning goals align with my published research?"
-- "What institutions are associated with my stochastic control work?"
+- "What's the connection between Research Area X and Research Area Y?"
+- "Which researchers have collaborated on Project Z?"
+- "How do personal notes relate to published research themes?"
+- "What institutions are associated with Topic W?"
 
 ## How Blueprints Make It Universal
 
@@ -135,12 +135,6 @@ python DB/build_database.py
 # - Builds knowledge graph with visualization support
 ```
 
-**Current Database:**
-- **19 documents**: 12 academic papers + 7 personal notes
-- **1,135 entities**: 745 topics, 181 people, 132 methods, 24 institutions
-- **1,249 relationships**: Categorized by type (discusses, proves, uses_method, etc.)
-- **Rich categorization**: 24+ entity types instead of generic "topics"
-
 ### 4. **The Interactive CV Agent** 🎯
 
 The main conversational agent that provides intelligent access to your professional knowledge.
@@ -193,43 +187,13 @@ The agent uses **LangGraph** for sophisticated workflow orchestration with two m
   - Returns structured insights with evidence chains
   - Particularly effective for "connection between X and Y" questions
 
-#### **The Pep Talk Coach v2: Smart Quality Assurance** 🎯
+#### **The Pep Talk Coach: Quality Assurance** 🎯
 
-A **revolutionary quality control system** designed to make cheaper models (like Gemini Flash) perform at Claude-level quality through motivational coaching:
+**Problem**: Cheaper models (like Gemini Flash) tend to be lazy - they say "I'll search for..." instead of actually searching, or give up with "I cannot find..." responses.
 
-**The Problem:** Cheaper models tend to be lazy with tool usage:
-- Say "I'll search for..." instead of actually searching
-- Give up easily with "I cannot find..." responses  
-- Ignore available tools and provide generic answers
-- Poor instruction following compared to premium models
+**Solution**: The Pep Talk Coach intercepts these lazy responses and forces the agent to actually use its tools. It detects bad patterns and provides motivational coaching until the agent delivers real results.
 
-**The Solution:** Pep Talk Coach intercepts and fixes these issues:
-
-**How It Works:**
-1. **Intercepts responses** before they reach the user
-2. **Detects bad patterns**: "I'll search for...", "I cannot find...", institution IDs
-3. **Provides creative coaching** using high-temperature LLM generation
-4. **Enforces tool usage** - won't let planning statements through
-5. **Asks specific questions** like "Did you take into account the fallback info?"
-6. **Loop prevention** - Allows up to 4 coaching attempts before giving up
-
-**Patterns It Catches:**
-- **Procrastination**: "I'll search for...", "Let me find...", "I need to..."
-- **Negativity**: "I cannot find...", "Unable to retrieve...", "Entity not found..."
-- **Technical errors**: Institution IDs instead of real names
-- **Complex questions**: Suggests using `sequential_reasoning` for cross-domain analysis
-
-**Results:**
-- **Gemini Flash + Pep Talk Coach**: Cost-effective with excellent Q&A performance
-- **Claude Models**: Exceptional tool usage and instruction following - best results
-- **Without Coach**: Even premium models can be lazy and provide incomplete answers
-
-**Performance Hierarchy:**
-1. **Claude + Pep Talk Coach**: Highest quality, best for complex analysis
-2. **Gemini Flash + Pep Talk Coach**: Excellent value, 90% of Claude quality at 1/10th cost  
-3. **Any model without Coach**: Inconsistent, prone to lazy responses
-
-The Pep Talk Coach democratizes access to high-quality AI interactions regardless of model budget!
+**Impact**: Makes Gemini Flash perform at 90% of Claude's quality at 1/10th the cost.
 
 
 ## 🚀 Quick Start for Mathematicians
@@ -299,10 +263,10 @@ python DB/build_database.py
 python interactive_agent.py
 
 # Example questions you can ask:
-# > "What are the main mathematical foundations in my work?"
-# > "How do my papers on optimal transport connect to machine learning?"
-# > "Which collaborators have I worked with on stochastic processes?"
-# > "What computational methods have I developed?"
+# > "What are the main research areas covered in these papers?"
+# > "How does Paper A's methodology relate to Paper B?"
+# > "Which researchers collaborated on Topic X?"
+# > "What computational methods are discussed in the corpus?"
 ```
 
 ### 6. Explore Visually (Optional)
@@ -341,27 +305,6 @@ Edit YAML files in `blueprints/` to modify:
 4. Run `python DB/build_database.py --validate-blueprints`
 5. System automatically validates and builds new domain support
 
-## 📊 Current System Status
-
-### **Database Statistics**
-- ✅ **19 documents processed**: 12 academic papers + 7 personal notes
-- ✅ **1,135 entities**: Rich categorization with 24+ distinct types
-- ✅ **1,249 relationships**: Typed connections between entities
-- ✅ **Full content loaded**: Academic papers (20-29k chars), Personal notes (1.6-5.4k chars)
-- ✅ **High-quality embeddings**: OpenAI text-embedding-3-large, 3072 dimensions
-
-### **Agent Performance**
-- ✅ **Best scores ever achieved** with Pep Talk Coach system
-- ✅ **Real MCP integration** - Actual JSON-RPC subprocess communication
-- ✅ **Action-first responses** - No more "I'll search for..." lazy patterns
-- ✅ **Cross-domain analysis** - Handles very hard questions with structured reasoning
-- ✅ **Quality assurance** - Automated coaching prevents tool usage issues
-
-### **Knowledge Graph**
-- ✅ **Rich node types**: `math_foundation` (203), `person` (181), `research_insight` (93)
-- ✅ **Advanced categorization**: Methods by type (theoretical, computational, analytical)
-- ✅ **Personal integration**: `personal_achievement`, `personal_learning`, `challenge`
-- ✅ **Visualization ready**: 28 distinct colors, grouped layouts
 
 ## 🔧 Advanced Usage
 
@@ -377,12 +320,31 @@ python DB/update_database.py
 python DB/utils/query_comprehensive.py
 ```
 
-### **Knowledge Graph Visualization**
-```bash
-# Generate rich knowledge graph
-python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
+### **Knowledge Graph Generation & Visualization**
 
-# Launch web UI with chat integration
+#### Generate Full Knowledge Graph
+```bash
+# Generate complete knowledge graph with all entities
+python KG/graph_builder.py DB/metadata.db --output KG/knowledge_graph.json
+```
+
+#### Create Focused Web UI Version
+```bash
+# Prune the graph for cleaner web visualization
+python KG/prune_knowledge_graph.py KG/knowledge_graph.json web_ui/knowledge_graph.json \
+  --exclude-entities person personal_achievement personal_learning personal_note \
+    challenge future_direction assumption limitation general_concept general_topic \
+    theoretical_method analytical_method algorithmic_method computational_method \
+    general_method tool project math_foundation \
+  --exclude-relationships accomplished learned plans faced_challenge mentions \
+    relates_to suggests_future_work makes_assumption has_limitation discovered \
+    discovers affiliated_with authored_by proves \
+  --remove-isolated
+```
+
+#### Launch Interactive Visualization
+```bash
+# Start the web UI
 ./start_ui.sh
 
 # With database viewer
@@ -485,30 +447,10 @@ This system represents a **novel approach** to knowledge management:
 
 **Result**: A powerful, flexible, and intelligent professional knowledge platform that adapts to any domain while maintaining exceptional query performance and response quality.
 
-## 🔧 Advanced Usage
-
-### **Database Management**
-```bash
-# Incremental updates (only new documents)
-python DB/update_database.py
-
-# View database contents
-./view_database.sh
-
-# Comprehensive analysis
-python DB/utils/query_comprehensive.py
-```
-
-### **Chronicle Sync (Personal Notes)**
-```bash
-chronicle              # Regular sync with metadata extraction
-chronicle-dry          # Preview changes
-chronicle-force        # Force re-extraction
-```
 
 ## 🧪 Testing & Evaluation
 
-The system includes a comprehensive testing framework with 40 handcrafted questions across multiple difficulty levels and categories.
+The system includes a comprehensive testing framework with questions across multiple difficulty levels and categories.
 
 ### **Quick Testing**
 
@@ -516,7 +458,7 @@ The system includes a comprehensive testing framework with 40 handcrafted questi
 # Quick evaluation (3 random questions)
 python test_agent_comprehensive.py --quick
 
-# Full evaluation (all 40 questions)
+# Full evaluation (all questions)
 python test_agent_comprehensive.py --all --baseline
 
 # Test specific categories
@@ -560,6 +502,8 @@ python test_agent_comprehensive.py --all --pro --baseline
 AGENT_MODEL=claude python interactive_agent.py
 
 # Example queries
-> What's the connection between optimal transport and my machine learning work?
-> Which institutions have I collaborated with on stochastic control research?
+> What's the connection between Topic A and Topic B in the research?
+> Which institutions has Person X collaborated with on Subject Y?
+> What methods were used in Paper Z?
+> How does Theory M relate to Application N?
 ```
